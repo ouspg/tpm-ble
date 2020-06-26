@@ -40,7 +40,6 @@ func serve(adapterID string) error {
 		return err
 	}
 
-
 	err = a.AddService(service1)
 	if err != nil {
 		return err

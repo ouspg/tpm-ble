@@ -1,5 +1,42 @@
 package main
 
+import (
+	"github.com/ouspg/tpm-bluetooth/pkg/ble"
+	"log"
+)
+
+var receiverCertPEM2 = `
+-----BEGIN CERTIFICATE-----
+MIIDvzCCAaegAwIBAgIBATANBgkqhkiG9w0BAQsFADCBozELMAkGA1UEBhMCRkkx
+GjAYBgNVBAgMEVBvaGpvaXMtUG9oamFubWFhMQ0wCwYDVQQHDARPdWx1MRswGQYD
+VQQKDBJVbml2ZXJzaXR5IG9mIE91bHUxDjAMBgNVBAsMBU9VU1BHMRYwFAYDVQQD
+DA1TZWNyZWRhcyBUZXN0MSQwIgYJKoZIhvcNAQkBFhVqYXJpLmphYXNrZWxhQG91
+bHUuZmkwIBcNMjAwNjExMTgzNDM1WhgPMjI5NDAzMjYxODM0MzVaMA8xDTALBgNV
+BAMMBHRlc3QwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASqipwhqX9DvxILcIUk
+AK/nhKdt8K6Mgy+eDSLMhAFuSJyBAT29VFSLKnvMPGGuxzRzoMFx9se1drRnkraa
+IFYCo1owWDAdBgNVHQ4EFgQU5xdDk8HFlXtlDHSwyRT/bQz+2DkwHwYDVR0jBBgw
+FoAU7w7HriCjtXYFMuO94QPooGtgfnwwCQYDVR0TBAIwADALBgNVHQ8EBAMCBaAw
+DQYJKoZIhvcNAQELBQADggIBADV7QOAyu45FXwuhwUbZ1aYJ9a73uilp+ha4ZpFF
++VRVSxHQJQjbvj4q9bWpt4g5Bi5G/U5MGyl2cnJyhUwUca4ywNoJ/00ZZpEQ32Pw
+y3ZlNXv9/Q1dQk1vfWNCUQ/V8yg92n9WPRrV1UyqIadlQjc9c0rfq4MklxdLtZpR
+VC+Ji4OPvPGzjuOmT/e9uqM7isGFgyJ0gykW0bnw70xtjLstsD2hGw/R3l5BlDQS
+Kkd0CLnTuEm2nKqUX3AsnD2tj+BgIpuUIGv7RtYc0UKVywJSB1CUGXinosTf0s9p
+l9+5drbRma8Y7jBrsQuvL9FU52YJTQueD7Do5EV5Alsg7EHY8v1kSsBi8CtJahk2
+oWHSx893reKIi81reZ4vP5uf+OpDcEHaDV3BP7AsNLitwLaXxB/GG37S5EZoIOHK
+jDGNSe31Oh6Ruygnn7zFv4uNVFUDoEzL9nuHT8b4O/UVeffxSbc/xcTNlltL49my
+s9na67Ld+0ucmKINgMRfK/rQ43mD+ymg2ht875ftv3htPkhHwdHZWkW7De2FCmIg
+S7RAc9+htzJKHYcMbOFONkHQiQf8scHimiNE8WYypuENjaHpjM1/eH3nC/8Yal7G
+35ui4nYwssGmiuACg/OpArjVCJuo1K0xAzJuhkCdIEmf06lN6Qs6wvQ2e3HB11m7
+Onwz
+-----END CERTIFICATE-----
+`
+
 func main() {
-	
+	// block, _ := pem.Decode([]byte(receiverCertPEM))
+
+	err := ble.CreateKeyExchangeService("hci0", []byte(receiverCertPEM2))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }

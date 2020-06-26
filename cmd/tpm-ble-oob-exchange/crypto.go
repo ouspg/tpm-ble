@@ -2,11 +2,8 @@ package main
 
 import (
 	"encoding/hex"
-	"fmt"
-	"github.com/google/go-tpm/tpm"
 	"github.com/jarijaas/openssl"
 	"log"
-	"os"
 )
 
 var caCertPEM = `
