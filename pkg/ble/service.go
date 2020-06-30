@@ -201,7 +201,7 @@ func CreateKeyExchangeService(adapterID string, certificate []byte) error {
 		return err
 	}
 
-	/*certChar2, err := service1.NewChar(READ_CERT_2_CHAR_UUID)
+	certChar2, err := service1.NewChar(READ_CERT_2_CHAR_UUID)
 	if err != nil {
 		return err
 	}
@@ -233,13 +233,13 @@ func CreateKeyExchangeService(adapterID string, certificate []byte) error {
 	certChar3.OnRead(func(c *service.Char, options map[string]interface{}) ([]byte, error) {
 		log.Info("GOT READ 3 CERTIFICATE REQUEST")
 		log.Print(options)
-		return certificate[2 * CHAR_CHUNK_SIZE:3 * CHAR_CHUNK_SIZE], nil
+		return certificate[2 * CHAR_CHUNK_SIZE:], nil
 	})
 
 	err = service1.AddChar(certChar3)
 	if err != nil {
 		return err
-	}*/
+	}
 
 	err = a.Run()
 	if err != nil {

@@ -266,34 +266,39 @@ func readCharacteristicDev(dev *device.Device1, charUUID string) ([]byte, error)
 	return data, nil
 }
 
-func ReadCertificate(adapterID string) error {
-
-	dev, err := client(adapterID, "secredas exchange")
+func ReadCertificate(adapterID string, hwaddr string) ([]byte, error) {
+	dev, err := client(adapterID, hwaddr)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	var pemCert []byte
 
 	/*_, err = readCharacteristic(adapterID, SERVICE_UUID, READ_CERT_CHAR_UUID)
 	if err != nil {
 		return err
 	}*/
 
-	_, err = readCharacteristicDev(dev, READ_CERT_1_CHAR_UUID + UUID_SUFFIX)
+	// Hmm. probably write characteristic could be used also
+	chunk, err := readCharacteristicDev(dev, READ_CERT_1_CHAR_UUID + UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
+	pemCert = append(pemCert, chunk ...)
 
-	_, err = readCharacteristicDev(dev, READ_CERT_2_CHAR_UUID + UUID_SUFFIX)
+	chunk, err = readCharacteristicDev(dev, READ_CERT_2_CHAR_UUID + UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
+	pemCert = append(pemCert, chunk ...)
 
-	_, err = readCharacteristicDev(dev, READ_CERT_3_CHAR_UUID + UUID_SUFFIX)
+	chunk, err = readCharacteristicDev(dev, READ_CERT_3_CHAR_UUID + UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
+	pemCert = append(pemCert, chunk ...)
 
-	return nil
+	return pemCert, nil
 }
 
 func VerifyCertificate() {
