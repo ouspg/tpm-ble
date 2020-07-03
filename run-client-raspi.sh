@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 echo "Building for RPi3..."
 CGO_LDFLAGS="-Xlinker -rpath-link=/usr/arm-linux-gnueabihf/lib/ -L/usr/arm-linux-gnueabihf/lib/ -L/usr/lib/arm-linux-gnueabihf/" \

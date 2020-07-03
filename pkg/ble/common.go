@@ -1,5 +1,7 @@
 package ble
 
+import "encoding/json"
+
 const UUID_SUFFIX = "-0000-1000-8000-00805F9B34FB"
 const APP_UUID = "0001"
 const SERVICE_UUID = "0001"
@@ -8,7 +10,7 @@ const READ_CERT_1_CHAR_UUID = "00000002" // ECDSA
 const READ_CERT_2_CHAR_UUID = "00000003" // ECDSA
 const READ_CERT_3_CHAR_UUID = "00000004" // ECDSA
 
-const READ_ECDH_CHAR_UUID = "0001" // ECDH
+const ECDH_EXC_CHAR_UUID = "00000010" // ECDH
 
 
 const TRUSTED_CA = `
@@ -49,3 +51,22 @@ fd69rvqPHhf8igzW7HmRBycPGuQ/XNBjEMscQ6cPTDRY+GY3tbni5nGMy7wXCgy3
 QJbgEsc30iUHTA==
 -----END CERTIFICATE-----
 `
+
+
+type ECDHExchange struct {
+	Signature []byte `json:"sig"`
+	PubKey []byte `json:"pub"`
+}
+
+func MarshalECDHExchange(exchange ECDHExchange) ([]byte, error) {
+	return json.Marshal(exchange)
+}
+
+func UnmarshalECDHExchange(data []byte) (*ECDHExchange, error) {
+	var exchange ECDHExchange
+	err := json.Unmarshal(data, &exchange)
+	if err != nil {
+		return nil, err
+	}
+	return &exchange, nil
+}

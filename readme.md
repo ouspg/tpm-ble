@@ -2,7 +2,7 @@
 Build raspi kernel with tpm2 support enabled (check gdrive for guide)
 
 
-Install tpm2-tools:
+Install tpm2-tools and tpm2-tss:
 
 <https://github.com/tpm2-software/tpm2-tools/wiki/Getting-Started>
 
@@ -43,13 +43,9 @@ Using CA isn't really necessary, could be configured to trust specific certifica
 openssl req -x509 -config openssl-ca.cnf -newkey rsa:4096 -sha256 -nodes -out cacert.pem -outform PEM
 ```
 
-## TPM generate (pub, priv)
+## TPM key provision (pub, priv, cert)
 
-Create primary key under the TPM owner hierarchy
-
-```s
-tpm2_createprimary -c primary.ctx
-```
+Use `raspi-provision-key.sh` or follow instructions below
 
 ```s
 tpm2tss-genkey -a ecdsa -c nist_p256 keys/test_priv.key

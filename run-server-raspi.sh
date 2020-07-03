@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 IP_ADDR="192.168.1.4"
 
@@ -11,4 +12,4 @@ echo "Transferring..."
 scp -i ./keys/ssh/pi_key.priv ./build/raspi_server pi@$IP_ADDR:/tmp/raspi_server
 
 echo "Run"
-ssh -t -i ./keys/ssh/pi_key.priv pi@$IP_ADDR 'sudo /tmp/raspi_server'
+ssh -t -i ./keys/ssh/pi_key.priv pi@$IP_ADDR 'sudo LD_LIBRARY_PATH="/usr/local/lib" /tmp/raspi_server'

@@ -221,11 +221,6 @@ func retrieveServices(a *adapter.Adapter1, dev *device.Device1) error {
 	return nil
 }
 
-func readCharacteristic(dev *device.Device1, charUUID string) ([]byte, error) {
-
-	return nil, nil
-}
-
 func readCharacteristicDev(dev *device.Device1, charUUID string) ([]byte, error) {
 	log.Printf("Find Char UUID: %s\n", charUUID)
 
@@ -236,7 +231,7 @@ func readCharacteristicDev(dev *device.Device1, charUUID string) ([]byte, error)
 
 	if len(list) == 0 {
 		time.Sleep(time.Second * 2)
-		return readCharacteristic(dev, charUUID)
+		return readCharacteristicDev(dev, charUUID)
 	}
 
 	for _, path := range list {
@@ -254,7 +249,6 @@ func readCharacteristicDev(dev *device.Device1, charUUID string) ([]byte, error)
 		return nil, err
 	}
 
-
 	data, err := char.ReadValue(nil)
 	if err != nil {
 		return nil, err
@@ -266,12 +260,54 @@ func readCharacteristicDev(dev *device.Device1, charUUID string) ([]byte, error)
 	return data, nil
 }
 
-func ReadCertificate(adapterID string, hwaddr string) ([]byte, error) {
-	dev, err := client(adapterID, hwaddr)
+func writeCharacteristicDev(dev *device.Device1, charUUID string, value []byte) ([]byte, error) {
+	list, err := dev.GetCharacteristicsList()
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
+	if len(list) == 0 {
+		time.Sleep(time.Second * 2)
+		return writeCharacteristicDev(dev, charUUID, value)
+	}
+
+	for _, path := range list {
+		char, err := gatt.NewGattCharacteristic1(path)
+		if err != nil {
+			return nil, err
+		}
+
+		cuuid := strings.ToUpper(char.Properties.UUID)
+		log.Printf("Found Char UUID: %s\n", cuuid)
+	}
+
+	char, err := dev.GetCharByUUID(charUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = char.WriteValue(value, map[string]interface{}{
+		"type": "request",
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := char.ReadValue(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func CreateConnection(adapterID string, hwaddr string) (*device.Device1, error) {
+	dev, err := client(adapterID, hwaddr)
+	return dev, err
+}
+
+
+func ReadCertificate(dev *device.Device1) ([]byte, error) {
 	var pemCert []byte
 
 	/*_, err = readCharacteristic(adapterID, SERVICE_UUID, READ_CERT_CHAR_UUID)
@@ -301,7 +337,17 @@ func ReadCertificate(adapterID string, hwaddr string) ([]byte, error) {
 	return pemCert, nil
 }
 
-func VerifyCertificate() {
+func BeginECDHExchange(dev *device.Device1, data ECDHExchange) (*ECDHExchange, error) {
+	exchangeData, err := MarshalECDHExchange(data)
+	if err != nil {
+		return nil, fmt.Errorf("could not marshal ECDH data: %s", err)
+	}
 
+	log.Println(string(exchangeData))
+
+	res, err := writeCharacteristicDev(dev, ECDH_EXC_CHAR_UUID + UUID_SUFFIX, exchangeData)
+	if err != nil {
+		return nil, fmt.Errorf("could not write to characteristic: %s", err)
+	}
+	return UnmarshalECDHExchange(res)
 }
-
