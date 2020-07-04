@@ -1,8 +1,14 @@
 package main
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
+	"fmt"
 	"github.com/jarijaas/openssl"
+	"io"
 	"log"
 )
 

@@ -12,6 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"strings"
 	"time"
+	"github.com/ouspg/tpm-bluetooth/pkg/crypto"
 )
 
 /**
@@ -221,7 +222,7 @@ func retrieveServices(a *adapter.Adapter1, dev *device.Device1) error {
 	return nil
 }
 
-func readCharacteristicDev(dev *device.Device1, charUUID string) ([]byte, error) {
+func readCharacteristic(dev *device.Device1, charUUID string) ([]byte, error) {
 	log.Printf("Find Char UUID: %s\n", charUUID)
 
 	list, err := dev.GetCharacteristicsList()
@@ -231,7 +232,7 @@ func readCharacteristicDev(dev *device.Device1, charUUID string) ([]byte, error)
 
 	if len(list) == 0 {
 		time.Sleep(time.Second * 2)
-		return readCharacteristicDev(dev, charUUID)
+		return readCharacteristic(dev, charUUID)
 	}
 
 	for _, path := range list {
@@ -260,7 +261,7 @@ func readCharacteristicDev(dev *device.Device1, charUUID string) ([]byte, error)
 	return data, nil
 }
 
-func writeCharacteristicDev(dev *device.Device1, charUUID string, value []byte) ([]byte, error) {
+func writeCharacteristicWithResponse(dev *device.Device1, charUUID string, value []byte) ([]byte, error) {
 	list, err := dev.GetCharacteristicsList()
 	if err != nil {
 		return nil, err
@@ -268,7 +269,7 @@ func writeCharacteristicDev(dev *device.Device1, charUUID string, value []byte) 
 
 	if len(list) == 0 {
 		time.Sleep(time.Second * 2)
-		return writeCharacteristicDev(dev, charUUID, value)
+		return writeCharacteristicWithResponse(dev, charUUID, value)
 	}
 
 	for _, path := range list {
@@ -316,19 +317,19 @@ func ReadCertificate(dev *device.Device1) ([]byte, error) {
 	}*/
 
 	// Hmm. probably write characteristic could be used also
-	chunk, err := readCharacteristicDev(dev, READ_CERT_1_CHAR_UUID + UUID_SUFFIX)
+	chunk, err := readCharacteristic(dev, READ_CERT_1_CHAR_UUID + UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
 	pemCert = append(pemCert, chunk ...)
 
-	chunk, err = readCharacteristicDev(dev, READ_CERT_2_CHAR_UUID + UUID_SUFFIX)
+	chunk, err = readCharacteristic(dev, READ_CERT_2_CHAR_UUID + UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
 	pemCert = append(pemCert, chunk ...)
 
-	chunk, err = readCharacteristicDev(dev, READ_CERT_3_CHAR_UUID + UUID_SUFFIX)
+	chunk, err = readCharacteristic(dev, READ_CERT_3_CHAR_UUID + UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -345,9 +346,36 @@ func BeginECDHExchange(dev *device.Device1, data ECDHExchange) (*ECDHExchange, e
 
 	log.Println(string(exchangeData))
 
-	res, err := writeCharacteristicDev(dev, ECDH_EXC_CHAR_UUID + UUID_SUFFIX, exchangeData)
+	res, err := writeCharacteristicWithResponse(dev, ECDH_EXC_CHAR_UUID + UUID_SUFFIX, exchangeData)
 	if err != nil {
 		return nil, fmt.Errorf("could not write to characteristic: %s", err)
 	}
 	return UnmarshalECDHExchange(res)
+}
+
+
+func ExchangeTokens(dev *device.Device1, cipherSession *crypto.CipherSession) ([]byte, error) {
+	token := []byte("token")
+
+	ciphertext, err := cipherSession.Encrypt(token)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := crypto.MarshalNoncedCiphertext(ciphertext)
+	if err != nil {
+		return nil, fmt.Errorf("could not marshal nonced ciphertext: %s", err)
+	}
+
+	res, err := writeCharacteristicWithResponse(dev, TOKEN_EXC_CHAR_UUID + UUID_SUFFIX, data)
+	if err != nil {
+		return nil, fmt.Errorf("could not write to characteristic: %s", err)
+	}
+
+	resp, err := crypto.UnmarshalNoncedCiphertext(res)
+	if err != nil {
+		return nil, fmt.Errorf("could not unmarshal response nonced ciphertext: %s", err)
+	}
+
+	return cipherSession.Decrypt(resp)
 }

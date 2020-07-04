@@ -67,8 +67,22 @@ func main()  {
 	log.Printf("Received pub key (key, sig): (%s, %s)",
 		hex.EncodeToString(exchangeResponse.PubKey), hex.EncodeToString(exchangeResponse.Signature))
 
-	// ecdsa.Verify()
+	serverPubKey := crypto.BytesToECCPubKey(exchangeResponse.PubKey)
 
-	// ecdsa.Verify(pemCert)
+	sessionKey := crypto.ComputeSessionKey(serverPubKey, ephKey)
+	log.Printf("Session key: %s\n", hex.EncodeToString(sessionKey[:]))
+
+	cipherSession, err := crypto.NewCipherSession(sessionKey)
+	if err != nil {
+		log.Fatalf("Could not create cipher session: %s", err)
+	}
+
+	data, err := ble.ExchangeTokens(bleDev, cipherSession)
+	if err != nil {
+		log.Fatalf("Could not exhange tokens: %s", err)
+	}
+
+	log.Printf("Received token: %s", data)
+
 
 }

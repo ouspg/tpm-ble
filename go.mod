@@ -9,5 +9,5 @@ require (
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spacemonkeygo/openssl v0.0.0-20181017203307-c2dcc5cca94a // indirect
 	github.com/spf13/cobra v1.0.0
-	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
+	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae
 )

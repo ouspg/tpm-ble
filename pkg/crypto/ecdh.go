@@ -42,7 +42,8 @@ func BytesToECCPubKey(bytes []byte) *ecdsa.PublicKey {
 
 // openssl devs recommend that the digest of the shared key is used,
 // probably to prevent exposing any information about the keys
-func ComputeSessionKey(receiverPubKey *ecdsa.PublicKey, myPrivKey *ecdsa.PrivateKey) [32]byte {
-	sharedKey, _ := receiverPubKey.Curve.ScalarMult(receiverPubKey.X, receiverPubKey.Y, myPrivKey.D.Bytes())
-	return sha256.Sum256(sharedKey.Bytes())
+func ComputeSessionKey(receiverPubKey *ecdsa.PublicKey, myPrivKey *ecdsa.PrivateKey) []byte {
+	sharedKeyX, sharedKeyY := receiverPubKey.Curve.ScalarMult(receiverPubKey.X, receiverPubKey.Y, myPrivKey.D.Bytes())
+	digest := sha256.Sum256(append(sharedKeyX.Bytes(), sharedKeyY.Bytes() ...))
+	return digest[:]
 }

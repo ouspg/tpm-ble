@@ -1,6 +1,8 @@
 package ble
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 const UUID_SUFFIX = "-0000-1000-8000-00805F9B34FB"
 const APP_UUID = "0001"
@@ -11,6 +13,7 @@ const READ_CERT_2_CHAR_UUID = "00000003" // ECDSA
 const READ_CERT_3_CHAR_UUID = "00000004" // ECDSA
 
 const ECDH_EXC_CHAR_UUID = "00000010" // ECDH
+const TOKEN_EXC_CHAR_UUID = "00000020" // OOB token exchange
 
 
 const TRUSTED_CA = `
@@ -70,3 +73,4 @@ func UnmarshalECDHExchange(data []byte) (*ECDHExchange, error) {
 	}
 	return &exchange, nil
 }
+

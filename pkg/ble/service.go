@@ -154,13 +154,16 @@ wIRp
 const CHAR_CHUNK_SIZE = 500
 
 var ephPrivKey *ecdsa.PrivateKey
-var sessionKey [32]byte
+var cipherSession *crypto.CipherSession
 
 /**
 Max char dat len is 512 bytes, simplest solution is to use multiple characteristic to deliver the data
 Alternatively, sign only the pub key and deliver that only instead of the whole certificate
  */
 
+/**
+Supports only one simultaneous connection, good enough for poc
+ */
 func CreateKeyExchangeService(adapterID string, certificate []byte) error {
 	btmgmt := hw.NewBtMgmt(adapterID)
 	if len(os.Getenv("DOCKER")) > 0 {
@@ -278,7 +281,7 @@ func CreateKeyExchangeService(adapterID string, certificate []byte) error {
 	}
 
 	ecdhExchangeChar.Properties.Flags = []string{
-		gatt.FlagCharacteristicWrite, gatt.FlagCharacteristicNotify, gatt.FlagCharacteristicRead,
+		gatt.FlagCharacteristicWrite, gatt.FlagCharacteristicRead,
 	}
 
 	// Todo: prevent replay attacks, or protect ECDH priv key at least using TPM
@@ -342,14 +345,66 @@ func CreateKeyExchangeService(adapterID string, certificate []byte) error {
 		log.Printf("Originator pubKeyX: %s", originatorPubKey.X.String())
 		log.Printf("Originator pubKeyY: %s", originatorPubKey.Y.String())
 
-		sessionKey = crypto.ComputeSessionKey(originatorPubKey, ephPrivKey)
-		log.Printf("Session key: %s", hex.EncodeToString(sessionKey[:]))
+		sessionKey := crypto.ComputeSessionKey(originatorPubKey, ephPrivKey)
+		log.Printf("Session key: %s", hex.EncodeToString(sessionKey))
+
+		cipherSession, err = crypto.NewCipherSession(sessionKey)
+		if err != nil {
+			log.Fatalf("Could not create session cipher: %s", err)
+		}
 
 		exchangeRes = responseData
 		return responseData, nil
 	})
 
 	err = service1.AddChar(ecdhExchangeChar)
+	if err != nil {
+		return err
+	}
+
+	tokenExchangeChar, err := service1.NewChar(TOKEN_EXC_CHAR_UUID)
+	if err != nil {
+		return err
+	}
+
+	tokenExchangeChar.Properties.Flags = []string{
+		gatt.FlagCharacteristicWrite, gatt.FlagCharacteristicRead,
+	}
+
+
+	var tokenRes []byte
+	tokenExchangeChar.OnRead(func(c *service.Char, options map[string]interface{}) (bytes []byte, err error) {
+		return tokenRes, nil
+	})
+
+	tokenExchangeChar.OnWrite(func(c *service.Char, value []byte) (bytes []byte, err error) {
+
+		ciphertext, err := crypto.UnmarshalNoncedCiphertext(value)
+		if err != nil {
+			log.Fatalf("Could not unmarshal ciphertext: %s", ciphertext)
+		}
+
+		plaintext, err := cipherSession.Decrypt(ciphertext)
+		if err != nil {
+			log.Fatalf("Could not decrypt ciphertext: %s", err)
+		}
+
+		log.Printf("Token received: %s\n", plaintext)
+
+		respCiphertext, err := cipherSession.Encrypt([]byte("token"))
+		if err != nil {
+			log.Fatalf("Could not encrypt response token: %s", err)
+		}
+
+		res, err := crypto.MarshalNoncedCiphertext(respCiphertext)
+		if err != nil {
+			log.Fatalf("Could not marshal response token ciphertext: %s", err)
+		}
+		tokenRes = res
+		return
+	})
+
+	err = service1.AddChar(tokenExchangeChar)
 	if err != nil {
 		return err
 	}
