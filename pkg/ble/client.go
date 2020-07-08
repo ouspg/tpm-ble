@@ -1,6 +1,7 @@
 package ble
 
 import (
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/godbus/dbus/v5"
@@ -9,10 +10,11 @@ import (
 	"github.com/muka/go-bluetooth/bluez/profile/agent"
 	"github.com/muka/go-bluetooth/bluez/profile/device"
 	"github.com/muka/go-bluetooth/bluez/profile/gatt"
+	"github.com/ouspg/tpm-bluetooth/pkg/btmgmt"
+	"github.com/ouspg/tpm-bluetooth/pkg/crypto"
 	log "github.com/sirupsen/logrus"
 	"strings"
 	"time"
-	"github.com/ouspg/tpm-bluetooth/pkg/crypto"
 )
 
 /**
@@ -354,20 +356,50 @@ func BeginECDHExchange(dev *device.Device1, data ECDHExchange) (*ECDHExchange, e
 }
 
 
-func ExchangeTokens(dev *device.Device1, cipherSession *crypto.CipherSession) ([]byte, error) {
-	token := []byte("token")
+func ExchangeOOBData(dev *device.Device1, cipherSession *crypto.CipherSession, adapterAddr string) ([]byte, error) {
+	h192, r192, h256, r256, err := btmgmt.ReadLocalOOBData(0)
+	if err != nil {
+		log.Fatalf("Could not read local oob data: %s", err)
+	}
 
-	ciphertext, err := cipherSession.Encrypt(token)
+	log.Printf("Local OOB data (h192, r192, h256, r256): (%s, %s, %s, %s)",
+		hex.EncodeToString(h192[:]), hex.EncodeToString(r192[:]),
+		hex.EncodeToString(h256[:]), hex.EncodeToString(r256[:]))
+
+	oobData := [32]byte{}
+	copy(oobData[:16], r192[:])
+	copy(oobData[16:], h192[:])
+
+	/*adapters, err := btmgmt2.GetAdapters()
+	if err != nil {
+		return nil, fmt.Errorf("could not retrieve BT adapters: %s", err)
+	}
+	if len(adapters) == 0{
+		return nil, fmt.Errorf("could not find a BT adapter")
+	}
+
+	adapterAddr := adapters[0].Addr*/
+	log.Printf("The adapter the OOB pairing is done for: %s\n", adapterAddr)
+
+	data, err := MarshalOOBExchange(OOBExchange{
+		Data:    oobData,
+		Address: adapterAddr,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("could not mashal oob exhange data")
+	}
+
+	ciphertext, err := cipherSession.Encrypt(data)
 	if err != nil {
 		return nil, err
 	}
 
-	data, err := crypto.MarshalNoncedCiphertext(ciphertext)
+	data, err = crypto.MarshalNoncedCiphertext(ciphertext)
 	if err != nil {
 		return nil, fmt.Errorf("could not marshal nonced ciphertext: %s", err)
 	}
 
-	res, err := writeCharacteristicWithResponse(dev, TOKEN_EXC_CHAR_UUID + UUID_SUFFIX, data)
+	res, err := writeCharacteristicWithResponse(dev, OOB_EXC_CHAR_UUID + UUID_SUFFIX, data)
 	if err != nil {
 		return nil, fmt.Errorf("could not write to characteristic: %s", err)
 	}

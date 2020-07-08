@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/hex"
 	"github.com/ouspg/tpm-bluetooth/pkg/btmgmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 )
 
 func main()  {
@@ -36,6 +36,5 @@ func main()  {
 		hex.EncodeToString(h256[:]), hex.EncodeToString(r256[:]))
 
 
-	ses.AddRemoteOOBData([]byte(""), btmgmt.LE_PUBLIC, nil, nil, nil, nil)
-
+	ses.AddRemoteOOBData("ff:ff:ff:ff:ff:ff", btmgmt.LE_PUBLIC, h192[:], r192[:], nil, nil)
 }

@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-IP_ADDR="192.168.1.4"
+IP_ADDR="192.168.1.12"
 
 echo "Building for RPi..."
 CGO_LDFLAGS="-Xlinker -rpath-link=/usr/arm-linux-gnueabihf/lib/ -L/usr/arm-linux-gnueabihf/lib/ -L/usr/lib/arm-linux-gnueabihf/" \

@@ -4,8 +4,10 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
-	"log"
+	"net"
+	"strings"
 	"time"
 )
 
@@ -95,6 +97,7 @@ const (
 	CMD_READ_CONTROLLER_INDEX_LIST = 0x0003
 	CMD_READ_LOCAL_OOB_DATA = 0x0020
 	CMD_ADD_REMOTE_OOB_DATA = 0x0021
+	CMD_SET_SC = 0x002D
 )
 
 func (session *BTManagementSession) GetControllerIndices() ([]uint16, error) {
@@ -237,22 +240,98 @@ const (
 	LE_RANDOM = 2
 )
 
-func (session *BTManagementSession) AddRemoteOOBData(address []byte, addressType byte, h192 []byte,  r192 []byte,
-	h256 []byte, r256 []byte) {
+func (session *BTManagementSession) AddRemoteOOBData(address string, addressType byte, h192 []byte,  r192 []byte,
+	h256 []byte, r256 []byte) error {
+
+	mac, err := net.ParseMAC(address)
+	if err != nil {
+		return fmt.Errorf("invalid address: %s", address)
+	}
 
 	parameters := make([]byte, 6 + 1 + 16 * 4)
-	copy(parameters, address[:6])
-	parameters[7] = addressType
+	copy(parameters, mac[:6])
+	parameters[6] = addressType
 
-	copy(parameters[8 + 16 * 0:8 + 16 * 1], h192)
-	copy(parameters[8 + 16 * 1:8 + 16 * 2], r192)
-	copy(parameters[8 + 16 * 2:8 + 16 * 3], h256)
-	copy(parameters[8 + 16 * 3:8 + 16 * 4], r256)
+	copy(parameters[7 + 16 * 0:7 + 16 * 1], h192)
+	copy(parameters[7 + 16 * 1:7 + 16 * 2], r192)
+	copy(parameters[7 + 16 * 2:7 + 16 * 3], h256)
+	copy(parameters[7 + 16 * 3:7 + 16 * 4], r256)
 
-	data, err := session.execBlocking(CMD_READ_LOCAL_OOB_DATA,  session.controllerIndex, parameters)
+	_, err = session.execBlocking(CMD_ADD_REMOTE_OOB_DATA,  session.controllerIndex, parameters)
 	if err != nil {
-		return
+		return err
 	}
+	return nil
+}
+
+const (
+	SC_OFF = 0
+	SC_ON = 1
+	SC_ONLY = 2
+)
+
+func (session *BTManagementSession) SetSecureConnections(value byte) error {
+	_, err := session.execBlocking(CMD_SET_SC,  session.controllerIndex, []byte{ value })
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func ParseSettings(settingsBytes []byte) string {
+	settings := binary.LittleEndian.Uint32(settingsBytes)
+
+	const (
+		BIT_POWERED = 0
+		BIT_CONNECTABLE = 1
+		BIT_FAST_CONNECTABLE = 2
+		BIT_DISCOVERABLE = 3
+		BIT_BONDABLE = 4
+		BIT_LINK_LEVEL_SECURITY = 5
+		BIT_SECURE_SIMPLE_PAIRING = 6
+		BIT_BREDR = 7
+		BIT_HIGH_SPEED = 8
+		BIT_LE = 9
+		BIT_ADVERTISING = 10
+		BIT_SECURE_CONNECTIONS = 11
+		BIT_DEBUG_KEYS = 12
+		BIT_PRIVACY = 13
+		BIT_CONTROLLER_CONFIGURATION = 14
+		BIT_STATIC_ADDRESS = 15
+		BIT_PHY_CONFIGURATION = 16
+		BIT_WIDEBAND_SPEECH = 17
+	)
+
+	mapBitToName := map[int]string{
+		BIT_POWERED: "Powered",
+		BIT_CONNECTABLE: "Connectable",
+		BIT_FAST_CONNECTABLE: "Fast Connectable",
+		BIT_DISCOVERABLE: "Discoverable",
+		BIT_BONDABLE: "Bondable",
+		BIT_LINK_LEVEL_SECURITY: "LinkSec",
+		BIT_SECURE_SIMPLE_PAIRING: "SSP",
+		BIT_BREDR: "BREDR",
+		BIT_HIGH_SPEED: "High Speed",
+		BIT_LE: "LE",
+		BIT_ADVERTISING: "Advertising",
+		BIT_SECURE_CONNECTIONS: "Secure Connections",
+		BIT_DEBUG_KEYS: "Debug keys",
+		BIT_PRIVACY: "Privacy",
+		BIT_CONTROLLER_CONFIGURATION: "controller config",
+		BIT_STATIC_ADDRESS: "Static Address",
+		BIT_PHY_CONFIGURATION: "PHY Config",
+		BIT_WIDEBAND_SPEECH: "Wideband Speech",
+	}
+
+
+	var flagStrs []string
+	for bitIndex := 0; bitIndex < 18; bitIndex++ {
+		cFlag := ((settings >> bitIndex) & 1) == 1
+		if cFlag {
+			flagStrs = append(flagStrs, mapBitToName[bitIndex])
+		}
+	}
+	return strings.Join(flagStrs, ",")
 }
 
 /**
@@ -278,6 +357,10 @@ Packet Structures
 All fields are in little-endian byte order (least significant byte first).
 */
 
+const (
+	EVENT_COMPLETE = 0x0001
+	EVENT_NEW_SETTINGS = 0x0006
+)
 
 /**
 Todo: implement robust comm with queue, events (current implementation should be good enough for poc)
@@ -294,11 +377,16 @@ func (session *BTManagementSession) execBlocking(command uint16, controllerIndex
 
 	log.Printf("Command packet header: %s\n", hex.EncodeToString(packetHeader))
 
-	n, err := unix.Write(session.sockFd, append(packetHeader, parameters ...))
+	packet := append(packetHeader, parameters ...)
+
+	n, err := unix.Write(session.sockFd,  packet)
 	if err != nil {
 		return nil, err
 	}
 	log.Printf("Wrote %d bytes to the mgmt socket\n", n)
+	if n != len(packet) {
+		return nil, fmt.Errorf("Could not write all bytes to the mgmt socket\n. Wrote %d bytes", n)
+	}
 
 	var response = make([]byte, 100)
 	readLen := 0
@@ -324,29 +412,71 @@ func (session *BTManagementSession) execBlocking(command uint16, controllerIndex
 		eventCode := binary.LittleEndian.Uint16(response[0:])
 		resControllerIndex := binary.LittleEndian.Uint16(response[2:]) // controllerIndex
 		_ = binary.LittleEndian.Uint16(response[4:]) // parameterLen
-		eventCmdCode := binary.LittleEndian.Uint16(response[6:]) // parameterLen
 
 		if resControllerIndex != controllerIndex {
-			log.Printf("Unexpected controller index: %d\n", resControllerIndex)
+			log.Warnf("Unexpected controller index: %d\n", resControllerIndex)
 		}
 
-		if eventCode == 0x0001 {
+		// Todo: continue processing packets until event complete with the current cmd code
+		switch eventCode {
+		case EVENT_COMPLETE:
 			log.Println("Command completed")
-			commandResult := response[5] // 0 == SUCCESS
+
+			eventCmdCode := binary.LittleEndian.Uint16(response[6:])
+			commandResult := response[8] // 0 == SUCCESS
+
 			log.Printf("Result: %d\n", commandResult)
-		}
 
-		eventData := response[9:readLen]
-		log.Printf("Event data: %s\n", hex.EncodeToString(eventData))
+			if eventCmdCode != command {
+				log.Warnf("Unexpected event command code: %d\n", eventCmdCode)
+			}
 
+			cmdResult := response[9:readLen]
+			log.Printf("Command result: %s\n", hex.EncodeToString(cmdResult))
 
-		if eventCmdCode != command {
-			log.Printf("Unexpected event command code: %d\n", eventCmdCode)
-		}
-
-		if eventCmdCode == command {
-			return eventData, nil
+			if eventCmdCode == command {
+				return cmdResult, nil
+			}
+		case EVENT_NEW_SETTINGS:
+			newSettings := response[6:6+4]
+			log.Infof("NEW SETTINGS: %s (%s)", ParseSettings(newSettings), hex.EncodeToString(newSettings))
+		default:
+			log.Warnf("Unknown btmgmt event code: %d", eventCode)
 		}
 	}
 	return nil, nil
+}
+
+func ReadLocalOOBData(controllerIndex uint16) (h192 [16]byte, r192 [16]byte, h256 [16]byte, r256 [16]byte, err error) {
+	var ses *BTManagementSession
+	ses, err = CreateSession()
+	if err != nil {
+		return
+	}
+	defer ses.Close()
+
+	ses.SetController(controllerIndex)
+
+	h192, r192, h256, r256, err = ses.ReadLocalOOBData()
+	return
+}
+
+/**
+Does not report errors currently, use btmon to see what is going on
+ */
+func AddRemoteOOBData(controllerIndex uint16,
+	address string, addressType byte, h192 []byte,  r192 []byte,
+	h256 []byte, r256 []byte) (err error) {
+
+	var ses *BTManagementSession
+	ses, err = CreateSession()
+	if err != nil {
+		return
+	}
+	defer ses.Close()
+
+	ses.SetController(controllerIndex)
+
+	ses.AddRemoteOOBData(address, addressType, h192, r192, h256, r256)
+	return
 }

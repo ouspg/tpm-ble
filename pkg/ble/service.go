@@ -8,124 +8,12 @@ import (
 	"github.com/muka/go-bluetooth/bluez/profile/agent"
 	"github.com/muka/go-bluetooth/bluez/profile/gatt"
 	"github.com/muka/go-bluetooth/hw"
+	btmgmt2 "github.com/ouspg/tpm-bluetooth/pkg/btmgmt"
 	"github.com/ouspg/tpm-bluetooth/pkg/crypto"
 	log "github.com/sirupsen/logrus"
-	"os"
 	"time"
 )
 
-func serve(adapterID string) error {
-
-	options := service.AppOptions{
-		AdapterID:  adapterID,
-		AgentCaps:  agent.CapNoInputNoOutput,
-		UUIDSuffix: "-0000-1000-8000-00805F9B34FB",
-		UUID:       "1234",
-	}
-
-	a, err := service.NewApp(options)
-	if err != nil {
-		return err
-	}
-	defer a.Close()
-
-	a.SetName("go_bluetooth")
-
-	log.Infof("HW address %s", a.Adapter().Properties.Address)
-
-	if !a.Adapter().Properties.Powered {
-		err = a.Adapter().SetPowered(true)
-		if err != nil {
-			log.Fatalf("Failed to power the adapter: %s", err)
-		}
-	}
-
-	service1, err := a.NewService("2233", )
-	if err != nil {
-		return err
-	}
-
-
-	err = a.AddService(service1)
-	if err != nil {
-		return err
-	}
-
-	char1, err := service1.NewChar("3344")
-	if err != nil {
-		return err
-	}
-
-	char1.Properties.Flags = []string{
-		gatt.FlagCharacteristicRead,
-		gatt.FlagCharacteristicWrite,
-	}
-
-	char1.OnRead(func(c *service.Char, options map[string]interface{}) ([]byte, error) {
-		log.Warnf("GOT READ REQUEST")
-		return []byte{42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42}, nil
-	})
-
-	char1.OnWrite(func(c *service.Char, value []byte) ([]byte, error) {
-		log.Warnf("GOT WRITE REQUEST")
-		return value, nil
-	})
-
-	err = service1.AddChar(char1)
-	if err != nil {
-		return err
-	}
-
-	descr1, err := char1.NewDescr("4455")
-	if err != nil {
-		return err
-	}
-
-	descr1.Properties.Flags = []string{
-		gatt.FlagDescriptorEncryptAuthenticatedRead,
-		gatt.FlagDescriptorEncryptAuthenticatedWrite,
-	}
-
-	descr1.OnRead(func(c *service.Descr, options map[string]interface{}) ([]byte, error) {
-		log.Warnf("GOT READ REQUEST")
-		return []byte{42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42, 42}, nil
-	})
-	descr1.OnWrite(func(d *service.Descr, value []byte) ([]byte, error) {
-		log.Warnf("GOT WRITE REQUEST")
-		return value, nil
-	})
-
-	err = char1.AddDescr(descr1)
-	if err != nil {
-		return err
-	}
-
-	err = a.Run()
-	if err != nil {
-		return err
-	}
-
-	log.Infof("Exposed service %s", service1.Properties.UUID)
-
-	timeout := uint32(6 * 3600) // 6h
-	log.Infof("Advertising for %ds...", timeout)
-	cancel, err := a.Advertise(timeout)
-	if err != nil {
-		return err
-	}
-
-	defer cancel()
-
-	wait := make(chan bool)
-	go func() {
-		time.Sleep(time.Duration(timeout) * time.Second)
-		wait <- true
-	}()
-
-	<-wait
-
-	return nil
-}
 
 var SENDER_CERT = `-----BEGIN CERTIFICATE-----
 MIIDvzCCAaegAwIBAgIBBTANBgkqhkiG9w0BAQsFADCBozELMAkGA1UEBhMCRkkx
@@ -164,24 +52,53 @@ Alternatively, sign only the pub key and deliver that only instead of the whole 
 /**
 Supports only one simultaneous connection, good enough for poc
  */
-func CreateKeyExchangeService(adapterID string, certificate []byte) error {
-	btmgmt := hw.NewBtMgmt(adapterID)
-	if len(os.Getenv("DOCKER")) > 0 {
-		btmgmt.BinPath = "./bin/docker-btmgmt"
+
+
+const MY_SECURE_BLE_HWADDR = "00:1A:7D:DA:71:07"
+
+func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem []byte) error {
+
+	privKey, err := openssl.LoadPrivateKeyFromPEM(privKeyPem)
+	if err != nil {
+		log.Fatalf("Could not load private key: %s", err)
 	}
 
+	ses, err := btmgmt2.CreateSession()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer ses.Close()
+	ses.SetController(0)
+
+	btmgmt := hw.NewBtMgmt(adapterID)
 	// set LE mode
 	btmgmt.SetPowered(false)
 
 	btmgmt.SetLe(true)
+	btmgmt.SetBredr(true)
 	btmgmt.SetBondable(false)
+	btmgmt.SetPairable(false)
 	btmgmt.SetLinkLevelSecurity(false)
-	btmgmt.SetPairable(true)
 	btmgmt.SetConnectable(true)
-	btmgmt.SetSsp(false)
-	btmgmt.SetBredr(false)
+	btmgmt.SetSsp(true)
+
+	err = ses.SetSecureConnections(btmgmt2.SC_ONLY)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	btmgmt.SetPowered(true)
+
+	myH192, myR192, myH256, myR256, err := ses.ReadLocalOOBData()
+	if err != nil {
+		log.Fatalf("Could not read local oob data: %s", err)
+	}
+
+	log.Printf("Local OOB data (h192, r192, h256, r256): (%s, %s, %s, %s)",
+		hex.EncodeToString(myH192[:]), hex.EncodeToString(myR192[:]),
+		hex.EncodeToString(myH256[:]), hex.EncodeToString(myR256[:]))
+
+	return nil
 
 	options := service.AppOptions{
 		AdapterID:  adapterID,
@@ -330,9 +247,13 @@ func CreateKeyExchangeService(adapterID string, certificate []byte) error {
 		}
 
 		myPubKeyBytes := crypto.ECCPubKeyToBytes(&ephPrivKey.PublicKey)
+		sig, err := crypto.Sign(privKey, myPubKeyBytes)
+		if err != nil {
+			log.Fatalf("Could not sign public key: %s", err)
+		}
 
 		responseData, err := MarshalECDHExchange(ECDHExchange{
-			Signature: nil,
+			Signature: sig,
 			PubKey: myPubKeyBytes,
 		})
 		if err != nil {
@@ -362,22 +283,22 @@ func CreateKeyExchangeService(adapterID string, certificate []byte) error {
 		return err
 	}
 
-	tokenExchangeChar, err := service1.NewChar(TOKEN_EXC_CHAR_UUID)
+	oobExchangeChar, err := service1.NewChar(OOB_EXC_CHAR_UUID)
 	if err != nil {
 		return err
 	}
 
-	tokenExchangeChar.Properties.Flags = []string{
+	oobExchangeChar.Properties.Flags = []string{
 		gatt.FlagCharacteristicWrite, gatt.FlagCharacteristicRead,
 	}
 
 
-	var tokenRes []byte
-	tokenExchangeChar.OnRead(func(c *service.Char, options map[string]interface{}) (bytes []byte, err error) {
-		return tokenRes, nil
+	var oobDataRes []byte
+	oobExchangeChar.OnRead(func(c *service.Char, options map[string]interface{}) (bytes []byte, err error) {
+		return oobDataRes, nil
 	})
 
-	tokenExchangeChar.OnWrite(func(c *service.Char, value []byte) (bytes []byte, err error) {
+	oobExchangeChar.OnWrite(func(c *service.Char, value []byte) (bytes []byte, err error) {
 
 		ciphertext, err := crypto.UnmarshalNoncedCiphertext(value)
 		if err != nil {
@@ -389,26 +310,51 @@ func CreateKeyExchangeService(adapterID string, certificate []byte) error {
 			log.Fatalf("Could not decrypt ciphertext: %s", err)
 		}
 
-		log.Printf("Token received: %s\n", plaintext)
-
-		respCiphertext, err := cipherSession.Encrypt([]byte("token"))
+		oobExchange, err := UnmarshalOOBExchange(plaintext)
 		if err != nil {
-			log.Fatalf("Could not encrypt response token: %s", err)
+			log.Fatalf("Could not unmarshal oob exhange data: %s", err)
+		}
+
+		h192 := oobExchange.Data[:16]
+		r192 := oobExchange.Data[16:]
+
+		log.Printf("OOB data received: %s\n", hex.EncodeToString(plaintext))
+
+		err = btmgmt2.AddRemoteOOBData(0, oobExchange.Address, btmgmt2.BR_EDR,
+			h192[:], r192[:], nil, nil)
+		if err != nil {
+			log.Fatalf("Could not add remote oob data: %s", err)
+		}
+
+		var oobData [32]byte
+		copy(oobData[:16], myH192[:])
+		copy(oobData[16:], myR192[:])
+
+		resData, err := MarshalOOBExchange(OOBExchange{
+			Data:    oobData,
+			Address: MY_SECURE_BLE_HWADDR,
+		})
+		if err != nil {
+			log.Fatalf("Could not marshal oob data response: %s", err)
+		}
+
+		respCiphertext, err := cipherSession.Encrypt(resData)
+		if err != nil {
+			log.Fatalf("Could not encrypt response oob data: %s", err)
 		}
 
 		res, err := crypto.MarshalNoncedCiphertext(respCiphertext)
 		if err != nil {
-			log.Fatalf("Could not marshal response token ciphertext: %s", err)
+			log.Fatalf("Could not marshal response oob data ciphertext: %s", err)
 		}
-		tokenRes = res
+		oobDataRes = res
 		return
 	})
 
-	err = service1.AddChar(tokenExchangeChar)
+	err = service1.AddChar(oobExchangeChar)
 	if err != nil {
 		return err
 	}
-
 
 	err = a.Run()
 	if err != nil {

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/jarijaas/openssl"
-	"log"
 )
 
 /*
@@ -80,19 +79,6 @@ func LoadTPMPrivateKey(privKeyPath string) (openssl.PrivateKey, error) {
 Sign data using the priv key and SHA256 (PKCS1v15)
  */
 func Sign(privKey openssl.PrivateKey, data []byte) ([]byte, error) {
-	eng, err := openssl.EngineById("tpm2tss")
-	if err != nil {
-		log.Fatalf("Could not load engine: %s", err)
-	}
-	/*if C.ENGINE_set_default(eng.e, C.ENGINE_METHOD_ALL) == 0 {
-		log.Fatalf("could not set engine as default")
-	}*/
-
-	err = openssl.SetEngineAsDefault(eng)
-	if err != nil {
-		log.Fatalf("could not set engine as default: %s", err)
-	}
-
 	dataSig, err := privKey.SignPKCS1v15(openssl.SHA256_Method, data)
 	if err != nil {
 		return nil, fmt.Errorf("could not sign data: %s", err)
@@ -102,10 +88,5 @@ func Sign(privKey openssl.PrivateKey, data []byte) ([]byte, error) {
 }
 
 func Verify(pubKey openssl.PublicKey, data []byte, sig []byte) error {
-	/*digest, err := openssl.SHA256(data)
-	if err != nil {
-		return err
-	}*/
-
 	return pubKey.VerifyPKCS1v15(openssl.SHA256_Method, data, sig)
 }

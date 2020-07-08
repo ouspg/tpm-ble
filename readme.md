@@ -1,14 +1,21 @@
 
-Build raspi kernel with tpm2 support enabled (check gdrive for guide)
+Build raspi kernel with tpm2 support enabled (check [docs/](docs/Infineon-App-Note-SLx9670-TPM2.0_Embedded_RPi_DI_SLx-ApplicationNotes-v01_03-EN.pdf) for guide)
 
 
-Install tpm2-tools and tpm2-tss:
+Additional deps required to build tpm2 software:
 
-<https://github.com/tpm2-software/tpm2-tools/wiki/Getting-Started>
+```shell
+sudo apt-get install libcurl4-openssl-dev autoconf-archive libgcrypt-20-dev \
+  autoconf-archive libcmocka0 libcmocka-dev procps iproute2 build-essential git \
+  pkg-config gcc libtool automake libssl-dev uthash-dev autoconf doxygen \
+  libjson-c-dev libini-config-dev
+```
 
-<https://github.com/tpm2-software/tpm2-tools/wiki/Creating-Objects>
+Install tpm2-tools, tpm2-tss and tpm2-tss-engine following the INSTALL.md guides:
 
-<https://github.com/tpm2-software/tpm2-tss-engine>
+1. <https://github.com/tpm2-software/tpm2-tss>
+2. <https://github.com/tpm2-software/tpm2-tools>
+3. <https://github.com/tpm2-software/tpm2-tss-engine>
 
 Test keys are located in keys/.
 
@@ -104,6 +111,12 @@ openssl verify -CAfile keys/cacert.pem cert.pem
 
 ## Bluetooth
 
+```shell
+sudo apt-get install bluez-tools && \
+sudo systemctl enable bluetooth && \
+sudo systemctl start bluetooth
+```
+
 See <https://github.com/muka/go-bluetooth> for configuring dbus
 
 bluetooth management API docs: <https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/mgmt-api.txt>
@@ -112,22 +125,25 @@ bluetooth management API docs: <https://git.kernel.org/pub/scm/bluetooth/bluez.g
 
 Monitor bluetooth:
 
-```s
+```shell
 sudo btmon
 ```
 
 Secure connections only (4.2):
-```s
+
+```shell
 sc only
 ```
 
 secure simple pairing (4.0):
-```s
+
+```shell
 ssp on
 ```
 
 Get random and confirmation value:
-```s
+
+```shell
 le-oob
 ```
 
