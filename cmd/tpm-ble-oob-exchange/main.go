@@ -2,73 +2,24 @@ package main
 
 import (
 	"github.com/ouspg/tpm-bluetooth/pkg/ble"
+	"io/ioutil"
 	"log"
 )
 
-var receiverCertPEM2 = `
------BEGIN CERTIFICATE-----
-MIIDvzCCAaegAwIBAgIBATANBgkqhkiG9w0BAQsFADCBozELMAkGA1UEBhMCRkkx
-GjAYBgNVBAgMEVBvaGpvaXMtUG9oamFubWFhMQ0wCwYDVQQHDARPdWx1MRswGQYD
-VQQKDBJVbml2ZXJzaXR5IG9mIE91bHUxDjAMBgNVBAsMBU9VU1BHMRYwFAYDVQQD
-DA1TZWNyZWRhcyBUZXN0MSQwIgYJKoZIhvcNAQkBFhVqYXJpLmphYXNrZWxhQG91
-bHUuZmkwIBcNMjAwNjExMTgzNDM1WhgPMjI5NDAzMjYxODM0MzVaMA8xDTALBgNV
-BAMMBHRlc3QwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASqipwhqX9DvxILcIUk
-AK/nhKdt8K6Mgy+eDSLMhAFuSJyBAT29VFSLKnvMPGGuxzRzoMFx9se1drRnkraa
-IFYCo1owWDAdBgNVHQ4EFgQU5xdDk8HFlXtlDHSwyRT/bQz+2DkwHwYDVR0jBBgw
-FoAU7w7HriCjtXYFMuO94QPooGtgfnwwCQYDVR0TBAIwADALBgNVHQ8EBAMCBaAw
-DQYJKoZIhvcNAQELBQADggIBADV7QOAyu45FXwuhwUbZ1aYJ9a73uilp+ha4ZpFF
-+VRVSxHQJQjbvj4q9bWpt4g5Bi5G/U5MGyl2cnJyhUwUca4ywNoJ/00ZZpEQ32Pw
-y3ZlNXv9/Q1dQk1vfWNCUQ/V8yg92n9WPRrV1UyqIadlQjc9c0rfq4MklxdLtZpR
-VC+Ji4OPvPGzjuOmT/e9uqM7isGFgyJ0gykW0bnw70xtjLstsD2hGw/R3l5BlDQS
-Kkd0CLnTuEm2nKqUX3AsnD2tj+BgIpuUIGv7RtYc0UKVywJSB1CUGXinosTf0s9p
-l9+5drbRma8Y7jBrsQuvL9FU52YJTQueD7Do5EV5Alsg7EHY8v1kSsBi8CtJahk2
-oWHSx893reKIi81reZ4vP5uf+OpDcEHaDV3BP7AsNLitwLaXxB/GG37S5EZoIOHK
-jDGNSe31Oh6Ruygnn7zFv4uNVFUDoEzL9nuHT8b4O/UVeffxSbc/xcTNlltL49my
-s9na67Ld+0ucmKINgMRfK/rQ43mD+ymg2ht875ftv3htPkhHwdHZWkW7De2FCmIg
-S7RAc9+htzJKHYcMbOFONkHQiQf8scHimiNE8WYypuENjaHpjM1/eH3nC/8Yal7G
-35ui4nYwssGmiuACg/OpArjVCJuo1K0xAzJuhkCdIEmf06lN6Qs6wvQ2e3HB11m7
-Onwz
------END CERTIFICATE-----
-`
-
-
-// This one is for the key that is not protected by the TPM
-var SERVER_CERT = `-----BEGIN CERTIFICATE-----
-MIIDvzCCAaegAwIBAgIBBjANBgkqhkiG9w0BAQsFADCBozELMAkGA1UEBhMCRkkx
-GjAYBgNVBAgMEVBvaGpvaXMtUG9oamFubWFhMQ0wCwYDVQQHDARPdWx1MRswGQYD
-VQQKDBJVbml2ZXJzaXR5IG9mIE91bHUxDjAMBgNVBAsMBU9VU1BHMRYwFAYDVQQD
-DA1TZWNyZWRhcyBUZXN0MSQwIgYJKoZIhvcNAQkBFhVqYXJpLmphYXNrZWxhQG91
-bHUuZmkwIBcNMjAwNzA1MDkyNDUxWhgPMjI5NDA0MTkwOTI0NTFaMA8xDTALBgNV
-BAMMBHRlc3QwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATCRmllRNUEYx3+JCm4
-bGvgNojv86NfoCfMw69dcHPaHNVlEhCLVFo/l8DdoC/w6qUsniXXJwg+xuDeAVOg
-7pUco1owWDAdBgNVHQ4EFgQU0Vt/IIgJ+RHaHH4u+5lFU1ArTYowHwYDVR0jBBgw
-FoAU7w7HriCjtXYFMuO94QPooGtgfnwwCQYDVR0TBAIwADALBgNVHQ8EBAMCBaAw
-DQYJKoZIhvcNAQELBQADggIBADKRh172prvzDtuYjy7GEl+SJYXU+eCjUyfyBdsi
-ZjP9+0wYizGt4hWZjZ3jCv344copR2TW9Wp7ws7ucQaXZbNfiHxI2FgvZU6vm+TJ
-zzEOGvPadwifsRVh6XEpef8B/fYF+owje/BKMWdT+lSsjaB7+aTj9jPdfBTdchIp
-Klvrx7+AbghHhker/YvSO/q1Gt49sJT2g7MyPm24XU/9XXwytkzplScND8Rb7yqJ
-kP0SNe18ws/bFMZaZ7IlpNcRlQgj6GkK7DEc9BuUvaQkypww8AFEPWfyhZTLvK3X
-ObLS05nPESh08dAeod3pb0ZRUdUZMzeyYOh/NNU569+GfCwhI6JbFUQuabd3OCjw
-B9Dc4gbVUsh7iAqWAQmRl23th8qoTn9DEXk2QnyDGiqpbsdIwBfso8uj2InU4N8W
-8qlOow5YDIzigRuIng9830u/PiC54GGOEFm1c0KYjr3O/vEEmWLthUR0nI7knHfm
-l4nenjnHFq97fYe62STmPdNIp3D3+azXA1CNY9jT4G8o7bZpR+0nn+p/Tu54YVZd
-ishTaSZWphD+DddPw1A6a9mOo2T4DaZiS8Lk/RbiTmTSGYPV3nkh0krP/W+KxXgH
-3lOp2YhIMlPso1nXho3GkVIHY45JHwYm6/9o8cFfQf7vLoIatL0YqFgJ382l7Ica
-Tb7o
------END CERTIFICATE-----
-`
-var UNPROTECTED_PRIV_KEY = `-----BEGIN EC PRIVATE KEY-----
-MHcCAQEEIBwYpTNuwUUVknfiqtrPLtgsm9Sf/G+sU1BlkgMifJAQoAoGCCqGSM49
-AwEHoUQDQgAEwkZpZUTVBGMd/iQpuGxr4DaI7/OjX6AnzMOvXXBz2hzVZRIQi1Ra
-P5fA3aAv8OqlLJ4l1ycIPsbg3gFToO6VHA==
------END EC PRIVATE KEY-----`
-
 func main() {
-	// block, _ := pem.Decode([]byte(receiverCertPEM))
+	// x509
+	cert, err := ioutil.ReadFile("/usr/local/share/keys/tpm_cert.pem")
+	if err != nil {
+		log.Fatalf("Coul not read certificate. Reason: %s", err)
+	}
 
-	err := ble.CreateKeyExchangeService("hci0", []byte(SERVER_CERT), []byte(UNPROTECTED_PRIV_KEY))
+	privKey, err := ioutil.ReadFile("/usr/local/share/keys/tpm_priv.key")
+	if err != nil {
+		log.Fatalf("Coul not read private key. Reason: %s", err)
+	}
+
+	err = ble.CreateKeyExchangeService("hci0", cert, privKey)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 }

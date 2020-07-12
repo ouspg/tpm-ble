@@ -1,34 +1,42 @@
-package crypto
+	package crypto
 
 import (
-	"errors"
 	"fmt"
 	"github.com/jarijaas/openssl"
+	"io/ioutil"
+	"log"
 )
 
 /*
 Returns no error (nil) if certificate is valid
 */
-func VerifyCertificate(caCertPEM []byte, certPEM []byte) error {
+func VerifyCertificate(certPath string, certPEM []byte) error {
+
+	caCertPEM, err := ioutil.ReadFile(certPath)
+	if err != nil {
+		return fmt.Errorf("could not read CA certificate. Reason: %s", err)
+	}
+
+	log.Printf("CA CERT:\n%s\n", string(caCertPEM))
+
 	caCert, err := openssl.LoadCertificateFromPEM(caCertPEM)
 	if err != nil {
-		return errors.New("could not load CA certificate")
+		return fmt.Errorf("could not load CA certificate. Reason: %s", err)
 	}
 
 	cert, err := openssl.LoadCertificateFromPEM(certPEM)
 	if err != nil {
-		return errors.New("could not load certificate")
+		return fmt.Errorf("could not load certificate. Reason: %s", err)
 	}
-
 
 	certStore, err := openssl.NewCertificateStore()
 	if err != nil {
-		return errors.New("could not create certificate store")
+		return fmt.Errorf("could not create certificate store. Reason: %s", err)
 	}
 
 	err = certStore.AddCertificate(caCert)
 	if err != nil {
-		return fmt.Errorf("could not add cert to cert store: %s", err)
+		return fmt.Errorf("could not add cert to cert store. %s", err)
 	}
 
 	_, verifyRes, err := cert.VerifyTrustAndGetIssuerCertificate(certStore)

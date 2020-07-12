@@ -95,7 +95,9 @@ const NON_CONTROLLER = 0xFFFF
 
 const (
 	CMD_READ_CONTROLLER_INDEX_LIST = 0x0003
+	CMD_PAIR = 0x0019
 	CMD_READ_LOCAL_OOB_DATA = 0x0020
+	CMD_READ_LOCAL_OOB_DATA_EXTENDED = 0x003B
 	CMD_ADD_REMOTE_OOB_DATA = 0x0021
 	CMD_SET_SC = 0x002D
 )
@@ -174,6 +176,26 @@ func (session *BTManagementSession) ReadLocalOOBData() (
 	return
 }
 
+func (session *BTManagementSession) ReadLocalOOBDataExtended() (
+	h192 [16]byte, r192 [16]byte,
+	h256 [16]byte, r256 [16]byte,
+	err error) {
+
+	parameters := []byte{ LE_PUBLIC }
+
+	_, err = session.execBlocking(CMD_READ_LOCAL_OOB_DATA_EXTENDED,  session.controllerIndex, parameters)
+	if err != nil {
+		return
+	}
+
+	/*copy(h192[:], data[0:16])
+	copy(r192[:], data[16:32])
+	copy(h256[:], data[32:48])
+	copy(r256[:], data[48:64])*/
+
+	return
+}
+
 /**
 	Command Code:		0x0021
 	Controller Index:	<controller id>
@@ -239,6 +261,96 @@ const (
 	LE_PUBLIC = 1
 	LE_RANDOM = 2
 )
+
+const (
+	DisplayOnly = 0
+	DisplayYesNo = 1
+	KeyboardOnly = 2
+	NoInputNoOutput = 3
+	KeyboardDisplay = 4
+)
+
+/**
+Pair Device Command
+===================
+
+	Command Code:		0x0019
+	Controller Index:	<controller id>
+	Command Parameters:	Address (6 Octets)
+				Address_Type (1 Octet)
+				IO_Capability (1 Octet)
+	Return Parameters:	Address (6 Octets)
+				Address_Type (1 Octet)
+
+	This command is used to trigger pairing with a remote device.
+	The IO_Capability command parameter is used to temporarily (for
+	this pairing event only) override the global IO Capability (set
+	using the Set IO Capability command).
+
+	Possible values for the Address_Type parameter:
+		0	BR/EDR
+		1	LE Public
+		2	LE Random
+
+	Possible values for the IO_Capability parameter:
+		0	DisplayOnly
+		1	DisplayYesNo
+		2	KeyboardOnly
+		3	NoInputNoOutput
+		4	KeyboardDisplay
+
+	Passing a value 4 (KeyboardDisplay) will cause the kernel to
+	convert it to 1 (DisplayYesNo) in the case of a BR/EDR
+	connection (as KeyboardDisplay is specific to SMP).
+
+	The Address and Address_Type of the return parameters will
+	return the identity address if known. In case of resolvable
+	random address given as command parameters and the remote
+	provides an identity resolving key, the return parameters
+	will provide the resolved address.
+
+	To allow tracking of which resolvable random address changed
+	into which identity address, the New Identity Resolving Key
+	event will be sent before receiving Command Complete event
+	for this command.
+
+	This command can only be used when the controller is powered.
+
+	This command generates a Command Complete event on success
+	or failure.
+
+	Reject status is used when requested transport is not enabled.
+
+	Not Supported status is used if controller is not capable with
+	requested transport.
+
+	Possible errors:	Rejected
+				Not Supported
+				Connect Failed
+				Busy
+				Invalid Parameters
+				Not Powered
+				Invalid Index
+				Already Paired
+ */
+func (session *BTManagementSession) Pair(address string, addressType byte, ioCap byte) error {
+	mac, err := net.ParseMAC(address)
+	if err != nil {
+		return fmt.Errorf("invalid address: %s", address)
+	}
+
+	parameters := make([]byte, 8)
+	copy(parameters, mac[:6])
+	parameters[6] = addressType
+	parameters[7] = ioCap
+
+	resp, err := session.execBlocking(CMD_PAIR,  session.controllerIndex, parameters)
+	if err != nil {
+		return err
+	}
+	log.Infof("Pairing response: %s", hex.EncodeToString(resp))
+	return nil
+}
 
 func (session *BTManagementSession) AddRemoteOOBData(address string, addressType byte, h192 []byte,  r192 []byte,
 	h256 []byte, r256 []byte) error {

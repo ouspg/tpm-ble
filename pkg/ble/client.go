@@ -2,6 +2,7 @@ package ble
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/godbus/dbus/v5"
@@ -108,6 +109,7 @@ func findDevice(a *adapter.Adapter1, hwaddr string) (*device.Device1, error) {
 	return dev, nil
 }
 
+
 func client(adapterID, hwaddr string) (dev *device.Device1, err error) {
 
 	log.Infof("Discovering %s on %s", hwaddr, adapterID)
@@ -175,18 +177,6 @@ func connect(dev *device.Device1, ag *agent.SimpleAgent, adapterID string) error
 		log.Trace("Device is connected")
 		return nil
 	}
-
-	/*if !props.Paired || !props.Trusted {
-		log.Trace("Pairing device")
-
-		err := dev.Pair()
-		if err != nil {
-			return fmt.Errorf("Pair failed: %s", err)
-		}
-
-		log.Info("Pair succeed, connecting...")
-		agent.SetTrusted(adapterID, dev.Path())
-	}*/
 
 	if !props.Connected {
 		log.Trace("Connecting device")
@@ -356,7 +346,7 @@ func BeginECDHExchange(dev *device.Device1, data ECDHExchange) (*ECDHExchange, e
 }
 
 
-func ExchangeOOBData(dev *device.Device1, cipherSession *crypto.CipherSession, adapterAddr string) ([]byte, error) {
+func ExchangeOOBData(dev *device.Device1, cipherSession *crypto.CipherSession, adapterAddr string) (*OOBExchange, error) {
 	h192, r192, h256, r256, err := btmgmt.ReadLocalOOBData(0)
 	if err != nil {
 		log.Fatalf("Could not read local oob data: %s", err)
@@ -367,8 +357,8 @@ func ExchangeOOBData(dev *device.Device1, cipherSession *crypto.CipherSession, a
 		hex.EncodeToString(h256[:]), hex.EncodeToString(r256[:]))
 
 	oobData := [32]byte{}
-	copy(oobData[:16], r192[:])
-	copy(oobData[16:], h192[:])
+	copy(oobData[:16], r256[:])
+	copy(oobData[16:], h256[:])
 
 	/*adapters, err := btmgmt2.GetAdapters()
 	if err != nil {
@@ -409,5 +399,12 @@ func ExchangeOOBData(dev *device.Device1, cipherSession *crypto.CipherSession, a
 		return nil, fmt.Errorf("could not unmarshal response nonced ciphertext: %s", err)
 	}
 
-	return cipherSession.Decrypt(resp)
+	plaintext, err := cipherSession.Decrypt(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	recvExchangeData := OOBExchange{}
+	err = json.Unmarshal(plaintext, &recvExchangeData)
+	return &recvExchangeData, err
 }

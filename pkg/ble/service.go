@@ -16,27 +16,27 @@ import (
 
 
 var SENDER_CERT = `-----BEGIN CERTIFICATE-----
-MIIDvzCCAaegAwIBAgIBBTANBgkqhkiG9w0BAQsFADCBozELMAkGA1UEBhMCRkkx
-GjAYBgNVBAgMEVBvaGpvaXMtUG9oamFubWFhMQ0wCwYDVQQHDARPdWx1MRswGQYD
-VQQKDBJVbml2ZXJzaXR5IG9mIE91bHUxDjAMBgNVBAsMBU9VU1BHMRYwFAYDVQQD
-DA1TZWNyZWRhcyBUZXN0MSQwIgYJKoZIhvcNAQkBFhVqYXJpLmphYXNrZWxhQG91
-bHUuZmkwIBcNMjAwNzAzMDkzNzEyWhgPMjI5NDA0MTcwOTM3MTJaMA8xDTALBgNV
-BAMMBHRlc3QwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAShtlV69CWX2nz1ohIc
-as8NlCfvJUcruYwbXcqSTiH/xqNH4psSw6VMEL6S+h7058tZCVjTI5mXPgB5UnZZ
-3gi3o1owWDAdBgNVHQ4EFgQUCIFV92S8UarKCC3aLKDGyD08790wHwYDVR0jBBgw
-FoAU7w7HriCjtXYFMuO94QPooGtgfnwwCQYDVR0TBAIwADALBgNVHQ8EBAMCBaAw
-DQYJKoZIhvcNAQELBQADggIBAF8XtVsutVcPTkJjZwLHPAeVN8ObwlEBKfJU2hIw
-G32ebC2PkHV0G3KewZ6rGk90JjFCj+0ulKI0BOTSokzgOM4EmuFYbKSrifYuRlUf
-jXr+b7Va8eu65pXoyaH8nK8JTwj88kPjYBc3jAkfpWPis00TINbxOJHIiiP6xFOy
-Xyq7Els9trZRooOwqPjH5pyKC+54U5myGHyfTBHf70TzpLmSe8inw1KfQZ3xlsXb
-P6NLq1VY4RKquvGTUa85aIt46yXqN7Hs4QW9JwsfhrrXlkuhnJm2YMjInQq43P1i
-U9IsIKTtlrexDSm1UdhxAU+78EB4CH65ugK/T91BKpEyWqP/ERlZyjC5y6pcTlKt
-6ePdXQmPYMMOQkEQHDdtO22lya9n9rMcJhLg5kt7ARGlEXwn1FfVzSfn13aPxJXW
-AoAp7vsEgCNVWuvqBWW4VZoEBZSXRwQvVeZQMmj5X+6ug/crtWdR/mopgBX4RROJ
-3i15O+NxBn/3SHbQpc/+GI66AQ7LspX3id8/atUj/fL7c7hOIIrSLdm0lNf3aQNe
-B35IecoasuSeKbT+wrkMoje/YhVg++/2w+O+4lUT0CUWQnwJyhYv9dutcyTBt8mY
-Hn6uAeg1EElZLRQ/55MfXZBmqiwtbNatm8bZClaBuTBwx8ytRI9do1wlhvBUQp5C
-wIRp
+MIIDwzCCAaugAwIBAgIBDjANBgkqhkiG9w0BAQsFADCBpzELMAkGA1UEBhMCRkkx
+ETAPBgNVBAgMCE1hcnlsYW5kMRIwEAYDVQQHDAlCYWx0aW1vcmUxGTAXBgNVBAoM
+EFRlc3QgQ0EsIExpbWl0ZWQxIzAhBgNVBAsMGlNlcnZlciBSZXNlYXJjaCBEZXBh
+cnRtZW50MRAwDgYDVQQDDAdUZXN0IENBMR8wHQYJKoZIhvcNAQkBFhB0ZXN0QGV4
+YW1wbGUuY29tMCAXDTIwMDcxMjA5MjUwM1oYDzIyOTQwNDI2MDkyNTAzWjAPMQ0w
+CwYDVQQDDAR0ZXN0MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE1vePGv1mZOIj
+0gpqfCg1Ltbgkx8jlaKFiOfauoZ1SaFd7CtURrDzb/auZPtt9Me0pHVDvwmS51gb
+VV86CM+dXaNaMFgwHQYDVR0OBBYEFPeyfqEqdYAhyC5jy+RYZyygciduMB8GA1Ud
+IwQYMBaAFMXj03ZmATRFb30eDN75FBhufWKIMAkGA1UdEwQCMAAwCwYDVR0PBAQD
+AgWgMA0GCSqGSIb3DQEBCwUAA4ICAQBfKCU/cbYVEdSCYffuu7CwlA7WD5nCtEBw
+pL9bG6guLMZyBTWsKWmbx8RrA55iGyX1ws3bAxifzKHzYRSE1UA/oxxMCYEv389m
+c+I41xLgQA7ys3/kEx9vJBSUXz5A68ksDJUUw+q0mPSI8vmLCej3hyBLloUUcEIq
+ZKAtrkIKkxYtW/PaLXoDN7GVRX729II+poUChErAR/muexcgGYzmeoYsMkJqVUsx
+MzQCUBqkzQL7IoLtWsd+2SLg7C6nmRsLAhFZulaikVw4guRJQ10XmU56gBkbhMmq
+OYxvXjRDuqbvQYj20QIzNQAzPAkNAMb2yN1jO8snvkJlhWDkcYAtDbUFv4WeUuvI
+ozvGN3TNNmbKWviFcw7hJD1VUtDNwM/Cowqpql+djOaxLNSmDjths4NGpjS+jrXX
+8jtN64JBvtKg0s1vKjEKobdO4aGr6X3PGA8UGHJUO51mE9zuu4t5rdW5upuRCKCt
+UsHlRrlxBkMD3BphaUwe0zwpHTWBuiYWaAoR+aX3724F67Btvj8A3QSNF+Dtdueg
+K9cAkzaSbW6MqnoDIybsjnVxWv8eAH2hU9JyEFzquJIu2ooSK1czJ32wM1jPkl28
+WaxsgoSV5sPm0QKFzIwCi7At160DDcoXweR4VXUCVlv2IsHRf2OmgpZjAtgzmRg0
+9yDCfMDXlQ==
 -----END CERTIFICATE-----`
 
 const CHAR_CHUNK_SIZE = 500
@@ -53,8 +53,7 @@ Alternatively, sign only the pub key and deliver that only instead of the whole 
 Supports only one simultaneous connection, good enough for poc
  */
 
-
-const MY_SECURE_BLE_HWADDR = "00:1A:7D:DA:71:07"
+const MY_SECURE_BLE_HWADDR = "DC:A6:32:28:34:E4"
 
 func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem []byte) error {
 
@@ -63,33 +62,32 @@ func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem [
 		log.Fatalf("Could not load private key: %s", err)
 	}
 
-	ses, err := btmgmt2.CreateSession()
+	/*ses, err := btmgmt2.CreateSession()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer ses.Close()
-	ses.SetController(0)
+	ses.SetController(0)*/
 
-	btmgmt := hw.NewBtMgmt(adapterID)
-	// set LE mode
-	btmgmt.SetPowered(false)
+	btmgmtCli := hw.NewBtMgmt(adapterID)
+	btmgmtCli.SetPowered(false)
 
-	btmgmt.SetLe(true)
-	btmgmt.SetBredr(true)
-	btmgmt.SetBondable(false)
-	btmgmt.SetPairable(false)
-	btmgmt.SetLinkLevelSecurity(false)
-	btmgmt.SetConnectable(true)
-	btmgmt.SetSsp(true)
+	btmgmtCli.SetLe(true)
+	btmgmtCli.SetBredr(false)
+	btmgmtCli.SetBondable(false)
+	btmgmtCli.SetPairable(true)
+	btmgmtCli.SetLinkLevelSecurity(false)
+	btmgmtCli.SetConnectable(true)
+	btmgmtCli.SetSsp(false)
 
-	err = ses.SetSecureConnections(btmgmt2.SC_ONLY)
+	/*err = ses.SetSecureConnections(btmgmt2.SC_OFF)
 	if err != nil {
 		log.Fatal(err)
-	}
+	}*/
 
-	btmgmt.SetPowered(true)
+	btmgmtCli.SetPowered(true)
 
-	myH192, myR192, myH256, myR256, err := ses.ReadLocalOOBData()
+	myH192, myR192, myH256, myR256, err := btmgmt2.ReadLocalOOBData(0)
 	if err != nil {
 		log.Fatalf("Could not read local oob data: %s", err)
 	}
@@ -97,8 +95,6 @@ func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem [
 	log.Printf("Local OOB data (h192, r192, h256, r256): (%s, %s, %s, %s)",
 		hex.EncodeToString(myH192[:]), hex.EncodeToString(myR192[:]),
 		hex.EncodeToString(myH256[:]), hex.EncodeToString(myR256[:]))
-
-	return nil
 
 	options := service.AppOptions{
 		AdapterID:  adapterID,
@@ -113,7 +109,7 @@ func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem [
 	}
 	defer a.Close()
 
-	a.SetName("secredas exchange")
+	a.SetName("OOB exchange")
 
 	if !a.Adapter().Properties.Powered {
 		err = a.Adapter().SetPowered(true)
@@ -142,8 +138,6 @@ func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem [
 	}
 
 	certChar.OnRead(func(c *service.Char, options map[string]interface{}) ([]byte, error) {
-		log.Info("GOT READ 1 CERTIFICATE REQUEST")
-		log.Print(options)
 		return certificate[0:CHAR_CHUNK_SIZE], nil
 	})
 
@@ -162,8 +156,6 @@ func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem [
 	}
 
 	certChar2.OnRead(func(c *service.Char, options map[string]interface{}) ([]byte, error) {
-		log.Info("GOT READ 2 CERTIFICATE REQUEST")
-		log.Print(options)
 		return certificate[CHAR_CHUNK_SIZE:2 * CHAR_CHUNK_SIZE], nil
 	})
 
@@ -182,8 +174,6 @@ func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem [
 	}
 
 	certChar3.OnRead(func(c *service.Char, options map[string]interface{}) ([]byte, error) {
-		log.Info("GOT READ 3 CERTIFICATE REQUEST")
-		log.Print(options)
 		return certificate[2 * CHAR_CHUNK_SIZE:], nil
 	})
 
@@ -310,25 +300,26 @@ func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem [
 			log.Fatalf("Could not decrypt ciphertext: %s", err)
 		}
 
+		log.Printf("OOB data received: %s\n", plaintext)
+
 		oobExchange, err := UnmarshalOOBExchange(plaintext)
 		if err != nil {
-			log.Fatalf("Could not unmarshal oob exhange data: %s", err)
+			log.Fatalf("Could not unmarshal oob exchange data: %s", err)
 		}
 
 		h192 := oobExchange.Data[:16]
 		r192 := oobExchange.Data[16:]
 
-		log.Printf("OOB data received: %s\n", hex.EncodeToString(plaintext))
-
-		err = btmgmt2.AddRemoteOOBData(0, oobExchange.Address, btmgmt2.BR_EDR,
-			h192[:], r192[:], nil, nil)
+		err = btmgmt2.AddRemoteOOBData(0, oobExchange.Address, btmgmt2.LE_PUBLIC,
+			nil , nil, h192[:], r192[:])
 		if err != nil {
 			log.Fatalf("Could not add remote oob data: %s", err)
 		}
+		log.Infof("Added remote oob data for address: %s\n", oobExchange.Address)
 
 		var oobData [32]byte
-		copy(oobData[:16], myH192[:])
-		copy(oobData[16:], myR192[:])
+		copy(oobData[:16], myH256[:])
+		copy(oobData[16:], myR256[:])
 
 		resData, err := MarshalOOBExchange(OOBExchange{
 			Data:    oobData,
@@ -348,6 +339,23 @@ func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem [
 			log.Fatalf("Could not marshal response oob data ciphertext: %s", err)
 		}
 		oobDataRes = res
+
+		go func() {
+			ses, err := btmgmt2.CreateSession()
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer ses.Close()
+			ses.SetController(0)
+
+			time.Sleep(10 * time.Second)
+
+			err = ses.Pair(oobExchange.Address, btmgmt2.LE_PUBLIC, btmgmt2.NoInputNoOutput)
+			if err != nil {
+				log.Fatalf("Could not pair with the device. Reason: %s\n", err)
+			}
+		}()
+
 		return
 	})
 

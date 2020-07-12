@@ -36,7 +36,7 @@ The secure communication channel is established as follows:
 7. Both parties compute a shared key using the ECDH keys and SHA256 hash algorithm.
 8. Now both parties initialize AES-GCM encryption using this shared key. Every message uses a unique nonce and AES-GCM has built-in message integrity validation.
 9. Both devices query the Bluetooth adapter for the out-of-band data and then exchange this data with the other party using this recently established secure communication channel
-10. Both devices do pairing with the other party using this exchanged out-of-band data. Note that ponding should be disabled. When pondig is disabled, the pairing is forgotten when a device restarts and the above process must be completed again.
+10. Both devices do pairing with the other party using this exchanged out-of-band data. Note that ponding should be disabled. When ponding is disabled, the pairing is forgotten when a device restarts and the above process must be completed again.
 
 A Bluetooth device may enforce that pairing has to be completed before allowing access to a GATT service characteristic; therefore, accessing these characteristics would require completing the pairing process described above.
 
@@ -95,7 +95,15 @@ openssl req -x509 -config openssl-ca.cnf -newkey rsa:4096 -sha256 -nodes -out ca
 
 ## TPM key provision (pub, priv, cert)
 
-Use `raspi-provision-key.sh` or follow the instructions below
+Use `raspi-provision-key.sh`:
+
+```shell
+NO_TPM=TRUE ./raspi-provision-key.sh REMOTE_HOSTNAME # Without TPM
+
+./raspi-provision-key.sh REMOTE_HOSTNAME # TPM protected
+```
+
+Or follow the instructions below:
 
 ```s
 tpm2tss-genkey -a ecdsa -c nist_p256 keys/test_priv.key
@@ -152,13 +160,25 @@ Confirm that the certificate was signed by the CA:
 openssl verify -CAfile keys/cacert.pem cert.pem
 ```
 
-## Bluetooth
+## Bluetooth (Tested using bluez 5.50, 5.53)
 
 ```shell
 sudo apt-get install bluez-tools && \
 sudo systemctl enable bluetooth && \
 sudo systemctl start bluetooth
 ```
+
+Add compatibility flag to the end of `ExecStart` line in `/etc/systemd/system/dbus-org.bluez.service`:
+
+```ini
+[Service]
+Type=dbus
+BusName=org.bluez
+ExecStart=/usr/lib/bluetooth/bluetoothd --compat
+NotifyAccess=main
+```
+
+Otherwise you may get `Operation currently not available` error when connecting to the BT device.
 
 See <https://github.com/muka/go-bluetooth> for configuring dbus
 

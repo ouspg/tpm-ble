@@ -1,7 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 set -e
+shopt -s expand_aliases
 
-IP_ADDR="192.168.1.11" # Remote IP, where TPM is attached
+HOST=$1 # Remote host, where TPM is attached
+
+echo "HOST: $HOST"
 
 KEYDIR="/usr/local/share/keys"
 KEYNAME="tpm"
@@ -17,28 +20,40 @@ CSRSUBJ="/CN=test/"
 PEMNAME="${KEYNAME}_cert.pem"
 
 alias scp_rpi="scp -i ./keys/ssh/pi_key.priv"
-alias ssh_rpi="ssh -t -i ./keys/ssh/pi_key.priv pi@$IP_ADDR"
+alias ssh_rpi="ssh -t -i ./keys/ssh/pi_key.priv pi@$HOST"
 
-ssh_rpi 'sudo mkdir -p '$KEYDIR \
-  '&& sudo tpm2tss-genkey -a ecdsa -c nist_p256 '$KEYPATH'_priv.key && echo "Priv key created"' \
-  '&& sudo openssl ec -engine tpm2tss -inform engine -in '${PRIVKEY_PATH}' -pubout -outform pem -out '${PUBKEY_PATH} \
-  '&& echo "Pub key created"' \
-  '&& sudo openssl req -new -engine tpm2tss -keyform engine -key '${PRIVKEY_PATH}' -out '$CSRPATH' -nodes -subj "'${CSRSUBJ}'" -outform PEM' \
-  '&& echo "Certificate signing request created"'
+if [ "${NO_TPM,,}" = "true" ]; then
+  echo "Generate non-protected key"
+  ssh_rpi 'sudo mkdir -p '$KEYDIR \
+      '&& sudo openssl ecparam -name prime256v1 -genkey -noout -out '$KEYPATH'_priv.key && echo "Priv key created"' \
+      '&& sudo openssl ec -in '${PRIVKEY_PATH}' -pubout -outform pem -out '${PUBKEY_PATH} \
+      '&& echo "Pub key created"' \
+      '&& sudo openssl req -new -key '${PRIVKEY_PATH}' -out '$CSRPATH' -nodes -subj "'${CSRSUBJ}'" -outform PEM' \
+      '&& echo "Certificate signing request created"'
+else
+  echo "Generate protected key"
+  ssh_rpi 'sudo mkdir -p '$KEYDIR \
+    '&& sudo tpm2tss-genkey -a ecdsa -c nist_p256 '$KEYPATH'_priv.key && echo "Priv key created"' \
+    '&& sudo openssl ec -engine tpm2tss -inform engine -in '${PRIVKEY_PATH}' -pubout -outform pem -out '${PUBKEY_PATH} \
+    '&& echo "Pub key created"' \
+    '&& sudo openssl req -new -engine tpm2tss -keyform engine -key '${PRIVKEY_PATH}' -out '$CSRPATH' -nodes -subj "'${CSRSUBJ}'" -outform PEM' \
+    '&& echo "Certificate signing request created"'
+fi
 
 echo "Copy CSR from remote to local CA dir"
 
-scp_rpi pi@$IP_ADDR:$CSRPATH ./ca/
+scp_rpi pi@$HOST:$CSRPATH ./ca/
 
 cd ca
 /usr/local/ssl/bin/openssl ca -config ./openssl-ca.cnf -policy signing_policy -extensions signing_req -out ./$PEMNAME -infiles ./$CSRNAME
+X509_CERT=$(/usr/local/ssl/bin/openssl x509 -in ./$PEMNAME)
+echo ${X509_CERT}
 rm ./$CSRNAME
 cd ..
 
 echo "Certificate created, copy to remote"
 
-scp_rpi ./ca/$PEMNAME pi@$IP_ADDR:"/tmp/$PEMNAME"
-ssh_rpi sudo mv /tmp/$PEMNAME "$KEYDIR/"
+ssh_rpi "echo '${X509_CERT}' > $KEYDIR/$PEMNAME"
 
 rm ./ca/$PEMNAME
 

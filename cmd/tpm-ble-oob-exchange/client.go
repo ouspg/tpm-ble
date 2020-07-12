@@ -2,16 +2,18 @@ package main
 
 import (
 	"encoding/hex"
+	"github.com/jarijaas/openssl"
 	"github.com/ouspg/tpm-bluetooth/pkg/ble"
+	"github.com/ouspg/tpm-bluetooth/pkg/btmgmt"
 	"github.com/ouspg/tpm-bluetooth/pkg/crypto"
 	log "github.com/sirupsen/logrus"
-	"github.com/jarijaas/openssl"
+	"time"
 )
 
-const TARGET_HWADDR = "00:1A:7D:DA:71:07"
+const TARGET_HWADDR = "DC:A6:32:28:34:E4"
 
 const MY_SECURE_BLE_HWADDR = "B8:27:EB:3A:89:0A"
-const TARGET_SECURE_BLE_HWADDR = "00:1A:7D:DA:71:07"
+const TARGET_SECURE_BLE_HWADDR = TARGET_HWADDR
 
 func main()  {
 	err := crypto.InitializeTPMEngine()
@@ -33,7 +35,7 @@ func main()  {
 
 	log.Println("Verify certificate")
 
-	err = crypto.VerifyCertificate([]byte(ble.TRUSTED_CA), pemCert)
+	err = crypto.VerifyCertificate(ble.TRUSTED_CA, pemCert)
 	if err != nil {
 		log.Fatalf("Could not verify certificate. Error: %s", err)
 	}
@@ -97,11 +99,34 @@ func main()  {
 		log.Fatalf("Could not create cipher session: %s", err)
 	}
 
-	data, err := ble.ExchangeOOBData(bleDev, cipherSession, MY_SECURE_BLE_HWADDR)
+	oobData, err := ble.ExchangeOOBData(bleDev, cipherSession, MY_SECURE_BLE_HWADDR)
 	if err != nil {
-		log.Fatalf("Could not exhange tokens: %s", err)
+		log.Fatalf("Could not exchange tokens: %s", err)
 	}
 
-	log.Printf("Received token: %s", data)
+	log.Printf("Received oob data: %s", hex.EncodeToString(oobData.Data[:]))
 
+	oobHash := oobData.Data[:16]
+	oobRandomizer := oobData.Data[16:]
+
+	err = btmgmt.AddRemoteOOBData(0, oobData.Address, btmgmt.LE_PUBLIC,
+		nil, nil, oobHash, oobRandomizer)
+	if err != nil {
+		log.Fatalf("Could not add remote oob data for address: %s. Reason: %s\n", oobData.Address, err)
+	}
+	log.Infof("Added remote oob data for address: %s\n", oobData.Address)
+
+	time.Sleep(15 * time.Second)
+
+	ses, err := btmgmt.CreateSession()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer ses.Close()
+	ses.SetController(0)
+
+	err = ses.Pair(oobData.Address, btmgmt.LE_PUBLIC, btmgmt.NoInputNoOutput)
+	if err != nil {
+		log.Fatalf("Could not pair with the device. Reason: %s\n", err)
+	}
 }
