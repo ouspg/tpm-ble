@@ -3,3 +3,4 @@ build
 vendor
 *.req
 rpi_images
+kernel

@@ -1,6 +1,13 @@
+# [WIP] Secures Bluetooth Low Energy communication using Public Key Infrastructure and Trusted Platform Module
+
+## Issues
+
+* Use of LE Secure Connections causes disconnect after pairing (Connection Timeout 0x08), see [traces/disconnect_after_successful_encryption](traces/disconnect_after_successful_encryption).
+* Add encryption on gatt level instead to support older devices and to circumvent the above issue if other fix is not found.
+
 ## Introduction
 
-Generally, when an adversary is able
+When an adversary is able
 to sniff Bluetooth pairing traffic
 the adversary can crack the Bluetooth security fairly
 easily by brute-forcing the pairing code.
@@ -8,7 +15,7 @@ easily by brute-forcing the pairing code.
 Fortunately, Bluetooth supports
 pairing devices using an out-of-band mechanism.
 
-Commonly, this is done using NFC or a QR code (for example, QR code is used by the Apple Watch). This out-of-band data used to pair devices can be exhanged using any secure communication channel.
+Commonly, this is done using NFC or a QR code. This out-of-band data used to pair devices can be exhanged using any communication channel.
 
 In this work, a BLE communication channel is secured using public-key cryptography and Trusted Platform Module (TPM). This channel is used to exchange out-of-band data
 prior to pairing the devices. TPM is a physical device that can perform cryptographic operations and store data securely, such as private keys.
@@ -43,9 +50,9 @@ A Bluetooth device may enforce that pairing has to be completed before allowing 
 Because the communication is secured using the built-in out-of-band pairing mechanism in Bluetooth, the encryption
 is performed on the link layer. Instead of doing encryption on GATT service level this approach was chosen because this work should be able to be incorporated into any existing Linux-based system that uses the BlueZ stack (such as raspberry pi) in a plug-in fashion.
 
-Under the hood, Bluetooth 4.2+ uses ECDH and AES-GCM to secure the communication channel after pairing.
+Under the hood, Bluetooth 4.2+ uses ECDH and AES-CCM to secure the communication channel after pairing.
 
-This work uses the tpm2 tss openssl engine, so
+This software uses the tpm2 tss openssl engine, so
 this software can be used without TPM also.
 
 ## Instructions (for Raspbian)
@@ -160,10 +167,18 @@ Confirm that the certificate was signed by the CA:
 openssl verify -CAfile keys/cacert.pem cert.pem
 ```
 
-## Bluetooth (Tested using bluez 5.50, 5.53)
+## Bluetooth (Tested using bluez 5.50, 5.54)
+
+Clone this repository:
 
 ```shell
-sudo apt-get install bluez-tools && \
+git clone --recurse-submodules https://github.com/ouspg/tpm-ble.git
+```
+
+Go to `go-bluetooth` subdir and follow the instructions in <https://github.com/muka/go-bluetooth> to generate the code for specific BlueZ version.
+
+Enable bluetooth:
+```shell
 sudo systemctl enable bluetooth && \
 sudo systemctl start bluetooth
 ```
@@ -174,85 +189,54 @@ Add compatibility flag to the end of `ExecStart` line in `/etc/systemd/system/db
 [Service]
 Type=dbus
 BusName=org.bluez
-ExecStart=/usr/lib/bluetooth/bluetoothd --compat
+ExecStart=/usr/lib/bluetooth/bluetoothd -d --compat
 NotifyAccess=main
 ```
 
 Otherwise you may get `Operation currently not available` error when connecting to the BT device.
 
-See <https://github.com/muka/go-bluetooth> for configuring dbus
-
-bluetooth management API docs: <https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/mgmt-api.txt>
-
-<https://lists.zephyrproject.org/g/devel/topic/29197639>
-
-Monitor bluetooth:
-
-```shell
-sudo btmon
-```
-
-Secure connections only (4.2):
+Secure connections only.
+Kernel bug, fixed in bluetooth-next.
 
 ```shell
 sc only
 ```
 
-secure simple pairing (4.0):
+## Monitoring
+
+Monitor HCI and MGMT commands:
 
 ```shell
-ssp on
+sudo btmon
 ```
 
-Get random and confirmation value:
+Monitor bluetoothd:
+
+```
+tail -f /var/log/syslog
+```
+
+Monitor dmesg:
+
+```
+dmesg -w
+```
+
+## Exchange out-of-band data manually
+
+Get random and confirmation value for both devices:
 
 ```shell
-le-oob
+sudo btmgmt le-oob
 ```
 
-Type 2: LE random, Type 0: BR/EDR,
-Use P256
+Exec in both devices to exchange these values:
 
 ```s
-remote-oob -t 0 -R bd12b8a8afc2b00da1c004d584c7a2a5 -H 4772e65de17605fdaf173b089fd56c25 B9:27:EB:3A:89:0A
+sudo btmgmt remote-oob -t <ADDR_TYPE> -R <RANDOM> -H <CONFIRMATION> <TARGET_HW_ADDRESS>
 ```
 
-
-<https://github.com/bluez/bluez/blob/master/tools/btmgmt.c>
-
-## Secure simple pairing (sc off, ssp on)
-
-Enable security mode 3 (secure communication before channel is established):
-```
-linksec on
-```
-
-Set bondable to false, so no long term keys are exchanged,
-so pairing has to be done everytime connection is established.
-
-```s
-bondable false
-```
-
-```s
-remote-oob -t 0 -r 90ab27c8ee20cfe07d745960b0ebc0a9 -h d0320621648302ffb4e71edd79e86bed B8:27:EB:3A:89:0A
-```
-
-```s
-remote-oob -t 0 -r cece612010b4897695092b13c32e0477 -h a838b21ee01a63198e490918f79f2447 00:1A:7D:DA:71:07
-```
-
-Desktop: 00:1A:7D:DA:71:07
-
-
-```
-pair -c 3 -t 0 00:1A:7D:DA:71:07
-```
-
-Target should be connectable:
-```
-connectable on
-```
+See <https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/mgmt-api.txt>
 
 ## Acknowledgements
 
