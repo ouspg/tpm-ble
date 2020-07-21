@@ -1,0 +1,1115 @@
+[    0.000000] Booting Linux on physical CPU 0x0
+[    0.000000] Linux version 5.4.42-v7l (tpm@ubuntu) (gcc version 9.3.0 (Ubuntu 9.3.0-10ubuntu1)) #2 SMP Sun Jul 19 08:55:14 PDT 2020
+[    0.000000] CPU: ARMv7 Processor [410fd083] revision 3 (ARMv7), cr=30c5383d
+[    0.000000] CPU: div instructions available: patching division code
+[    0.000000] CPU: PIPT / VIPT nonaliasing data cache, PIPT instruction cache
+[    0.000000] OF: fdt: Machine model: Raspberry Pi 4 Model B Rev 1.1
+[    0.000000] Memory policy: Data cache writealloc
+[    0.000000] Reserved memory: created CMA memory pool at 0x000000001ec00000, size 256 MiB
+[    0.000000] OF: reserved mem: initialized node linux,cma, compatible id shared-dma-pool
+[    0.000000] On node 0 totalpages: 504832
+[    0.000000]   DMA zone: 2304 pages used for memmap
+[    0.000000]   DMA zone: 0 pages reserved
+[    0.000000]   DMA zone: 196608 pages, LIFO batch:63
+[    0.000000]   HighMem zone: 308224 pages, LIFO batch:63
+[    0.000000] percpu: Embedded 20 pages/cpu s49740 r8192 d23988 u81920
+[    0.000000] pcpu-alloc: s49740 r8192 d23988 u81920 alloc=20*4096
+[    0.000000] pcpu-alloc: [0] 0 [0] 1 [0] 2 [0] 3 
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 502528
+[    0.000000] Kernel command line: coherent_pool=1M 8250.nr_uarts=0 snd_bcm2835.enable_compat_alsa=0 snd_bcm2835.enable_hdmi=1 snd_bcm2835.enable_headphones=1  smsc95xx.macaddr=DC:A6:32:35:EF:E0 vc_mem.mem_base=0x3ec00000 vc_mem.mem_size=0x40000000  console=ttyS0,115200 console=tty1 root=PARTUUID=4b435626-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait
+[    0.000000] Dentry cache hash table entries: 131072 (order: 7, 524288 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+[    0.000000] software IO TLB: mapped [mem 0x19400000-0x1d400000] (64MB)
+[    0.000000] Memory: 1647760K/2019328K available (10240K kernel code, 776K rwdata, 2908K rodata, 2048K init, 851K bss, 109424K reserved, 262144K cma-reserved, 1232896K highmem)
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=4, Nodes=1
+[    0.000000] ftrace: allocating 29906 entries in 59 pages
+[    0.000000] rcu: Hierarchical RCU implementation.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 10 jiffies.
+[    0.000000] NR_IRQS: 16, nr_irqs: 16, preallocated irqs: 16
+[    0.000000] GIC: Using split EOI/Deactivate mode
+[    0.000000] random: get_random_bytes called from start_kernel+0x334/0x514 with crng_init=0
+[    0.000008] sched_clock: 32 bits at 1000kHz, resolution 1000ns, wraps every 2147483647500ns
+[    0.000031] clocksource: timer: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 1911260446275 ns
+[    0.000113] bcm2835: system timer (irq = 17)
+[    0.000749] arch_timer: cp15 timer(s) running at 54.00MHz (phys).
+[    0.000768] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0xc743ce346, max_idle_ns: 440795203123 ns
+[    0.000789] sched_clock: 56 bits at 54MHz, resolution 18ns, wraps every 4398046511102ns
+[    0.000805] Switching to timer-based delay loop, resolution 18ns
+[    0.001048] Console: colour dummy device 80x30
+[    0.001569] printk: console [tty1] enabled
+[    0.001633] Calibrating delay loop (skipped), value calculated using timer frequency.. 108.00 BogoMIPS (lpj=540000)
+[    0.001677] pid_max: default: 32768 minimum: 301
+[    0.002002] Mount-cache hash table entries: 2048 (order: 1, 8192 bytes, linear)
+[    0.002047] Mountpoint-cache hash table entries: 2048 (order: 1, 8192 bytes, linear)
+[    0.003285] Disabling memory control group subsystem
+[    0.003404] CPU: Testing write buffer coherency: ok
+[    0.003925] CPU0: thread -1, cpu 0, socket 0, mpidr 80000000
+[    0.004856] Setting up static identity map for 0x200000 - 0x20003c
+[    0.005080] rcu: Hierarchical SRCU implementation.
+[    0.007053] smp: Bringing up secondary CPUs ...
+[    0.008255] CPU1: thread -1, cpu 1, socket 0, mpidr 80000001
+[    0.009581] CPU2: thread -1, cpu 2, socket 0, mpidr 80000002
+[    0.010931] CPU3: thread -1, cpu 3, socket 0, mpidr 80000003
+[    0.011087] smp: Brought up 1 node, 4 CPUs
+[    0.011129] SMP: Total of 4 processors activated (432.00 BogoMIPS).
+[    0.011156] CPU: All CPU(s) started in HYP mode.
+[    0.011181] CPU: Virtualization extensions available.
+[    0.012033] devtmpfs: initialized
+[    0.025116] VFP support v0.3: implementor 41 architecture 3 part 40 variant 8 rev 0
+[    0.025387] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
+[    0.025439] futex hash table entries: 1024 (order: 4, 65536 bytes, linear)
+[    0.032119] pinctrl core: initialized pinctrl subsystem
+[    0.033188] NET: Registered protocol family 16
+[    0.037047] DMA: preallocated 1024 KiB pool for atomic coherent allocations
+[    0.038640] hw-breakpoint: found 5 (+1 reserved) breakpoint and 4 watchpoint registers.
+[    0.038675] hw-breakpoint: maximum watchpoint size is 8 bytes.
+[    0.039016] Serial: AMBA PL011 UART driver
+[    0.042700] bcm2835-mbox fe00b880.mailbox: mailbox enabled
+[    0.060860] raspberrypi-firmware soc:firmware: Attached to firmware from 2020-06-01 13:23, variant start
+[    0.070870] raspberrypi-firmware soc:firmware: Firmware hash is 6379679d1ec6a8c746d7e77e015f5b56b939976f
+[    0.129721] bcm2835-dma fe007000.dma: DMA legacy API manager, dmachans=0x1
+[    0.134819] vgaarb: loaded
+[    0.135311] SCSI subsystem initialized
+[    0.135544] usbcore: registered new interface driver usbfs
+[    0.135630] usbcore: registered new interface driver hub
+[    0.135767] usbcore: registered new device driver usb
+[    0.137272] clocksource: Switched to clocksource arch_sys_counter
+[    0.853661] VFS: Disk quotas dquot_6.6.0
+[    0.853775] VFS: Dquot-cache hash table entries: 1024 (order 0, 4096 bytes)
+[    0.853991] FS-Cache: Loaded
+[    0.854213] CacheFiles: Loaded
+[    0.855107] simple-framebuffer: probe of 0.framebuffer failed with error -12
+[    0.865314] thermal_sys: Registered thermal governor 'step_wise'
+[    0.865684] NET: Registered protocol family 2
+[    0.866465] tcp_listen_portaddr_hash hash table entries: 512 (order: 0, 6144 bytes, linear)
+[    0.866518] TCP established hash table entries: 8192 (order: 3, 32768 bytes, linear)
+[    0.866595] TCP bind hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.866679] TCP: Hash tables configured (established 8192 bind 8192)
+[    0.866844] UDP hash table entries: 512 (order: 2, 16384 bytes, linear)
+[    0.866894] UDP-Lite hash table entries: 512 (order: 2, 16384 bytes, linear)
+[    0.867178] NET: Registered protocol family 1
+[    0.868043] RPC: Registered named UNIX socket transport module.
+[    0.868074] RPC: Registered udp transport module.
+[    0.868100] RPC: Registered tcp transport module.
+[    0.868125] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    0.868159] PCI: CLS 0 bytes, default 64
+[    0.870010] hw perfevents: enabled with armv7_cortex_a15 PMU driver, 7 counters available
+[    0.872253] Initialise system trusted keyrings
+[    0.872528] workingset: timestamp_bits=14 max_order=19 bucket_order=5
+[    0.883141] FS-Cache: Netfs 'nfs' registered for caching
+[    0.883761] NFS: Registering the id_resolver key type
+[    0.883823] Key type id_resolver registered
+[    0.883849] Key type id_legacy registered
+[    0.883885] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[    0.884994] Key type asymmetric registered
+[    0.885024] Asymmetric key parser 'x509' registered
+[    0.885228] bounce: pool size: 64 pages
+[    0.885297] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 249)
+[    0.885656] io scheduler mq-deadline registered
+[    0.885685] io scheduler kyber registered
+[    0.889731] brcm-pcie fd500000.pcie: host bridge /scb/pcie@7d500000 ranges:
+[    0.889774] brcm-pcie fd500000.pcie:   No bus range found for /scb/pcie@7d500000, using [bus 00-ff]
+[    0.889867] brcm-pcie fd500000.pcie:      MEM 0x0600000000..0x0603ffffff -> 0x00f8000000
+[    0.889959] brcm-pcie fd500000.pcie:   IB MEM 0x0000000000..0x007fffffff -> 0x0000000000
+[    0.949419] brcm-pcie fd500000.pcie: link up, 5 GT/s x1 (SSC)
+[    0.949766] brcm-pcie fd500000.pcie: PCI host bridge to bus 0000:00
+[    0.949801] pci_bus 0000:00: root bus resource [bus 00-ff]
+[    0.949836] pci_bus 0000:00: root bus resource [mem 0x600000000-0x603ffffff] (bus address [0xf8000000-0xfbffffff])
+[    0.949916] pci 0000:00:00.0: [14e4:2711] type 01 class 0x060400
+[    0.950211] pci 0000:00:00.0: PME# supported from D0 D3hot
+[    0.953447] PCI: bus0: Fast back to back transfers disabled
+[    0.953485] pci 0000:00:00.0: bridge configuration invalid ([bus 00-00]), reconfiguring
+[    0.953769] pci 0000:01:00.0: [1106:3483] type 00 class 0x0c0330
+[    0.953933] pci 0000:01:00.0: reg 0x10: [mem 0x00000000-0x00000fff 64bit]
+[    0.954381] pci 0000:01:00.0: PME# supported from D0 D3cold
+[    0.957654] PCI: bus1: Fast back to back transfers disabled
+[    0.957689] pci_bus 0000:01: busn_res: [bus 01-ff] end is updated to 01
+[    0.957746] pci 0000:00:00.0: BAR 8: assigned [mem 0x600000000-0x6000fffff]
+[    0.957785] pci 0000:01:00.0: BAR 0: assigned [mem 0x600000000-0x600000fff 64bit]
+[    0.957886] pci 0000:00:00.0: PCI bridge to [bus 01]
+[    0.957924] pci 0000:00:00.0:   bridge window [mem 0x600000000-0x6000fffff]
+[    0.958253] pcieport 0000:00:00.0: enabling device (0140 -> 0142)
+[    0.958514] pcieport 0000:00:00.0: PME: Signaling with IRQ 56
+[    0.958932] pcieport 0000:00:00.0: AER: enabled with IRQ 56
+[    0.959298] pci 0000:01:00.0: enabling device (0140 -> 0142)
+[    0.962274] raspberrypi-clk firmware-clocks: CPU frequency range: min 600000000, max 1500000000
+[    0.966906] iproc-rng200 fe104000.rng: hwrng registered
+[    0.967308] vc-mem: phys_addr:0x00000000 mem_base=0x3ec00000 mem_size:0x40000000(1024 MiB)
+[    0.967991] vc-sm: Videocore shared memory driver
+[    0.968586] gpiomem-bcm2835 fe200000.gpiomem: Initialised: Registers at 0xfe200000
+[    0.980661] brd: module loaded
+[    0.992894] loop: module loaded
+[    0.994342] Loading iSCSI transport class v2.0-870.
+[    0.996297] libphy: Fixed MDIO Bus: probed
+[    0.996907] bcmgenet fd580000.ethernet: failed to get enet clock
+[    0.996943] bcmgenet fd580000.ethernet: GENET 5.0 EPHY: 0x0000
+[    0.996980] bcmgenet fd580000.ethernet: failed to get enet-wol clock
+[    0.997015] bcmgenet fd580000.ethernet: failed to get enet-eee clock
+[    0.997057] bcmgenet: Skipping UMAC reset
+[    1.017324] libphy: bcmgenet MII bus: probed
+[    1.097402] unimac-mdio unimac-mdio.-19: Broadcom UniMAC MDIO bus
+[    1.098444] usbcore: registered new interface driver r8152
+[    1.098525] usbcore: registered new interface driver lan78xx
+[    1.098597] usbcore: registered new interface driver smsc95xx
+[    1.099068] xhci_hcd 0000:01:00.0: xHCI Host Controller
+[    1.099117] xhci_hcd 0000:01:00.0: new USB bus registered, assigned bus number 1
+[    1.101767] xhci_hcd 0000:01:00.0: hcc params 0x002841eb hci version 0x100 quirks 0x0000001000000890
+[    1.103112] usb usb1: New USB device found, idVendor=1d6b, idProduct=0002, bcdDevice= 5.04
+[    1.103152] usb usb1: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+[    1.103186] usb usb1: Product: xHCI Host Controller
+[    1.103215] usb usb1: Manufacturer: Linux 5.4.42-v7l xhci-hcd
+[    1.103244] usb usb1: SerialNumber: 0000:01:00.0
+[    1.103860] hub 1-0:1.0: USB hub found
+[    1.103971] hub 1-0:1.0: 1 port detected
+[    1.104545] xhci_hcd 0000:01:00.0: xHCI Host Controller
+[    1.104586] xhci_hcd 0000:01:00.0: new USB bus registered, assigned bus number 2
+[    1.104629] xhci_hcd 0000:01:00.0: Host supports USB 3.0 SuperSpeed
+[    1.105187] usb usb2: New USB device found, idVendor=1d6b, idProduct=0003, bcdDevice= 5.04
+[    1.105225] usb usb2: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+[    1.105259] usb usb2: Product: xHCI Host Controller
+[    1.105287] usb usb2: Manufacturer: Linux 5.4.42-v7l xhci-hcd
+[    1.105315] usb usb2: SerialNumber: 0000:01:00.0
+[    1.105912] hub 2-0:1.0: USB hub found
+[    1.106016] hub 2-0:1.0: 4 ports detected
+[    1.107543] dwc_otg: version 3.00a 10-AUG-2012 (platform bus)
+[    1.107862] dwc_otg: FIQ enabled
+[    1.107874] dwc_otg: NAK holdoff enabled
+[    1.107887] dwc_otg: FIQ split-transaction FSM enabled
+[    1.107903] Module dwc_common_port init
+[    1.108365] usbcore: registered new interface driver uas
+[    1.108500] usbcore: registered new interface driver usb-storage
+[    1.108705] mousedev: PS/2 mouse device common for all mice
+[    1.110697] bcm2835-wdt bcm2835-wdt: Broadcom BCM2835 watchdog timer
+[    1.113195] sdhci: Secure Digital Host Controller Interface driver
+[    1.113225] sdhci: Copyright(c) Pierre Ossman
+[    1.113831] mmc-bcm2835 fe300000.mmcnr: could not get clk, deferring probe
+[    1.114442] sdhci-pltfm: SDHCI platform and OF driver helper
+[    1.118242] ledtrig-cpu: registered to indicate activity on CPUs
+[    1.118408] hidraw: raw HID events driver (C) Jiri Kosina
+[    1.118562] usbcore: registered new interface driver usbhid
+[    1.118589] usbhid: USB HID core driver
+[    1.119585] vchiq: vchiq_init_state: slot_zero = (ptrval)
+[    1.121581] [vc_sm_connected_init]: start
+[    1.130525] [vc_sm_connected_init]: end - returning 0
+[    1.132770] Initializing XFRM netlink socket
+[    1.132824] NET: Registered protocol family 17
+[    1.132948] Key type dns_resolver registered
+[    1.133317] Registering SWP/SWPB emulation handler
+[    1.133656] registered taskstats version 1
+[    1.133690] Loading compiled-in X.509 certificates
+[    1.134231] Key type ._fscrypt registered
+[    1.134259] Key type .fscrypt registered
+[    1.146753] uart-pl011 fe201000.serial: cts_event_workaround enabled
+[    1.146853] fe201000.serial: ttyAMA0 at MMIO 0xfe201000 (irq = 29, base_baud = 0) is a PL011 rev2
+[    1.152928] bcm2835-power bcm2835-power: Broadcom BCM2835 power domains driver
+[    1.153752] brcmstb_thermal fd5d2200.thermal: registered AVS TMON of-sensor driver
+[    1.154784] mmc-bcm2835 fe300000.mmcnr: mmc_debug:0 mmc_debug2:0
+[    1.154817] mmc-bcm2835 fe300000.mmcnr: DMA channel allocated
+[    1.203057] mmc1: queuing unknown CIS tuple 0x80 (2 bytes)
+[    1.204734] mmc1: queuing unknown CIS tuple 0x80 (3 bytes)
+[    1.206409] mmc1: queuing unknown CIS tuple 0x80 (3 bytes)
+[    1.209522] mmc1: queuing unknown CIS tuple 0x80 (7 bytes)
+[    1.211213] mmc1: queuing unknown CIS tuple 0x80 (3 bytes)
+[    1.220017] mmc0: SDHCI controller on fe340000.emmc2 [fe340000.emmc2] using ADMA
+[    1.223197] of_cfs_init
+[    1.223331] of_cfs_init: OK
+[    1.224716] Waiting for root device PARTUUID=4b435626-02...
+[    1.253467] random: fast init done
+[    1.260750] mmc0: new high speed SDHC card at address 1234
+[    1.261754] mmcblk0: mmc0:1234 SA08G 7.21 GiB
+[    1.263927]  mmcblk0: p1 p2
+[    1.283116] mmc1: new high speed SDIO card at address 0001
+[    1.295869] EXT4-fs (mmcblk0p2): mounted filesystem with ordered data mode. Opts: (null)
+[    1.295967] VFS: Mounted root (ext4 filesystem) readonly on device 179:2.
+[    1.304374] devtmpfs: mounted
+[    1.312850] Freeing unused kernel memory: 2048K
+[    1.318427] Run /sbin/init as init process
+[    1.467332] usb 1-1: new high-speed USB device number 2 using xhci_hcd
+[    1.649953] usb 1-1: New USB device found, idVendor=2109, idProduct=3431, bcdDevice= 4.21
+[    1.650019] usb 1-1: New USB device strings: Mfr=0, Product=1, SerialNumber=0
+[    1.650053] usb 1-1: Product: USB2.0 Hub
+[    1.652333] hub 1-1:1.0: USB hub found
+[    1.652607] hub 1-1:1.0: 4 ports detected
+[    2.019300] systemd[1]: System time before build time, advancing clock.
+[    2.165200] NET: Registered protocol family 10
+[    2.166585] Segment Routing with IPv6
+[    2.204316] systemd[1]: systemd 241 running in system mode. (+PAM +AUDIT +SELINUX +IMA +APPARMOR +SMACK +SYSVINIT +UTMP +LIBCRYPTSETUP +GCRYPT +GNUTLS +ACL +XZ +LZ4 +SECCOMP +BLKID +ELFUTILS +KMOD -IDN2 +IDN -PCRE2 default-hierarchy=hybrid)
+[    2.205150] systemd[1]: Detected architecture arm.
+[    2.260927] systemd[1]: Set hostname to <raspberrypi>.
+[    2.951260] random: systemd: uninitialized urandom read (16 bytes read)
+[    2.961786] random: systemd: uninitialized urandom read (16 bytes read)
+[    2.963985] systemd[1]: Created slice User and Session Slice.
+[    2.964706] random: systemd: uninitialized urandom read (16 bytes read)
+[    2.965293] systemd[1]: Listening on fsck to fsckd communication Socket.
+[    2.966302] systemd[1]: Listening on udev Kernel Socket.
+[    2.967124] systemd[1]: Started Forward Password Requests to Wall Directory Watch.
+[    2.967890] systemd[1]: Reached target Swap.
+[    2.996483] systemd[1]: Condition check resulted in Journal Audit Socket being skipped.
+[    2.997677] systemd[1]: Listening on Journal Socket.
+[    3.730315] EXT4-fs (mmcblk0p2): re-mounted. Opts: (null)
+[    3.828179] systemd-journald[129]: Received request to flush runtime journal from PID 1
+[    4.394451] vc_sm_cma: module is from the staging directory, the quality is unknown, you have been warned.
+[    4.396738] bcm2835_vc_sm_cma_probe: Videocore shared memory driver
+[    4.396759] [vc_sm_connected_init]: start
+[    4.398405] [vc_sm_connected_init]: installed successfully
+[    4.410214] rpivid-mem feb00000.hevc-decoder: rpivid-hevcmem initialised: Registers at 0xfeb00000 length 0x00010000
+[    4.410688] rpivid-mem feb10000.rpivid-local-intc: rpivid-intcmem initialised: Registers at 0xfeb10000 length 0x00001000
+[    4.411103] rpivid-mem feb20000.h264-decoder: rpivid-h264mem initialised: Registers at 0xfeb20000 length 0x00010000
+[    4.411531] rpivid-mem feb30000.vp9-decoder: rpivid-vp9mem initialised: Registers at 0xfeb30000 length 0x00010000
+[    4.445374] mc: Linux media interface: v0.10
+[    4.499483] snd_bcm2835: module is from the staging directory, the quality is unknown, you have been warned.
+[    4.509476] bcm2835_audio bcm2835_audio: card created with 8 channels
+[    4.536338] videodev: Linux video capture interface: v2.00
+[    4.717632] bcm2835_mmal_vchiq: module is from the staging directory, the quality is unknown, you have been warned.
+[    4.719888] bcm2835_mmal_vchiq: module is from the staging directory, the quality is unknown, you have been warned.
+[    4.750977] bcm2835_isp: module is from the staging directory, the quality is unknown, you have been warned.
+[    4.754282] bcm2835_v4l2: module is from the staging directory, the quality is unknown, you have been warned.
+[    4.756198] bcm2835_codec: module is from the staging directory, the quality is unknown, you have been warned.
+[    4.768665] bcm2835-codec bcm2835-codec: Device registered as /dev/video10
+[    4.768713] bcm2835-codec bcm2835-codec: Loaded V4L2 decode
+[    4.781799] bcm2835-codec bcm2835-codec: Device registered as /dev/video11
+[    4.781844] bcm2835-codec bcm2835-codec: Loaded V4L2 encode
+[    4.784731] bcm2835-isp bcm2835-isp: Device node output[0] registered as /dev/video13
+[    4.785537] bcm2835-isp bcm2835-isp: Device node capture[0] registered as /dev/video14
+[    4.786083] bcm2835-isp bcm2835-isp: Device node capture[1] registered as /dev/video15
+[    4.786429] bcm2835-isp bcm2835-isp: Device node stats[2] registered as /dev/video16
+[    4.786498] bcm2835-isp bcm2835-isp: Register output node 0 with media controller
+[    4.786522] bcm2835-isp bcm2835-isp: Register capture node 1 with media controller
+[    4.786543] bcm2835-isp bcm2835-isp: Register capture node 2 with media controller
+[    4.786564] bcm2835-isp bcm2835-isp: Register capture node 3 with media controller
+[    4.786787] bcm2835-isp bcm2835-isp: Loaded V4L2 bcm2835-isp
+[    4.800022] bcm2835-codec bcm2835-codec: Device registered as /dev/video12
+[    4.800070] bcm2835-codec bcm2835-codec: Loaded V4L2 isp
+[    4.891262] [drm] Initialized v3d 1.0.0 20180419 for fec00000.v3d on minor 0
+[    4.967796] [drm] No displays found. Consider forcing hotplug if HDMI is attached
+[    4.967917] vc4-drm gpu: bound fe600000.firmwarekms (ops vc4_fkms_ops [vc4])
+[    4.967942] [drm] Supports vblank timestamp caching Rev 2 (21.10.2013).
+[    4.967955] [drm] No driver support for vblank timestamp query.
+[    4.967967] [drm] Setting vblank_disable_immediate to false because get_vblank_timestamp == NULL
+[    4.968176] cfg80211: Loading compiled-in X.509 certificates for regulatory database
+[    4.974726] [drm] Initialized vc4 0.0.0 20140616 for gpu on minor 1
+[    5.205670] cfg80211: Loaded X.509 cert 'sforshee: 00b28ddf47aef9cea7'
+[    5.360666] brcmfmac: F1 signature read @0x18000000=0x15264345
+[    5.371016] brcmfmac: brcmf_fw_alloc_request: using brcm/brcmfmac43455-sdio for chip BCM4345/6
+[    5.371474] usbcore: registered new interface driver brcmfmac
+[    5.411094] brcmfmac mmc1:0001:1: Direct firmware load for brcm/brcmfmac43455-sdio.raspberrypi,4-model-b.txt failed with error -2
+[    5.651883] brcmfmac: brcmf_fw_alloc_request: using brcm/brcmfmac43455-sdio for chip BCM4345/6
+[    5.668382] brcmfmac: brcmf_c_preinit_dcmds: Firmware: BCM4345/6 wl0: Mar  2 2020 23:30:41 version 7.45.202 (r724630 CY) FWID 01-72f6ece2
+[    7.151485] random: crng init done
+[    7.151503] random: 7 urandom warning(s) missed due to ratelimiting
+[    7.216886] uart-pl011 fe201000.serial: no DMA platform data
+[    7.562008] 8021q: 802.1Q VLAN Support v1.8
+[    7.907466] Adding 102396k swap on /var/swap.  Priority:-2 extents:1 across:102396k SSFS
+[    7.957388] brcmfmac: brcmf_cfg80211_set_power_mgmt: power save enabled
+[    8.207238] bcmgenet: Skipping UMAC reset
+[    8.209050] bcmgenet fd580000.ethernet: configuring instance for external RGMII
+[    8.209186] bcmgenet fd580000.ethernet eth0: Link is Down
+[   13.561477] IPv6: ADDRCONF(NETDEV_CHANGE): wlan0: link becomes ready
+[   15.851952] Bluetooth: Core ver 2.22
+[   15.852019] NET: Registered protocol family 31
+[   15.852030] Bluetooth: HCI device and connection manager initialized
+[   15.852056] Bluetooth: HCI socket layer initialized
+[   15.852073] Bluetooth: L2CAP socket layer initialized
+[   15.852099] Bluetooth: SCO socket layer initialized
+[   16.004112] Bluetooth: HCI UART driver ver 2.3
+[   16.004132] Bluetooth: HCI UART protocol H4 registered
+[   16.004214] Bluetooth: HCI UART protocol Three-wire (H5) registered
+[   16.004548] Bluetooth: HCI UART protocol Broadcom registered
+[   16.264876] Bluetooth: BNEP (Ethernet Emulation) ver 1.3
+[   16.264883] Bluetooth: BNEP filters: protocol multicast
+[   16.264896] Bluetooth: BNEP socket layer initialized
+[   16.278841] NET: Registered protocol family 38
+[   16.299989] cryptd: max_cpu_qlen set to 1000
+[  668.529739] hci0: sock f6a1ab98
+[  668.529888] hdev hci0
+[  668.529907] chan cc223ddc
+[  668.529926] chan a4e632f5
+[  668.534336] hci0 status 0x00
+[  670.095732] hci0: sock f6a1ab98
+[  671.319728] hci0: sock f6a1ab98
+[  671.320209] hci0 status 0x00
+[  671.320632] hci0 status 0x00
+[  671.321136] hci0 status 0x00
+[  671.321669] hci0 status 0x00
+[  671.321687] hci0 acl mtu 1021:8 sco mtu 64:1
+[  671.322075] hci0 status 0x00
+[  671.322090] hci0 class 0x000000
+[  671.323517] hci0 status 0x00
+[  671.323895] hci0 status 0x00
+[  671.324292] hci0 status 0x00
+[  671.324306] hci0 num iac 4
+[  671.324698] hci0 opcode 0x0c39
+[  671.325127] hci0 opcode 0x0c05
+[  671.325503] hci0 opcode 0x0c16
+[  671.325888] hci0 status 0x00
+[  671.325902] hci0 le mtu 251:7
+[  671.326402] hci0 status 0x00
+[  671.327130] hci0 status 0x00
+[  671.327803] hci0 status 0x00
+[  671.329017] hci0 opcode 0x0c52
+[  671.329438] hci0 opcode 0x0c45
+[  671.329807] hci0 status 0x00
+[  671.330201] hci0 status 0x00
+[  671.330713] hci0 opcode 0x0c01
+[  671.331097] hci0 status 0x00
+[  671.331456] hci0 status 0x00
+[  671.331852] hci0 status 0x00
+[  671.332210] hci0 status 0x00
+[  671.332612] hci0 status 0x00
+[  671.332973] hci0 opcode 0x2001
+[  671.333329] hci0 status 0x00
+[  671.333732] hci0 status 0x00 size 128
+[  671.334121] hci0 status 0x00
+[  671.334508] hci0 status 0x00
+[  671.334880] hci0 status 0x00
+[  671.335245] hci0 status 0x00
+[  671.335660] hci0 status 0x00
+[  671.336115] hci0 status 0x00
+[  671.337742] hci0 opcode 0x0c63
+[  671.338217] hci0 opcode 0x100b
+[  671.338589] hci0 status 0x00
+[  671.338970] hci0 opcode 0x140c
+[  671.339383] hci0 opcode 0x0c77
+[  671.339746] hci0 status 0x00
+[  671.339815] hci0
+[  671.340338] hci0 opcode 0x2008
+[  671.340788] hci0 opcode 0x2009
+[  671.342006] hci0 status 0x00
+[  671.342055] hci0: err 0
+[  696.176902] hci0: sock 02ffd705
+[  696.177083] hdev hci0
+[  696.177096] chan 0ac4da72
+[  696.177109] chan 55b4f471
+[  696.180849] hci0 status 0x00
+[  696.186361] hci0: sock f8885f8a
+[  696.186802] hci0 status 0x00
+[  696.187229] hci0 status 0x00
+[  696.188506] hci0 status 0x00
+[  696.189012] hci0 status 0x00
+[  696.189023] hci0 acl mtu 1021:8 sco mtu 64:1
+[  696.189372] hci0 status 0x00
+[  696.189381] hci0 class 0x000000
+[  696.190730] hci0 status 0x00
+[  696.191123] hci0 status 0x00
+[  696.191536] hci0 status 0x00
+[  696.191544] hci0 num iac 4
+[  696.191939] hci0 opcode 0x0c39
+[  696.192288] hci0 opcode 0x0c05
+[  696.192770] hci0 opcode 0x0c16
+[  696.193143] hci0 status 0x00
+[  696.193153] hci0 le mtu 251:7
+[  696.193570] hci0 status 0x00
+[  696.194018] hci0 status 0x00
+[  696.194699] hci0 status 0x00
+[  696.195881] hci0 opcode 0x0c52
+[  696.196208] hci0 opcode 0x0c45
+[  696.196578] hci0 status 0x00
+[  696.197301] hci0 status 0x00
+[  696.197816] hci0 opcode 0x0c01
+[  696.198221] hci0 status 0x00
+[  696.198563] hci0 status 0x00
+[  696.198949] hci0 status 0x00
+[  696.199300] hci0 status 0x00
+[  696.199641] hci0 status 0x00
+[  696.199970] hci0 opcode 0x2001
+[  696.200291] hci0 status 0x00
+[  696.200621] hci0 status 0x00 size 128
+[  696.200981] hci0 status 0x00
+[  696.201450] hci0 status 0x00
+[  696.201982] hci0 status 0x00
+[  696.202509] hci0 status 0x00
+[  696.202920] hci0 status 0x00
+[  696.203362] hci0 status 0x00
+[  696.203723] hci0 opcode 0x0c63
+[  696.204086] hci0 opcode 0x100b
+[  696.204466] hci0 status 0x00
+[  696.204949] hci0 opcode 0x140c
+[  696.205297] hci0 opcode 0x0c77
+[  696.205711] hci0 status 0x00
+[  696.205755] hci0
+[  696.206243] hci0 opcode 0x2008
+[  696.206710] hci0 opcode 0x2009
+[  696.208073] hci0 status 0x00
+[  696.208118] hci0: err 0
+[  696.213413] hci0: sock d138c4de
+[  696.333840] hci0: sock 5cda7e18
+[  696.334032] hci0: sock 5cda7e18
+[  696.334039] hci0: IO capability set to 0x03
+[  696.345668] hci0: sock 5cda7e18
+[  696.353578] hci0: sock 5cda7e18
+[  696.353606] hci0: status 0x00
+[  696.353738] hci0: sock 5cda7e18
+[  696.353760] hci0: status 0x00
+[  696.783098] hci0: sock 5cda7e18
+[  696.783592] hci0 opcode 0x2008
+[  696.783625] hci0: status 0x00
+[  696.783739] hci0: sock 5cda7e18
+[  696.790890] hci0: sock 5cda7e18
+[  696.791400] hci0 opcode 0x2008
+[  696.791858] hci0 opcode 0x2009
+[  696.792195] hci0 status 0x00
+[  696.792632] hci0 status 0x00
+[  696.792640] hci0: status 0
+[  737.806548] hci0 status 0x00
+[  737.806567] hci0 dst dc:a6:32:28:34:e4
+[  737.811719] hci0 status 0x00
+[  737.811761] hci0 opcode 0x2016
+[  737.952834] hci0 status 0x00
+[  737.952845] hci0 hcon 4ae5e579
+[  737.952856] pchan d72c224a
+[  737.952863] created chan 8e14ffd9
+[  737.952885] conn 413531fd hcon 4ae5e579 level 0x01
+[  737.952898] conn 413531fd hcon 4ae5e579 level 0x00
+[  737.952905] chan 8e14ffd9
+[  738.049916] hcon 4ae5e579 mode 0
+[  740.975230] hcon 4ae5e579 mode 0
+[  740.976345] hcon 4ae5e579 mode 0
+[  740.976391] hci0 num_hndl 1
+[  741.072711] hcon 4ae5e579 mode 0
+[  741.073256] hcon 4ae5e579 mode 0
+[  741.073781] hci0 num_hndl 1
+[  741.170244] hcon 4ae5e579 mode 0
+[  741.170684] hci0 num_hndl 1
+[  741.170723] hcon 4ae5e579 mode 0
+[  741.267683] hcon 4ae5e579 mode 0
+[  741.268268] hcon 4ae5e579 mode 0
+[  741.268308] hci0 num_hndl 1
+[  741.365233] hcon 4ae5e579 mode 0
+[  741.365679] hcon 4ae5e579 mode 0
+[  741.365774] hci0 num_hndl 1
+[  741.462726] hcon 4ae5e579 mode 0
+[  741.463406] hci0 num_hndl 1
+[  741.463453] hcon 4ae5e579 mode 0
+[  741.560243] hcon 4ae5e579 mode 0
+[  741.560613] hcon 4ae5e579 mode 0
+[  741.560904] hci0 num_hndl 1
+[  741.657750] hcon 4ae5e579 mode 0
+[  741.658161] hcon 4ae5e579 mode 0
+[  741.658411] hci0 num_hndl 1
+[  741.661646] dc:a6:32:35:ef:e2 -> dc:a6:32:28:34:e4
+[  741.661691] conn 413531fd hcon 4ae5e579 level 0x01
+[  741.662089] dc:a6:32:35:ef:e2 -> dc:a6:32:28:34:e4
+[  741.662126] conn 413531fd hcon 4ae5e579 level 0x01
+[  741.755405] hcon 4ae5e579 mode 0
+[  741.755698] hci0 num_hndl 1
+[  741.755867] hcon 4ae5e579 mode 0
+[  763.499547] hci0 num_hndl 1
+[  763.547097] hcon 4ae5e579 mode 0
+[  763.681693] hci0 num_hndl 1
+[  763.742081] hcon 4ae5e579 mode 0
+[  763.742799] hcon 4ae5e579 mode 0
+[  763.743131] hcon 4ae5e579 mode 0
+[  763.743808] hcon 4ae5e579 mode 0
+[  763.790841] hcon 4ae5e579 mode 0
+[  763.791370] hci0 num_hndl 1
+[  764.056650] hci0 num_hndl 1
+[  765.937105] hci0 num_hndl 1
+[  765.984743] hcon 4ae5e579 mode 0
+[  765.985166] hcon 4ae5e579 mode 0
+[  765.985717] hcon 4ae5e579 mode 0
+[  765.986451] hcon 4ae5e579 mode 0
+[  766.033430] hcon 4ae5e579 mode 0
+[  766.034703] hci0 num_hndl 1
+[  766.082246] hcon 4ae5e579 mode 0
+[  766.082771] hci0 num_hndl 1
+[  766.087671] hci0 num_hndl 1
+[  766.130915] hcon 4ae5e579 mode 0
+[  766.179636] hcon 4ae5e579 mode 0
+[  766.228992] hci0 num_hndl 1
+[  766.233855] hci0 num_hndl 1
+[  766.277176] hcon 4ae5e579 mode 0
+[  766.325874] hcon 4ae5e579 mode 0
+[  766.375234] hci0 num_hndl 1
+[  766.423690] hcon 4ae5e579 mode 0
+[  766.423870] hci0 num_hndl 1
+[  766.474599] hcon 4ae5e579 mode 0
+[  766.569793] hcon 4ae5e579 mode 0
+[  766.570124] hcon 4ae5e579 mode 0
+[  766.571192] hci0 num_hndl 1
+[  766.667429] hcon 4ae5e579 mode 0
+[  766.667687] hci0 num_hndl 1
+[  766.816339] hcon 4ae5e579 mode 0
+[  766.817011] hcon 4ae5e579 mode 0
+[  766.820993] hci0: sock 3af922c3
+[  766.911027] hcon 4ae5e579 mode 0
+[  766.911445] hci0 num_hndl 1
+[  766.960146] hcon 4ae5e579 mode 0
+[  767.011397] hci0 num_hndl 1
+[  767.057226] hcon 4ae5e579 mode 0
+[  767.306777] hci0 num_hndl 1
+[  769.836998] hci0 status 0x00
+[  769.837127] chan 8e14ffd9
+[  769.837149] hci0 hcon 4ae5e579 chan 3c2fd2f4
+[  769.846220] hci0: sock 5cda7e18
+[  769.870043] hci0 hcon 4ae5e579 handle 64
+[  769.870077] hcon 4ae5e579
+[  769.913524] hci0 status 0x0c
+[  769.913551] hci0: status 12
+[  769.914661] hci0: sock 5cda7e18
+[  769.915530] hci0 opcode 0x2008
+[  769.915604] hci0: status 0x00
+[  770.293862] hci0: sock 5cda7e18
+[  770.293930] hci0: status 0x00
+[  770.294323] hci0: sock 5cda7e18
+[  770.294376] hci0: status 0x00
+[  770.675130] hci0: sock 5cda7e18
+[  770.675769] hci0 opcode 0x2008
+[  770.675860] hci0: status 0x00
+[  770.676109] hci0: sock 5cda7e18
+[  770.689992] hci0: sock 5cda7e18
+[  770.691432] hci0 opcode 0x2008
+[  770.692001] hci0 status 0x00
+[  770.692681] hci0 status 0x00
+[  770.692701] hci0: status 0
+[  790.657807] hci0: sock 5cda7e18
+[  790.670177] hci0: sock 5cda7e18
+[  790.677397] hci0: sock 5cda7e18
+[  790.679273] hci0 status 0x00
+[  790.679299] hci0: status 0
+[  806.286499] hci0: sock 5cda7e18
+[  806.286669] hci0: sock 5cda7e18
+[  806.286677] hci0: IO capability set to 0x03
+[  806.294326] hci0: sock 5cda7e18
+[  806.485876] hci0: sock 5cda7e18
+[  806.486357] hci0 opcode 0x2008
+[  806.486385] hci0: status 0x00
+[  806.486509] hci0: sock 5cda7e18
+[  806.492392] hci0: sock 5cda7e18
+[  806.492876] hci0 opcode 0x2008
+[  806.493314] hci0 opcode 0x2009
+[  806.493649] hci0 status 0x00
+[  806.494081] hci0 status 0x00
+[  806.494089] hci0: status 0
+[  810.341970] hci0 status 0x00
+[  810.341988] hci0 dst dc:a6:32:28:34:e4
+[  810.345425] hci0 status 0x00
+[  810.345528] hci0 opcode 0x2016
+[  810.473892] hci0 status 0x00
+[  810.473903] hci0 hcon 499f76c1
+[  810.473915] pchan d72c224a
+[  810.473922] created chan 47be7c5e
+[  810.473947] conn ef4c20ea hcon 499f76c1 level 0x01
+[  810.473964] conn ef4c20ea hcon 499f76c1 level 0x00
+[  810.473971] chan 47be7c5e
+[  810.480409] dc:a6:32:35:ef:e2 -> dc:a6:32:28:34:e4
+[  810.480430] conn ef4c20ea hcon 499f76c1 level 0x01
+[  810.480602] dc:a6:32:35:ef:e2 -> dc:a6:32:28:34:e4
+[  810.480619] conn ef4c20ea hcon 499f76c1 level 0x01
+[  810.619711] hcon 499f76c1 mode 0
+[  810.816032] hci0 num_hndl 1
+[  810.863803] hcon 499f76c1 mode 0
+[  810.864184] hci0 num_hndl 1
+[  810.864202] hcon 499f76c1 mode 0
+[  810.912250] hcon 499f76c1 mode 0
+[  810.912930] hcon 499f76c1 mode 0
+[  810.913805] hcon 499f76c1 mode 0
+[  810.913962] hci0 num_hndl 1
+[  810.961053] hcon 499f76c1 mode 0
+[  810.961709] hcon 499f76c1 mode 0
+[  810.962332] hcon 499f76c1 mode 0
+[  810.962698] hci0 num_hndl 1
+[  810.963027] hcon 499f76c1 mode 0
+[  811.009819] hcon 499f76c1 mode 0
+[  811.010169] hci0 num_hndl 1
+[  811.010551] hcon 499f76c1 mode 0
+[  811.011270] hcon 499f76c1 mode 0
+[  811.011497] hci0 num_hndl 1
+[  811.011723] hcon 499f76c1 mode 0
+[  811.058556] hcon 499f76c1 mode 0
+[  811.059519] hcon 499f76c1 mode 0
+[  811.059692] hci0 num_hndl 1
+[  811.107370] hcon 499f76c1 mode 0
+[  811.107710] hci0 num_hndl 1
+[  811.107955] hcon 499f76c1 mode 0
+[  811.156188] hcon 499f76c1 mode 0
+[  811.156599] hci0 num_hndl 1
+[  811.156711] hcon 499f76c1 mode 0
+[  811.204921] hcon 499f76c1 mode 0
+[  811.205252] hci0 num_hndl 1
+[  811.205529] hcon 499f76c1 mode 0
+[  811.302666] hci0 num_hndl 1
+[  811.644821] hci0 num_hndl 1
+[  811.692514] hcon 499f76c1 mode 0
+[  811.692887] hcon 499f76c1 mode 0
+[  811.693542] hcon 499f76c1 mode 0
+[  811.693973] hcon 499f76c1 mode 0
+[  811.741074] hcon 499f76c1 mode 0
+[  811.790114] hci0 num_hndl 1
+[  811.838738] hcon 499f76c1 mode 0
+[  811.839125] hcon 499f76c1 mode 0
+[  811.839607] hci0 num_hndl 1
+[  811.936225] hcon 499f76c1 mode 0
+[  811.936618] hcon 499f76c1 mode 0
+[  811.936780] hci0 num_hndl 1
+[  812.033724] hcon 499f76c1 mode 0
+[  812.034089] hcon 499f76c1 mode 0
+[  812.034857] hci0 num_hndl 1
+[  812.131410] hcon 499f76c1 mode 0
+[  812.131584] hci0 num_hndl 1
+[  812.179874] hcon 499f76c1 mode 0
+[  812.180369] hcon 499f76c1 mode 0
+[  812.180874] hcon 499f76c1 mode 0
+[  812.229803] hci0 num_hndl 1
+[  812.277437] hcon 499f76c1 mode 0
+[  812.277768] hci0 num_hndl 1
+[  812.278011] hcon 499f76c1 mode 0
+[  812.278527] hcon 499f76c1 mode 0
+[  812.326141] hcon 499f76c1 mode 0
+[  812.326745] hci0 num_hndl 1
+[  812.375152] hcon 499f76c1 mode 0
+[  812.375450] hci0 num_hndl 1
+[  812.569906] hcon 499f76c1 mode 0
+[  812.667514] hcon 499f76c1 mode 0
+[  812.667907] hcon 499f76c1 mode 0
+[  812.667926] chan 47be7c5e
+[  812.667941] conn ef4c20ea
+[  812.668012] code 0x02
+[  812.668582] hci0 num_hndl 1
+[  812.765609] hcon 499f76c1 mode 0
+[  812.765629] chan 47be7c5e
+[  812.765645] conn ef4c20ea
+[  812.765687] hci0: 
+[  812.765702] code 0x0c
+[  812.773942] hci0 selected method 0x04
+[  812.862794] hcon 499f76c1 mode 0
+[  812.862813] chan 47be7c5e
+[  812.862827] conn ef4c20ea
+[  812.862843] code 0x04
+[  812.862928] hci0 num_hndl 1
+[  812.960063] hcon 499f76c1 mode 0
+[  812.960082] chan 47be7c5e
+[  812.960096] conn ef4c20ea
+[  812.960141] code 0x0d
+[  813.057936] hci0 num_hndl 1
+[  813.058563] hci0 handle 0x0040
+[  813.059133] hci0 opcode 0x201a
+[  813.252755] hci0 status 0x00
+[  813.252773] hcon 499f76c1
+[  813.252820] chan 47be7c5e
+[  813.252838] conn ef4c20ea
+[  813.252853] keydist 0x0
+[  813.253390] hci0 status 0x00
+[  813.349975] hcon 499f76c1 mode 0
+[  813.447769] hcon 499f76c1 mode 0
+[  813.448050] hci0 num_hndl 1
+[  814.278415] hci0 status 0x00
+[  814.278547] chan 47be7c5e
+[  814.278566] hci0 hcon 499f76c1 chan cdebe776
+[  814.322530] hci0 hcon 499f76c1 handle 64
+[  814.322564] hcon 499f76c1
+[ 1006.735386] hci0: sock 5cda7e18
+[ 1006.735823] hci0: sock 5cda7e18
+[ 1006.736911] hci0: sock 5cda7e18
+[ 1006.737486] hci0 status 0x0c
+[ 1006.737509] hci0: status 12
+[ 1010.282960] hci0: sock 5cda7e18
+[ 1010.283131] hci0: sock 5cda7e18
+[ 1010.283139] hci0: IO capability set to 0x03
+[ 1010.290469] hci0: sock 5cda7e18
+[ 1010.554468] hci0: sock 5cda7e18
+[ 1010.555394] hci0 opcode 0x2008
+[ 1010.555441] hci0: status 0x00
+[ 1010.555643] hci0: sock 5cda7e18
+[ 1010.566390] hci0: sock 5cda7e18
+[ 1010.567132] hci0 opcode 0x2008
+[ 1010.567514] hci0 status 0x00
+[ 1010.567962] hci0 status 0x00
+[ 1010.567978] hci0: status 0
+[ 1024.681431] hci0 status 0x00
+[ 1024.681450] hci0 dst dc:a6:32:28:34:e4
+[ 1024.685052] hci0 status 0x00
+[ 1024.685111] hci0 opcode 0x2016
+[ 1024.784313] hci0 status 0x00
+[ 1024.784335] hci0 hcon 3e8d0445
+[ 1024.784357] pchan d72c224a
+[ 1024.784373] created chan 4994c42d
+[ 1024.784424] conn dde2d3e8 hcon 3e8d0445 level 0x01
+[ 1024.784456] conn dde2d3e8 hcon 3e8d0445 level 0x00
+[ 1024.784472] chan 4994c42d
+[ 1024.792541] dc:a6:32:35:ef:e2 -> dc:a6:32:28:34:e4
+[ 1024.792562] conn dde2d3e8 hcon 3e8d0445 level 0x01
+[ 1024.792707] dc:a6:32:35:ef:e2 -> dc:a6:32:28:34:e4
+[ 1024.792723] conn dde2d3e8 hcon 3e8d0445 level 0x01
+[ 1024.881277] hcon 3e8d0445 mode 0
+[ 1025.078108] hci0 num_hndl 1
+[ 1025.125217] hcon 3e8d0445 mode 0
+[ 1025.125999] hcon 3e8d0445 mode 0
+[ 1025.126263] hcon 3e8d0445 mode 0
+[ 1025.126561] hci0 num_hndl 1
+[ 1025.173882] hcon 3e8d0445 mode 0
+[ 1025.174583] hcon 3e8d0445 mode 0
+[ 1025.175461] hci0 num_hndl 1
+[ 1025.222663] hcon 3e8d0445 mode 0
+[ 1025.223329] hcon 3e8d0445 mode 0
+[ 1025.223939] hcon 3e8d0445 mode 0
+[ 1025.224144] hci0 num_hndl 1
+[ 1025.224625] hcon 3e8d0445 mode 0
+[ 1025.224813] hci0 num_hndl 1
+[ 1025.271359] hcon 3e8d0445 mode 0
+[ 1025.272016] hcon 3e8d0445 mode 0
+[ 1025.272235] hci0 num_hndl 1
+[ 1025.272603] hcon 3e8d0445 mode 0
+[ 1025.273293] hcon 3e8d0445 mode 0
+[ 1025.273684] hci0 num_hndl 1
+[ 1025.320125] hcon 3e8d0445 mode 0
+[ 1025.320746] hcon 3e8d0445 mode 0
+[ 1025.321426] hcon 3e8d0445 mode 0
+[ 1025.369399] hci0 num_hndl 1
+[ 1025.370517] hci0 num_hndl 1
+[ 1025.417686] hcon 3e8d0445 mode 0
+[ 1025.418138] hcon 3e8d0445 mode 0
+[ 1025.418709] hcon 3e8d0445 mode 0
+[ 1025.419224] hcon 3e8d0445 mode 0
+[ 1025.466902] hci0 num_hndl 1
+[ 1025.515276] hcon 3e8d0445 mode 0
+[ 1025.515674] hcon 3e8d0445 mode 0
+[ 1025.515844] hci0 num_hndl 1
+[ 1025.813043] hci0 num_hndl 1
+[ 1025.906374] hci0 num_hndl 1
+[ 1025.954015] hcon 3e8d0445 mode 0
+[ 1025.954393] hcon 3e8d0445 mode 0
+[ 1025.954991] hcon 3e8d0445 mode 0
+[ 1025.955487] hcon 3e8d0445 mode 0
+[ 1026.002667] hcon 3e8d0445 mode 0
+[ 1026.051731] hci0 num_hndl 1
+[ 1026.148988] hcon 3e8d0445 mode 0
+[ 1026.198207] hci0 num_hndl 1
+[ 1026.246525] hcon 3e8d0445 mode 0
+[ 1026.246919] hcon 3e8d0445 mode 0
+[ 1026.344474] hci0 num_hndl 1
+[ 1026.392786] hcon 3e8d0445 mode 0
+[ 1026.393172] hcon 3e8d0445 mode 0
+[ 1026.441973] hci0 num_hndl 1
+[ 1026.490220] hcon 3e8d0445 mode 0
+[ 1026.587702] hcon 3e8d0445 mode 0
+[ 1026.588613] hcon 3e8d0445 mode 0
+[ 1026.588724] hcon 3e8d0445 mode 0
+[ 1026.637038] hci0 num_hndl 1
+[ 1026.638270] hci0 num_hndl 1
+[ 1026.685243] hcon 3e8d0445 mode 0
+[ 1026.685932] hcon 3e8d0445 mode 0
+[ 1026.686800] hci0 num_hndl 1
+[ 1026.686839] hcon 3e8d0445 mode 0
+[ 1026.733978] hcon 3e8d0445 mode 0
+[ 1026.735089] hci0 num_hndl 1
+[ 1026.782731] hcon 3e8d0445 mode 0
+[ 1026.880606] hcon 3e8d0445 mode 0
+[ 1026.929479] hci0 num_hndl 1
+[ 1026.977795] hcon 3e8d0445 mode 0
+[ 1026.978187] hcon 3e8d0445 mode 0
+[ 1026.978205] chan 4994c42d
+[ 1026.978219] conn dde2d3e8
+[ 1026.978279] code 0x02
+[ 1027.076066] hcon 3e8d0445 mode 0
+[ 1027.076085] chan 4994c42d
+[ 1027.076099] conn dde2d3e8
+[ 1027.076141] hci0: 
+[ 1027.076156] code 0x0c
+[ 1027.084373] hci0 selected method 0x04
+[ 1027.084417] hci0 num_hndl 1
+[ 1027.172872] hcon 3e8d0445 mode 0
+[ 1027.172890] chan 4994c42d
+[ 1027.172905] conn dde2d3e8
+[ 1027.172919] code 0x04
+[ 1027.270612] hcon 3e8d0445 mode 0
+[ 1027.270630] chan 4994c42d
+[ 1027.270644] conn dde2d3e8
+[ 1027.270688] code 0x0d
+[ 1027.270749] hci0 num_hndl 1
+[ 1027.368450] hci0 handle 0x0040
+[ 1027.368915] hci0 opcode 0x201a
+[ 1027.563103] hci0 status 0x00
+[ 1027.563120] hcon 3e8d0445
+[ 1027.563165] chan 4994c42d
+[ 1027.563182] conn dde2d3e8
+[ 1027.563196] keydist 0x0
+[ 1027.563403] hci0 num_hndl 1
+[ 1027.563755] hci0 status 0x00
+[ 1027.709031] hcon 3e8d0445 mode 0
+[ 1027.938106] hci0 num_hndl 1
+[ 1028.637521] hci0 num_hndl 1
+[ 1028.637560] hci0 status 0x00
+[ 1028.637740] chan 4994c42d
+[ 1028.637767] hci0 hcon 3e8d0445 chan 39684073
+[ 1028.677739] hci0 hcon 3e8d0445 handle 64
+[ 1028.677771] hcon 3e8d0445
+[ 1057.119260] hci0: sock 5cda7e18
+[ 1057.119719] hci0: sock 5cda7e18
+[ 1057.120711] hci0: sock 5cda7e18
+[ 1057.121210] hci0 status 0x0c
+[ 1057.121232] hci0: status 12
+[ 1060.822839] hci0: sock 5cda7e18
+[ 1060.823037] hci0: sock 5cda7e18
+[ 1060.823044] hci0: IO capability set to 0x03
+[ 1060.828320] hci0: sock 5cda7e18
+[ 1061.134207] hci0: sock 5cda7e18
+[ 1061.134856] hci0 opcode 0x2008
+[ 1061.134937] hci0: status 0x00
+[ 1061.135165] hci0: sock 5cda7e18
+[ 1061.150516] hci0: sock 5cda7e18
+[ 1061.151445] hci0 opcode 0x2008
+[ 1061.151883] hci0 status 0x00
+[ 1061.152378] hci0 status 0x00
+[ 1061.152398] hci0: status 0
+[ 1099.625256] hci0 status 0x00
+[ 1099.625275] hci0 dst dc:a6:32:28:34:e4
+[ 1099.628759] hci0 status 0x00
+[ 1099.628866] hci0 opcode 0x2016
+[ 1099.742902] hci0 status 0x00
+[ 1099.742913] hci0 hcon 6dd11f28
+[ 1099.742923] pchan d72c224a
+[ 1099.742930] created chan a57fb782
+[ 1099.742952] conn b981aed7 hcon 6dd11f28 level 0x01
+[ 1099.742967] conn b981aed7 hcon 6dd11f28 level 0x00
+[ 1099.742974] chan a57fb782
+[ 1099.749738] dc:a6:32:35:ef:e2 -> dc:a6:32:28:34:e4
+[ 1099.749759] conn b981aed7 hcon 6dd11f28 level 0x01
+[ 1099.749942] dc:a6:32:35:ef:e2 -> dc:a6:32:28:34:e4
+[ 1099.749957] conn b981aed7 hcon 6dd11f28 level 0x01
+[ 1099.839963] hcon 6dd11f28 mode 0
+[ 1100.036276] hci0 num_hndl 1
+[ 1100.084055] hcon 6dd11f28 mode 0
+[ 1100.084616] hci0 num_hndl 1
+[ 1100.084632] hcon 6dd11f28 mode 0
+[ 1100.084921] hcon 6dd11f28 mode 0
+[ 1100.085505] hcon 6dd11f28 mode 0
+[ 1100.132565] hcon 6dd11f28 mode 0
+[ 1100.133751] hci0 num_hndl 1
+[ 1100.181375] hcon 6dd11f28 mode 0
+[ 1100.181704] hci0 num_hndl 1
+[ 1100.181940] hcon 6dd11f28 mode 0
+[ 1100.182648] hcon 6dd11f28 mode 0
+[ 1100.183060] hci0 num_hndl 1
+[ 1100.183673] hcon 6dd11f28 mode 0
+[ 1100.230011] hcon 6dd11f28 mode 0
+[ 1100.230709] hcon 6dd11f28 mode 0
+[ 1100.230934] hci0 num_hndl 1
+[ 1100.231293] hcon 6dd11f28 mode 0
+[ 1100.231990] hcon 6dd11f28 mode 0
+[ 1100.232378] hci0 num_hndl 1
+[ 1100.278826] hcon 6dd11f28 mode 0
+[ 1100.279439] hcon 6dd11f28 mode 0
+[ 1100.280114] hcon 6dd11f28 mode 0
+[ 1100.328090] hci0 num_hndl 1
+[ 1100.329215] hci0 num_hndl 1
+[ 1100.376378] hcon 6dd11f28 mode 0
+[ 1100.376832] hcon 6dd11f28 mode 0
+[ 1100.377407] hcon 6dd11f28 mode 0
+[ 1100.377914] hcon 6dd11f28 mode 0
+[ 1100.474415] hci0 num_hndl 1
+[ 1100.571470] hcon 6dd11f28 mode 0
+[ 1100.571858] hcon 6dd11f28 mode 0
+[ 1100.571953] hci0 num_hndl 1
+[ 1100.766942] hci0 num_hndl 1
+[ 1100.815230] hcon 6dd11f28 mode 0
+[ 1100.815577] hcon 6dd11f28 mode 0
+[ 1100.815749] hci0 num_hndl 1
+[ 1100.816195] hcon 6dd11f28 mode 0
+[ 1100.816685] hcon 6dd11f28 mode 0
+[ 1100.863867] hcon 6dd11f28 mode 0
+[ 1100.961455] hci0 num_hndl 1
+[ 1101.010203] hcon 6dd11f28 mode 0
+[ 1101.010619] hcon 6dd11f28 mode 0
+[ 1101.059386] hci0 num_hndl 1
+[ 1101.156499] hcon 6dd11f28 mode 0
+[ 1101.156865] hcon 6dd11f28 mode 0
+[ 1101.205651] hci0 num_hndl 1
+[ 1101.253965] hcon 6dd11f28 mode 0
+[ 1101.254348] hcon 6dd11f28 mode 0
+[ 1101.303153] hci0 num_hndl 1
+[ 1101.351406] hcon 6dd11f28 mode 0
+[ 1101.564953] hci0 num_hndl 1
+[ 1107.689123] hcon 6dd11f28 mode 0
+[ 1107.689686] hcon 6dd11f28 mode 0
+[ 1107.690088] hcon 6dd11f28 mode 0
+[ 1107.739006] hci0 num_hndl 1
+[ 1107.786642] hcon 6dd11f28 mode 0
+[ 1107.787010] hci0 num_hndl 1
+[ 1107.835348] hcon 6dd11f28 mode 0
+[ 1107.884035] hcon 6dd11f28 mode 0
+[ 1107.884512] hcon 6dd11f28 mode 0
+[ 1107.933355] hci0 num_hndl 1
+[ 1107.981868] hcon 6dd11f28 mode 0
+[ 1107.982044] hci0 num_hndl 1
+[ 1108.274084] hcon 6dd11f28 mode 0
+[ 1108.371713] hcon 6dd11f28 mode 0
+[ 1108.372108] hcon 6dd11f28 mode 0
+[ 1108.372126] chan a57fb782
+[ 1108.372141] conn b981aed7
+[ 1108.372196] code 0x02
+[ 1108.372256] hci0 num_hndl 1
+[ 1108.469829] hcon 6dd11f28 mode 0
+[ 1108.469848] chan a57fb782
+[ 1108.469863] conn b981aed7
+[ 1108.469903] hci0: 
+[ 1108.469918] code 0x0c
+[ 1108.478187] hci0 selected method 0x04
+[ 1108.567000] hcon 6dd11f28 mode 0
+[ 1108.567019] chan a57fb782
+[ 1108.567034] conn b981aed7
+[ 1108.567049] code 0x04
+[ 1108.567150] hci0 num_hndl 1
+[ 1108.664264] hcon 6dd11f28 mode 0
+[ 1108.664281] chan a57fb782
+[ 1108.664295] conn b981aed7
+[ 1108.664340] code 0x0d
+[ 1108.762129] hci0 num_hndl 1
+[ 1108.762573] hci0 handle 0x0040
+[ 1108.763131] hci0 opcode 0x201a
+[ 1108.956962] hci0 status 0x00
+[ 1108.956980] hcon 6dd11f28
+[ 1108.957027] chan a57fb782
+[ 1108.957045] conn b981aed7
+[ 1108.957059] keydist 0x0
+[ 1108.957613] hci0 status 0x00
+[ 1109.054157] hcon 6dd11f28 mode 0
+[ 1109.151931] hcon 6dd11f28 mode 0
+[ 1109.152107] hci0 num_hndl 1
+[ 1109.982616] hci0 status 0x00
+[ 1109.982739] chan a57fb782
+[ 1109.982760] hci0 hcon 6dd11f28 chan 2ab7f72a
+[ 1110.014093] hci0 hcon 6dd11f28 handle 64
+[ 1110.014126] hcon 6dd11f28
+[ 1209.699531] hci0: sock 5cda7e18
+[ 1209.699907] hci0: sock 5cda7e18
+[ 1209.700090] hci0: sock 5cda7e18
+[ 1209.700641] hci0 status 0x0c
+[ 1209.700665] hci0: status 12
+[ 1213.260134] hci0: sock 5cda7e18
+[ 1213.260293] hci0: sock 5cda7e18
+[ 1213.260300] hci0: IO capability set to 0x03
+[ 1213.267877] hci0: sock 5cda7e18
+[ 1213.504927] hci0: sock 5cda7e18
+[ 1213.505989] hci0 opcode 0x2008
+[ 1213.506018] hci0: status 0x00
+[ 1213.506114] hci0: sock 5cda7e18
+[ 1213.511120] hci0: sock 5cda7e18
+[ 1213.511577] hci0 opcode 0x2008
+[ 1213.511901] hci0 status 0x00
+[ 1213.512311] hci0 status 0x00
+[ 1213.512320] hci0: status 0
+[ 1222.492884] hci0 status 0x00
+[ 1222.492902] hci0 dst dc:a6:32:28:34:e4
+[ 1222.496596] hci0 status 0x00
+[ 1222.496650] hci0 opcode 0x2016
+[ 1222.599241] hci0 status 0x00
+[ 1222.599252] hci0 hcon ec7668c2
+[ 1222.599263] pchan d72c224a
+[ 1222.599269] created chan c0ff3e0b
+[ 1222.599291] conn 1241338e hcon ec7668c2 level 0x01
+[ 1222.599304] conn 1241338e hcon ec7668c2 level 0x00
+[ 1222.599311] chan c0ff3e0b
+[ 1222.605720] dc:a6:32:35:ef:e2 -> dc:a6:32:28:34:e4
+[ 1222.605742] conn 1241338e hcon ec7668c2 level 0x01
+[ 1222.605950] dc:a6:32:35:ef:e2 -> dc:a6:32:28:34:e4
+[ 1222.605967] conn 1241338e hcon ec7668c2 level 0x01
+[ 1222.696313] hcon ec7668c2 mode 0
+[ 1222.892629] hci0 num_hndl 1
+[ 1222.940394] hcon ec7668c2 mode 0
+[ 1222.940741] hci0 num_hndl 1
+[ 1222.940801] hcon ec7668c2 mode 0
+[ 1222.941261] hcon ec7668c2 mode 0
+[ 1222.941873] hcon ec7668c2 mode 0
+[ 1222.988913] hcon ec7668c2 mode 0
+[ 1222.990101] hci0 num_hndl 1
+[ 1223.037721] hcon ec7668c2 mode 0
+[ 1223.038255] hci0 num_hndl 1
+[ 1223.038313] hcon ec7668c2 mode 0
+[ 1223.038940] hcon ec7668c2 mode 0
+[ 1223.039279] hci0 num_hndl 1
+[ 1223.039978] hcon ec7668c2 mode 0
+[ 1223.086407] hcon ec7668c2 mode 0
+[ 1223.087071] hcon ec7668c2 mode 0
+[ 1223.087397] hci0 num_hndl 1
+[ 1223.087686] hcon ec7668c2 mode 0
+[ 1223.088481] hcon ec7668c2 mode 0
+[ 1223.088707] hci0 num_hndl 1
+[ 1223.135163] hcon ec7668c2 mode 0
+[ 1223.135779] hcon ec7668c2 mode 0
+[ 1223.136466] hcon ec7668c2 mode 0
+[ 1223.184432] hci0 num_hndl 1
+[ 1223.185562] hci0 num_hndl 1
+[ 1223.232724] hcon ec7668c2 mode 0
+[ 1223.233177] hcon ec7668c2 mode 0
+[ 1223.233753] hcon ec7668c2 mode 0
+[ 1223.234287] hcon ec7668c2 mode 0
+[ 1223.282028] hci0 num_hndl 1
+[ 1223.330311] hcon ec7668c2 mode 0
+[ 1223.330705] hcon ec7668c2 mode 0
+[ 1223.330876] hci0 num_hndl 1
+[ 1223.568008] hci0 num_hndl 1
+[ 1223.623912] hci0 num_hndl 1
+[ 1223.671578] hcon ec7668c2 mode 0
+[ 1223.671962] hcon ec7668c2 mode 0
+[ 1223.672470] hcon ec7668c2 mode 0
+[ 1223.673041] hcon ec7668c2 mode 0
+[ 1223.720156] hcon ec7668c2 mode 0
+[ 1223.720750] hci0 num_hndl 1
+[ 1223.866590] hcon ec7668c2 mode 0
+[ 1223.866980] hcon ec7668c2 mode 0
+[ 1223.867186] hci0 num_hndl 1
+[ 1224.012858] hcon ec7668c2 mode 0
+[ 1224.013217] hcon ec7668c2 mode 0
+[ 1224.013483] hci0 num_hndl 1
+[ 1224.159111] hcon ec7668c2 mode 0
+[ 1224.159439] hcon ec7668c2 mode 0
+[ 1224.159641] hci0 num_hndl 1
+[ 1224.256762] hcon ec7668c2 mode 0
+[ 1224.256942] hci0 num_hndl 1
+[ 1224.305226] hcon ec7668c2 mode 0
+[ 1224.305726] hcon ec7668c2 mode 0
+[ 1224.306477] hcon ec7668c2 mode 0
+[ 1224.355144] hci0 num_hndl 1
+[ 1224.402802] hcon ec7668c2 mode 0
+[ 1224.403129] hci0 num_hndl 1
+[ 1224.403400] hcon ec7668c2 mode 0
+[ 1224.404123] hcon ec7668c2 mode 0
+[ 1224.451499] hcon ec7668c2 mode 0
+[ 1224.452149] hci0 num_hndl 1
+[ 1224.500494] hcon ec7668c2 mode 0
+[ 1224.500680] hci0 num_hndl 1
+[ 1224.695210] hcon ec7668c2 mode 0
+[ 1224.792844] hcon ec7668c2 mode 0
+[ 1224.793237] hcon ec7668c2 mode 0
+[ 1224.793255] chan c0ff3e0b
+[ 1224.793269] conn 1241338e
+[ 1224.793326] code 0x02
+[ 1224.793500] hci0 num_hndl 1
+[ 1224.890974] hcon ec7668c2 mode 0
+[ 1224.890994] chan c0ff3e0b
+[ 1224.891008] conn 1241338e
+[ 1224.891050] hci0: 
+[ 1224.891065] code 0x0c
+[ 1224.899303] hci0 selected method 0x04
+[ 1224.988138] hcon ec7668c2 mode 0
+[ 1224.988157] chan c0ff3e0b
+[ 1224.988172] conn 1241338e
+[ 1224.988186] code 0x04
+[ 1224.988311] hci0 num_hndl 1
+[ 1225.085393] hcon ec7668c2 mode 0
+[ 1225.085413] chan c0ff3e0b
+[ 1225.085428] conn 1241338e
+[ 1225.085475] code 0x0d
+[ 1225.183258] hci0 num_hndl 1
+[ 1225.183767] hci0 handle 0x0040
+[ 1225.184379] hci0 opcode 0x201a
+[ 1225.378154] hci0 status 0x00
+[ 1225.378172] hcon ec7668c2
+[ 1225.378216] chan c0ff3e0b
+[ 1225.378234] conn 1241338e
+[ 1225.378248] keydist 0x0
+[ 1225.378769] hci0 status 0x00
+[ 1225.524069] hcon ec7668c2 mode 0
+[ 1225.621850] hcon ec7668c2 mode 0
+[ 1225.622031] hci0 num_hndl 1
+[ 1226.452534] hci0 status 0x00
+[ 1226.452640] chan c0ff3e0b
+[ 1226.452659] hci0 hcon ec7668c2 chan 5fa4e99d
+[ 1226.493713] hci0 hcon ec7668c2 handle 64
+[ 1226.493747] hcon ec7668c2
+[ 1262.334015] hci0: sock 5cda7e18
+[ 1262.334381] hci0: sock 5cda7e18
+[ 1262.334552] hci0: sock 5cda7e18
+[ 1262.338130] hci0 status 0x0c
+[ 1262.338155] hci0: status 12

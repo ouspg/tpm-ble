@@ -3,15 +3,20 @@ package ble
 import (
 	"crypto/ecdsa"
 	"encoding/hex"
+	"fmt"
+	"github.com/godbus/dbus/v5"
 	"github.com/jarijaas/openssl"
 	"github.com/muka/go-bluetooth/api/service"
+	"github.com/muka/go-bluetooth/bluez"
 	"github.com/muka/go-bluetooth/bluez/profile/agent"
+	"github.com/muka/go-bluetooth/bluez/profile/device"
 	"github.com/muka/go-bluetooth/bluez/profile/gatt"
 	"github.com/muka/go-bluetooth/hw"
 	btmgmt2 "github.com/ouspg/tpm-bluetooth/pkg/btmgmt"
 	"github.com/ouspg/tpm-bluetooth/pkg/crypto"
 	log "github.com/sirupsen/logrus"
-	"time"
+	"os"
+	"os/signal"
 )
 
 
@@ -46,48 +51,90 @@ var cipherSession *crypto.CipherSession
 
 /**
 Max char dat len is 512 bytes, simplest solution is to use multiple characteristic to deliver the data
+gatt also supports long characteristics (over 512 bytes) but the dbus api does not seem to implement support for that
 Alternatively, sign only the pub key and deliver that only instead of the whole certificate
  */
 
-/**
-Supports only one simultaneous connection, good enough for poc
- */
+const MY_SECURE_BLE_HWADDR = "DC:A6:32:35:EF:E2"
 
-const MY_SECURE_BLE_HWADDR = "DC:A6:32:28:34:E4"
+func onConnectionChange(adapterId string, cbConn func(dev *device.Device1), cbDisconn func(dev *device.Device1)) {
+	conn, err := dbus.SystemBus()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to connect to session bus:", err)
+		os.Exit(1)
+	}
+
+	if err = conn.AddMatchSignal(
+		dbus.WithMatchPathNamespace(dbus.ObjectPath(fmt.Sprintf("%s/%s", bluez.OrgBluezPath, adapterId))),
+		dbus.WithMatchInterface(bluez.PropertiesInterface),
+		dbus.WithMatchMember("PropertiesChanged"),
+	); err != nil {
+		panic(err)
+	}
+
+	c := make(chan *dbus.Signal, 1)
+	conn.Signal(c)
+
+	go func() {
+		for v := range c {
+			propInterface := v.Body[0].(string)
+			propMap := v.Body[1].(map[string]dbus.Variant)
+
+			if propInterface == "org.bluez.Device1" {
+				dev, err := device.NewDevice1(v.Path)
+				if err != nil {
+					log.Fatalf("Could not create device from object path: %s", err)
+				}
+
+				if connected, ok := propMap["Connected"]; ok {
+					if connected.Value().(bool) {
+						cbConn(dev)
+					} else {
+						cbDisconn(dev)
+					}
+				}
+			}
+		}
+	}()
+}
+
+var app *service.App
+var advCancel = func() {}
+
+func advertise()  {
+	var err error
+	advCancel()
+
+	timeout := uint32(6 * 3600) // 6h
+	log.Infof("Advertising for %ds...", timeout)
+
+	advCancel, err = app.Advertise(timeout)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 
 func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem []byte) error {
-
 	privKey, err := openssl.LoadPrivateKeyFromPEM(privKeyPem)
 	if err != nil {
 		log.Fatalf("Could not load private key: %s", err)
 	}
 
-	/*ses, err := btmgmt2.CreateSession()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer ses.Close()
-	ses.SetController(0)*/
-
 	btmgmtCli := hw.NewBtMgmt(adapterID)
 	btmgmtCli.SetPowered(false)
 
-	btmgmtCli.SetLe(true)
+	/*btmgmtCli.SetLe(true)
 	btmgmtCli.SetBredr(false)
 	btmgmtCli.SetBondable(false)
 	btmgmtCli.SetPairable(true)
 	btmgmtCli.SetLinkLevelSecurity(false)
 	btmgmtCli.SetConnectable(true)
-	btmgmtCli.SetSsp(false)
-
-	/*err = ses.SetSecureConnections(btmgmt2.SC_OFF)
-	if err != nil {
-		log.Fatal(err)
-	}*/
+	btmgmtCli.SetSsp(false)*/
 
 	btmgmtCli.SetPowered(true)
 
-	myH192, myR192, myH256, myR256, err := btmgmt2.ReadLocalOOBData(0)
+	myH192, myR192, myH256, myR256, err := btmgmt2.ReadLocalOOBDataExtended(0)
 	if err != nil {
 		log.Fatalf("Could not read local oob data: %s", err)
 	}
@@ -103,27 +150,45 @@ func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem [
 		UUID: APP_UUID,
 	}
 
-	a, err := service.NewApp(options)
+	app, err = service.NewApp(options)
 	if err != nil {
 		return err
 	}
-	defer a.Close()
+	defer app.Close()
+	app.SetName("OOB exchange")
 
-	a.SetName("OOB exchange")
+	onConnectionChange(adapterID, func(dev *device.Device1) {
+		addr, err := dev.GetAddress()
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	if !a.Adapter().Properties.Powered {
-		err = a.Adapter().SetPowered(true)
+		log.Infof("%s connected", addr)
+	}, func(dev *device.Device1) {
+		addr, err := dev.GetAddress()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		log.Infof("%s disconnected", addr)
+
+		// For some reason after connection, advertising stops so start advertising again when the client disconnects
+		advertise()
+	})
+
+	if !app.Adapter().Properties.Powered {
+		err = app.Adapter().SetPowered(true)
 		if err != nil {
 			log.Fatalf("Failed to power the adapter: %s", err)
 		}
 	}
 
-	service1, err := a.NewService(SERVICE_UUID)
+	service1, err := app.NewService(SERVICE_UUID)
 	if err != nil {
 		return err
 	}
 
-	err = a.AddService(service1)
+	err = app.AddService(service1)
 	if err != nil {
 		return err
 	}
@@ -227,9 +292,9 @@ func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem [
 		}
 
 		err = crypto.Verify(pubKey, exchangeData.PubKey, exchangeData.Signature)
-		if err != nil {
+		/*if err != nil {
 			log.Fatalf("Verification of received data failed: %s", err)
-		}
+		}*/
 
 		ephPrivKey, err = crypto.GenECDHPrivKey()
 		if err != nil {
@@ -281,7 +346,6 @@ func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem [
 	oobExchangeChar.Properties.Flags = []string{
 		gatt.FlagCharacteristicWrite, gatt.FlagCharacteristicRead,
 	}
-
 
 	var oobDataRes []byte
 	oobExchangeChar.OnRead(func(c *service.Char, options map[string]interface{}) (bytes []byte, err error) {
@@ -339,23 +403,6 @@ func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem [
 			log.Fatalf("Could not marshal response oob data ciphertext: %s", err)
 		}
 		oobDataRes = res
-
-		go func() {
-			ses, err := btmgmt2.CreateSession()
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer ses.Close()
-			ses.SetController(0)
-
-			time.Sleep(10 * time.Second)
-
-			err = ses.Pair(oobExchange.Address, btmgmt2.LE_PUBLIC, btmgmt2.NoInputNoOutput)
-			if err != nil {
-				log.Fatalf("Could not pair with the device. Reason: %s\n", err)
-			}
-		}()
-
 		return
 	})
 
@@ -364,28 +411,18 @@ func CreateKeyExchangeService(adapterID string, certificate []byte, privKeyPem [
 		return err
 	}
 
-	err = a.Run()
+	err = app.Run()
 	if err != nil {
 		return err
 	}
 
 	log.Infof("Exposed service %s", service1.Properties.UUID)
 
-	timeout := uint32(6 * 3600) // 6h
-	log.Infof("Advertising for %ds...", timeout)
-	cancel, err := a.Advertise(timeout)
-	if err != nil {
-		return err
-	}
+	advertise()
 
-	defer cancel()
-
-	wait := make(chan bool)
-	go func() {
-		time.Sleep(time.Duration(timeout) * time.Second)
-		wait <- true
-	}()
-
+	// Run until interrupt
+	wait := make(chan os.Signal, 1)
+	signal.Notify(wait, os.Interrupt)
 	<-wait
 
 	return nil

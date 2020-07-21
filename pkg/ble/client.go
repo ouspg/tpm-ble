@@ -5,10 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/godbus/dbus/v5"
 	"github.com/muka/go-bluetooth/api"
 	"github.com/muka/go-bluetooth/bluez/profile/adapter"
-	"github.com/muka/go-bluetooth/bluez/profile/agent"
 	"github.com/muka/go-bluetooth/bluez/profile/device"
 	"github.com/muka/go-bluetooth/bluez/profile/gatt"
 	"github.com/ouspg/tpm-bluetooth/pkg/btmgmt"
@@ -66,9 +64,6 @@ func discover(a *adapter.Adapter1, hwaddr string) (*device.Device1, error) {
 		if n != hwaddr && p.Address != hwaddr {
 			continue
 		}
-
-		log.Info("Found device")
-
 		return dev, nil
 	}
 
@@ -110,6 +105,8 @@ func findDevice(a *adapter.Adapter1, hwaddr string) (*device.Device1, error) {
 }
 
 
+
+
 func client(adapterID, hwaddr string) (dev *device.Device1, err error) {
 
 	log.Infof("Discovering %s on %s", hwaddr, adapterID)
@@ -120,7 +117,7 @@ func client(adapterID, hwaddr string) (dev *device.Device1, err error) {
 	}
 
 	//Connect DBus System bus
-	conn, err := dbus.SystemBus()
+	/*conn, err := dbus.SystemBus()
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +129,7 @@ func client(adapterID, hwaddr string) (dev *device.Device1, err error) {
 	err = agent.ExposeAgent(conn, ag, agent.CapNoInputNoOutput, true)
 	if err != nil {
 		return nil, fmt.Errorf("SimpleAgent: %s", err)
-	}
+	}*/
 
 
 	dev, err = findDevice(a, hwaddr)
@@ -150,12 +147,14 @@ func client(adapterID, hwaddr string) (dev *device.Device1, err error) {
 		}
 	}()
 
-	err = connect(dev, ag, adapterID)
+	log.Info("Found device, connect")
+
+	err = connect(dev)
 	if err != nil {
 		return nil, err
 	}
 
-	// log.Info("retrieveServices")
+	log.Info("retrieveServices")
 	retrieveServices(a, dev)
 	return dev, nil
 
@@ -164,7 +163,7 @@ func client(adapterID, hwaddr string) (dev *device.Device1, err error) {
 	// return nil
 }
 
-func connect(dev *device.Device1, ag *agent.SimpleAgent, adapterID string) error {
+func connect(dev *device.Device1) error {
 
 	props, err := dev.GetProperties()
 	if err != nil {
@@ -214,7 +213,7 @@ func retrieveServices(a *adapter.Adapter1, dev *device.Device1) error {
 	return nil
 }
 
-func readCharacteristic(dev *device.Device1, charUUID string) ([]byte, error) {
+func ReadCharacteristic(dev *device.Device1, charUUID string) ([]byte, error) {
 	log.Printf("Find Char UUID: %s\n", charUUID)
 
 	list, err := dev.GetCharacteristicsList()
@@ -224,7 +223,7 @@ func readCharacteristic(dev *device.Device1, charUUID string) ([]byte, error) {
 
 	if len(list) == 0 {
 		time.Sleep(time.Second * 2)
-		return readCharacteristic(dev, charUUID)
+		return ReadCharacteristic(dev, charUUID)
 	}
 
 	for _, path := range list {
@@ -246,9 +245,6 @@ func readCharacteristic(dev *device.Device1, charUUID string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	log.Println(string(data))
-	// log.Println(hex.Dump(data))
 
 	return data, nil
 }
@@ -303,25 +299,25 @@ func CreateConnection(adapterID string, hwaddr string) (*device.Device1, error) 
 func ReadCertificate(dev *device.Device1) ([]byte, error) {
 	var pemCert []byte
 
-	/*_, err = readCharacteristic(adapterID, SERVICE_UUID, READ_CERT_CHAR_UUID)
+	/*_, err = ReadCharacteristic(adapterID, SERVICE_UUID, READ_CERT_CHAR_UUID)
 	if err != nil {
 		return err
 	}*/
 
 	// Hmm. probably write characteristic could be used also
-	chunk, err := readCharacteristic(dev, READ_CERT_1_CHAR_UUID + UUID_SUFFIX)
+	chunk, err := ReadCharacteristic(dev, READ_CERT_1_CHAR_UUID + UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
 	pemCert = append(pemCert, chunk ...)
 
-	chunk, err = readCharacteristic(dev, READ_CERT_2_CHAR_UUID + UUID_SUFFIX)
+	chunk, err = ReadCharacteristic(dev, READ_CERT_2_CHAR_UUID + UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
 	pemCert = append(pemCert, chunk ...)
 
-	chunk, err = readCharacteristic(dev, READ_CERT_3_CHAR_UUID + UUID_SUFFIX)
+	chunk, err = ReadCharacteristic(dev, READ_CERT_3_CHAR_UUID + UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -347,7 +343,7 @@ func BeginECDHExchange(dev *device.Device1, data ECDHExchange) (*ECDHExchange, e
 
 
 func ExchangeOOBData(dev *device.Device1, cipherSession *crypto.CipherSession, adapterAddr string) (*OOBExchange, error) {
-	h192, r192, h256, r256, err := btmgmt.ReadLocalOOBData(0)
+	h192, r192, h256, r256, err := btmgmt.ReadLocalOOBDataExtended(0)
 	if err != nil {
 		log.Fatalf("Could not read local oob data: %s", err)
 	}
@@ -357,18 +353,9 @@ func ExchangeOOBData(dev *device.Device1, cipherSession *crypto.CipherSession, a
 		hex.EncodeToString(h256[:]), hex.EncodeToString(r256[:]))
 
 	oobData := [32]byte{}
-	copy(oobData[:16], r256[:])
-	copy(oobData[16:], h256[:])
+	copy(oobData[:16], h256[:])
+	copy(oobData[16:], r256[:])
 
-	/*adapters, err := btmgmt2.GetAdapters()
-	if err != nil {
-		return nil, fmt.Errorf("could not retrieve BT adapters: %s", err)
-	}
-	if len(adapters) == 0{
-		return nil, fmt.Errorf("could not find a BT adapter")
-	}
-
-	adapterAddr := adapters[0].Addr*/
 	log.Printf("The adapter the OOB pairing is done for: %s\n", adapterAddr)
 
 	data, err := MarshalOOBExchange(OOBExchange{

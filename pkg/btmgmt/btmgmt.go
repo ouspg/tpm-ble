@@ -3,6 +3,7 @@ package btmgmt
 import (
 	"encoding/binary"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -181,17 +182,52 @@ func (session *BTManagementSession) ReadLocalOOBDataExtended() (
 	h256 [16]byte, r256 [16]byte,
 	err error) {
 
-	parameters := []byte{ LE_PUBLIC }
+	const LE_PUB_RAND = 1 << LE_PUBLIC | 1 << LE_RANDOM
 
-	_, err = session.execBlocking(CMD_READ_LOCAL_OOB_DATA_EXTENDED,  session.controllerIndex, parameters)
+	parameters := []byte{ LE_PUB_RAND }
+
+	data, err := session.execBlocking(CMD_READ_LOCAL_OOB_DATA_EXTENDED,  session.controllerIndex, parameters)
 	if err != nil {
 		return
 	}
 
-	/*copy(h192[:], data[0:16])
-	copy(r192[:], data[16:32])
-	copy(h256[:], data[32:48])
-	copy(r256[:], data[48:64])*/
+	eirDataLen := binary.LittleEndian.Uint16(data[1:])
+	eirData := data[3:]
+
+	if int(eirDataLen) != len(eirData) {
+		err = fmt.Errorf("eir data length mismatch: Data length: %d. Expected: %d", len(eirData), eirDataLen)
+		return
+	}
+
+	if eirDataLen == 0 {
+		err = errors.New("could not read oob extended data")
+		return
+	}
+
+	/**
+	device address (EIR field: 0x1b)
+	LE Role (EIR field: 0x1c)
+	LE SC confirmation value (EIR field: 0x22)
+	LE SC random value (EIR field: 0x23)
+
+	Example data:
+	device type - role - dev address - sc confirmation value - random value - flags
+	06 33 0008 1b e4342832a6dc00 02 1c 0111 22 dd730cd4595b9e9eeb304ec940154405 11 23 6aa130070fe8c72b50dd4df7f6fd51 cb 020104
+	*/
+
+	// Todo: parse EIR correctly (using EIR field IDs)
+	switch data[0] {
+	case LE_PUB_RAND:
+		copy(h256[:], eirData[14:14+16]) // LE SC confirmation value
+		copy(r256[:], eirData[32:32+16]) // LE SC random value
+
+		log.Debugf("EIR data len: %d", eirDataLen)
+		log.Debugf("LE SC Confirmation value: %s", hex.EncodeToString(h256[:]))
+		log.Debugf("LE SC random value: %s", hex.EncodeToString(r256[:]))
+	default:
+		err = fmt.Errorf("unknown address type: %d", data[0])
+		return
+	}
 
 	return
 }
@@ -334,9 +370,9 @@ Pair Device Command
 				Already Paired
  */
 func (session *BTManagementSession) Pair(address string, addressType byte, ioCap byte) error {
-	mac, err := net.ParseMAC(address)
+	mac, err := BTAddressToBytes(address)
 	if err != nil {
-		return fmt.Errorf("invalid address: %s", address)
+		return err
 	}
 
 	parameters := make([]byte, 8)
@@ -352,16 +388,31 @@ func (session *BTManagementSession) Pair(address string, addressType byte, ioCap
 	return nil
 }
 
+func BTAddressToBytes(address string) ([]byte, error) {
+	mac, err := net.ParseMAC(address)
+	if err != nil {
+		return nil, err
+	}
+
+	reversedMac := make([]byte, 6)
+	// Reverse MAC
+	for i := 0; i < 6; i++ {
+		reversedMac[i] = mac[(6 - 1) - i]
+	}
+	return reversedMac, nil
+}
+
 func (session *BTManagementSession) AddRemoteOOBData(address string, addressType byte, h192 []byte,  r192 []byte,
 	h256 []byte, r256 []byte) error {
 
-	mac, err := net.ParseMAC(address)
+	mac, err := BTAddressToBytes(address)
 	if err != nil {
-		return fmt.Errorf("invalid address: %s", address)
+		return err
 	}
 
 	parameters := make([]byte, 6 + 1 + 16 * 4)
 	copy(parameters, mac[:6])
+
 	parameters[6] = addressType
 
 	copy(parameters[7 + 16 * 0:7 + 16 * 1], h192)
@@ -570,6 +621,20 @@ func ReadLocalOOBData(controllerIndex uint16) (h192 [16]byte, r192 [16]byte, h25
 	ses.SetController(controllerIndex)
 
 	h192, r192, h256, r256, err = ses.ReadLocalOOBData()
+	return
+}
+
+func ReadLocalOOBDataExtended(controllerIndex uint16) (h192 [16]byte, r192 [16]byte, h256 [16]byte, r256 [16]byte, err error) {
+	var ses *BTManagementSession
+	ses, err = CreateSession()
+	if err != nil {
+		return
+	}
+	defer ses.Close()
+
+	ses.SetController(controllerIndex)
+
+	h192, r192, h256, r256, err = ses.ReadLocalOOBDataExtended()
 	return
 }
 

@@ -76,6 +76,18 @@ func InitializeTPMEngine() error {
 Load TPM wrapped priv key, priv key is protected by the TPM
  */
 func LoadTPMPrivateKey(privKeyPath string) (openssl.PrivateKey, error) {
+	if tpmEngine == nil {
+		privKeyPem, err := ioutil.ReadFile(privKeyPath)
+		if err != nil {
+			return nil, fmt.Errorf("could not load private key: %s", err)
+		}
+
+		privKey, err := openssl.LoadPrivateKeyFromPEM(privKeyPem)
+		if err != nil {
+			return nil, fmt.Errorf("could not load private key: %s", err)
+		}
+		return privKey, nil
+	}
 	privKey, err := openssl.EngineLoadPrivateKey(tpmEngine, privKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("could not load private key: %s", err)

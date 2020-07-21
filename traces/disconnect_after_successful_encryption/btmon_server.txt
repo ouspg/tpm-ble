@@ -1,0 +1,758 @@
+Bluetooth monitor ver 5.53
+= Note: Linux version 5.4.42-v7l (armv7l)                              0.835643
+= Note: Bluetooth subsystem version 2.22                               0.835652
+= New Index: DC:A6:32:35:EF:E2 (Primary,UART,hci0)              [hci0] 0.835658
+= Open Index: DC:A6:32:35:EF:E2                                 [hci0] 0.835662
+= Index Info: DC:A6:32:3.. (Cypress Semiconductor Corporation)  [hci0] 0.835668
+@ MGMT Open: bluetoothd (privileged) version 1.17             {0x0001} 0.835674
+@ MGMT Open: btmon (privileged) version 1.17                  {0x0002} 0.836206
+@ MGMT Command: Set Bondable (0x0009) plen 1           {0x0001} [hci0] 3.755238
+        Bondable: Disabled (0x00)
+@ MGMT Event: Command Complete (0x0001) plen 7         {0x0001} [hci0] 3.755297
+      Set Bondable (0x0009) plen 4
+        Status: Success (0x00)
+        Current settings: 0x00000a0b
+          Powered
+          Connectable
+          Discoverable
+          Low Energy
+          Secure Connections
+@ MGMT Event: New Settings (0x0006) plen 4             {0x0002} [hci0] 3.755313
+        Current settings: 0x00000a0b
+          Powered
+          Connectable
+          Discoverable
+          Low Energy
+          Secure Connections
+@ MGMT Command: Remove UUID (0x0011) plen 16           {0x0001} [hci0] 3.755706
+        UUID: 00000001-0000-1000-8000-00805f9b34fb
+@ MGMT Event: Command Complete (0x0001) plen 6         {0x0001} [hci0] 3.755754
+      Remove UUID (0x0011) plen 3
+        Status: Success (0x00)
+        Class: 0x000000
+          Major class: Miscellaneous
+          Minor class: 0x00
+@ MGMT Command: Remove Advertising (0x003f) plen 1     {0x0001} [hci0] 3.756689
+        Instance: 1
+@ MGMT Event: Advertising Removed (0x0024) plen 1      {0x0002} [hci0] 3.756750
+        Instance: 1
+< HCI Command: LE Set Advertise Enable (0x08|0x000a) plen 1  #1 [hci0] 3.756812
+        Advertising: Disabled (0x00)
+> HCI Event: Command Complete (0x0e) plen 4                  #2 [hci0] 3.757158
+      LE Set Advertise Enable (0x08|0x000a) ncmd 1
+        Status: Command Disallowed (0x0c)
+@ MGMT Event: Command Complete (0x0001) plen 4         {0x0001} [hci0] 3.757258
+      Remove Advertising (0x003f) plen 1
+        Status: Success (0x00)
+        Instance: 1
+@ MGMT Command: Set Bondable (0x0009) plen 1           {0x0001} [hci0] 7.458545
+        Bondable: Enabled (0x01)
+@ MGMT Event: Command Complete (0x0001) plen 7         {0x0001} [hci0] 7.458572
+      Set Bondable (0x0009) plen 4
+        Status: Success (0x00)
+        Current settings: 0x00000a1b
+          Powered
+          Connectable
+          Discoverable
+          Bondable
+          Low Energy
+          Secure Connections
+@ MGMT Event: New Settings (0x0006) plen 4             {0x0002} [hci0] 7.458577
+        Current settings: 0x00000a1b
+          Powered
+          Connectable
+          Discoverable
+          Bondable
+          Low Energy
+          Secure Connections
+@ MGMT Command: Set IO Capability (0x0018) plen 1      {0x0001} [hci0] 7.458750
+        Capability: NoInputNoOutput (0x03)
+@ MGMT Event: Command Complete (0x0001) plen 3         {0x0001} [hci0] 7.458774
+      Set IO Capability (0x0018) plen 0
+        Status: Success (0x00)
+@ MGMT Command: Add UUID (0x0010) plen 17              {0x0001} [hci0] 7.464026
+        UUID: 00000001-0000-1000-8000-00805f9b34fb
+        Service class: 0x00
+@ MGMT Event: Command Complete (0x0001) plen 6         {0x0001} [hci0] 7.464054
+      Add UUID (0x0010) plen 3
+        Status: Success (0x00)
+        Class: 0x000000
+          Major class: Miscellaneous
+          Minor class: 0x00
+@ MGMT Command: Set Connectable (0x0007) plen 1        {0x0001} [hci0] 7.769873
+        Connectable: Enabled (0x01)
+< HCI Command: LE Set Advertising D.. (0x08|0x0008) plen 32  #3 [hci0] 7.770029
+        Length: 6
+        Flags: 0x06
+          LE General Discoverable Mode
+          BR/EDR Not Supported
+        TX power: 12 dBm
+> HCI Event: Command Complete (0x0e) plen 4                  #4 [hci0] 7.770486
+      LE Set Advertising Data (0x08|0x0008) ncmd 1
+        Status: Success (0x00)
+@ MGMT Event: Command Complete (0x0001) plen 7         {0x0001} [hci0] 7.770657
+      Set Connectable (0x0007) plen 4
+        Status: Success (0x00)
+        Current settings: 0x00000a1b
+          Powered
+          Connectable
+          Discoverable
+          Bondable
+          Low Energy
+          Secure Connections
+@ MGMT Event: New Settings (0x0006) plen 4             {0x0002} [hci0] 7.770680
+        Current settings: 0x00000a1b
+          Powered
+          Connectable
+          Discoverable
+          Bondable
+          Low Energy
+          Secure Connections
+@ MGMT Command: Set Discoverable (0x0006) plen 3       {0x0001} [hci0] 7.770841
+        Discoverable: General (0x01)
+        Timeout: 21600
+@ MGMT Event: Command Complete (0x0001) plen 7         {0x0001} [hci0] 7.770888
+      Set Discoverable (0x0006) plen 4
+        Status: Success (0x00)
+        Current settings: 0x00000a1b
+          Powered
+          Connectable
+          Discoverable
+          Bondable
+          Low Energy
+          Secure Connections
+@ MGMT Command: Add Advertising (0x003e) plen 23       {0x0001} [hci0] 7.786184
+        Instance: 1
+        Flags: 0x00000003
+          Switch into Connectable mode
+          Advertise as Discoverable
+        Duration: 21600
+        Timeout: 0
+        Advertising data length: 4
+        Appearance: Unknown (0x0000)
+        Scan response length: 8
+        Name (complete): Secure
+@ MGMT Event: Advertising Added (0x0023) plen 1        {0x0002} [hci0] 7.786236
+        Instance: 1
+< HCI Command: LE Set Advertising D.. (0x08|0x0008) plen 32  #5 [hci0] 7.786327
+        Length: 7
+        Flags: 0x06
+          LE General Discoverable Mode
+          BR/EDR Not Supported
+        Appearance: Unknown (0x0000)
+> HCI Event: Command Complete (0x0e) plen 4                  #6 [hci0] 7.787078
+      LE Set Advertising Data (0x08|0x0008) ncmd 1
+        Status: Success (0x00)
+< HCI Command: LE Set Advertising P.. (0x08|0x0006) plen 15  #7 [hci0] 7.787182
+        Min advertising interval: 1280.000 msec (0x0800)
+        Max advertising interval: 1280.000 msec (0x0800)
+        Type: Connectable undirected - ADV_IND (0x00)
+        Own address type: Public (0x00)
+        Direct address type: Public (0x00)
+        Direct address: 00:00:00:00:00:00 (OUI 00-00-00)
+        Channel map: 37, 38, 39 (0x07)
+        Filter policy: Allow Scan Request from Any, Allow Connect Request from Any (0x00)
+> HCI Event: Command Complete (0x0e) plen 4                  #8 [hci0] 7.787521
+      LE Set Advertising Parameters (0x08|0x0006) ncmd 1
+        Status: Success (0x00)
+< HCI Command: LE Set Advertise Enable (0x08|0x000a) plen 1  #9 [hci0] 7.787616
+        Advertising: Enabled (0x01)
+> HCI Event: Command Complete (0x0e) plen 4                 #10 [hci0] 7.788015
+      LE Set Advertise Enable (0x08|0x000a) ncmd 1
+        Status: Success (0x00)
+@ MGMT Event: Command Complete (0x0001) plen 4         {0x0001} [hci0] 7.788110
+      Add Advertising (0x003e) plen 1
+        Status: Success (0x00)
+        Instance: 1
+> HCI Event: LE Meta Event (0x3e) plen 19                  #11 [hci0] 46.257857
+      LE Connection Complete (0x01)
+        Status: Success (0x00)
+        Handle: 64
+        Role: Slave (0x01)
+        Peer address type: Public (0x00)
+        Peer address: DC:A6:32:28:34:E4 (OUI DC-A6-32)
+        Connection interval: 48.75 msec (0x0027)
+        Connection latency: 0 (0x0000)
+        Supervision timeout: 420 msec (0x002a)
+        Master clock accuracy: 0x01
+@ MGMT Event: Device Connected (0x000b) plen 13       {0x0002} [hci0] 46.257978
+        LE Address: DC:A6:32:28:34:E4 (OUI DC-A6-32)
+        Flags: 0x00000000
+        Data length: 0
+@ MGMT Event: Device Connected (0x000b) plen 13       {0x0001} [hci0] 46.257978
+        LE Address: DC:A6:32:28:34:E4 (OUI DC-A6-32)
+        Flags: 0x00000000
+        Data length: 0
+> HCI Event: Vendor (0xff) plen 5                          #12 [hci0] 46.257868
+        55 00 00 40 00                                   U..@.           
+< HCI Command: LE Read Remote Used.. (0x08|0x0016) plen 2  #13 [hci0] 46.258208
+        Handle: 64
+> HCI Event: Command Status (0x0f) plen 4                  #14 [hci0] 46.261347
+      LE Read Remote Used Features (0x08|0x0016) ncmd 1
+        Status: Success (0x00)
+> HCI Event: Command Complete (0x0e) plen 14               #15 [hci0] 46.261475
+      LE Read Remote Used Features (0x08|0x0016) ncmd 1
+        Status: Success (0x00)
+        00 00 00 00 00 00 00 00 00 00                    ..........      
+> HCI Event: LE Meta Event (0x3e) plen 12                  #16 [hci0] 46.375532
+      LE Read Remote Used Features (0x04)
+        Status: Success (0x00)
+        Handle: 64
+        Features: 0x3f 0x00 0x00 0x00 0x00 0x00 0x00 0x00
+          LE Encryption
+          Connection Parameter Request Procedure
+          Extended Reject Indication
+          Slave-initiated Features Exchange
+          LE Ping
+          LE Data Packet Length Extension
+< ACL Data TX: Handle 64 flags 0x00 dlen 18                #17 [hci0] 46.382460
+      LE L2CAP: LE Connection Request (0x14) ident 1 len 10
+        PSM: 39 (0x0027)
+        Source CID: 64
+        MTU: 517
+        MPS: 247
+        Credits: 3
+< ACL Data TX: Handle 64 flags 0x00 dlen 18                #18 [hci0] 46.382648
+      LE L2CAP: LE Connection Request (0x14) ident 2 len 10
+        PSM: 39 (0x0027)
+        Source CID: 65
+        MTU: 517
+        MPS: 247
+        Credits: 3
+< ACL Data TX: Handle 64 flags 0x00 dlen 7                 #19 [hci0] 46.382774
+      ATT: Exchange MTU Request (0x02) len 2
+        Client RX MTU: 517
+> HCI Event: LE Meta Event (0x3e) plen 11                  #20 [hci0] 46.424320
+      LE Data Length Change (0x07)
+        Handle: 64
+        Max TX octets: 251
+        Max TX time: 2120
+        Max RX octets: 251
+        Max RX time: 2120
+> ACL Data RX: Handle 64 flags 0x02 dlen 7                 #21 [hci0] 46.472605
+      ATT: Exchange MTU Request (0x02) len 2
+        Client RX MTU: 517
+< ACL Data TX: Handle 64 flags 0x00 dlen 7                 #22 [hci0] 46.472874
+      ATT: Exchange MTU Response (0x03) len 2
+        Server RX MTU: 517
+> HCI Event: Number of Completed Packets (0x13) plen 5     #23 [hci0] 46.668898
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 18                #24 [hci0] 46.716672
+      LE L2CAP: LE Connection Response (0x15) ident 1 len 10
+        Destination CID: 64
+        MTU: 517
+        MPS: 247
+        Credits: 3
+        Result: Connection successful (0x0000)
+< ACL Data TX: Handle 64 flags 0x00 dlen 9                 #25 [hci0] 46.716975
+      Channel: 64 len 5 sdu 3 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        03 00 0a 12 00                                   .....           
+> HCI Event: Number of Completed Packets (0x13) plen 5     #26 [hci0] 46.717236
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 18                #27 [hci0] 46.717242
+      LE L2CAP: LE Connection Response (0x15) ident 2 len 10
+        Destination CID: 65
+        MTU: 517
+        MPS: 247
+        Credits: 3
+        Result: Connection successful (0x0000)
+< ACL Data TX: Handle 64 flags 0x00 dlen 9                 #28 [hci0] 46.717514
+      Channel: 65 len 5 sdu 3 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        03 00 0a 03 00                                   .....           
+> ACL Data RX: Handle 64 flags 0x02 dlen 7                 #29 [hci0] 46.717551
+      ATT: Exchange MTU Response (0x03) len 2
+        Server RX MTU: 517
+< ACL Data TX: Handle 64 flags 0x00 dlen 7                 #30 [hci0] 46.717911
+      ATT: Read Request (0x0a) len 2
+        Handle: 0x0005
+> ACL Data RX: Handle 64 flags 0x02 dlen 13                #31 [hci0] 46.718129
+      Channel: 65 len 9 sdu 7 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        07 00 08 01 00 ff ff 3a 2b                       .......:+       
+< ACL Data TX: Handle 64 flags 0x00 dlen 12                #32 [hci0] 46.718172
+      LE L2CAP: LE Flow Control Credit (0x16) ident 3 len 4
+        Source CID: 65
+        Credits: 1
+< ACL Data TX: Handle 64 flags 0x00 dlen 11                #33 [hci0] 46.718408
+      Channel: 65 len 7 sdu 5 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        05 00 09 03 0d 00 01                             .......         
+> ACL Data RX: Handle 64 flags 0x02 dlen 13                #34 [hci0] 46.765182
+      Channel: 64 len 9 sdu 7 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        07 00 10 01 00 ff ff 00 28                       ........(       
+< ACL Data TX: Handle 64 flags 0x00 dlen 12                #35 [hci0] 46.765233
+      LE L2CAP: LE Flow Control Credit (0x16) ident 4 len 4
+        Source CID: 64
+        Credits: 1
+< ACL Data TX: Handle 64 flags 0x00 dlen 32                #36 [hci0] 46.765480
+      Channel: 64 len 28 sdu 26 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        1a 00 11 06 01 00 05 00 00 18 06 00 0f 00 01 18  ................
+        10 00 12 00 0a 18 26 00 29 00 01 00              ......&.)...    
+> HCI Event: Number of Completed Packets (0x13) plen 5     #37 [hci0] 46.766369
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 12                #38 [hci0] 46.813982
+      LE L2CAP: LE Flow Control Credit (0x16) ident 1 len 4
+        Source CID: 64
+        Credits: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5     #39 [hci0] 46.814320
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 12                #40 [hci0] 46.814557
+      LE L2CAP: LE Flow Control Credit (0x16) ident 2 len 4
+        Source CID: 65
+        Credits: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 14                #41 [hci0] 46.815265
+      Channel: 64 len 10 sdu 8 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        08 00 0b 02 6b 1d 46 02 36 05                    ....k.F.6.      
+< ACL Data TX: Handle 64 flags 0x00 dlen 12                #42 [hci0] 46.815306
+      LE L2CAP: LE Flow Control Credit (0x16) ident 5 len 4
+        Source CID: 64
+        Credits: 1
+< ACL Data TX: Handle 64 flags 0x00 dlen 13                #43 [hci0] 46.815435
+      Channel: 64 len 9 sdu 7 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        07 00 10 01 00 ff ff 00 28                       ........(       
+> HCI Event: Number of Completed Packets (0x13) plen 5     #44 [hci0] 46.815678
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 18                #45 [hci0] 46.816280
+      Channel: 65 len 14 sdu 12 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        0c 00 0b 72 61 73 70 62 65 72 72 79 70 69        ...raspberrypi  
+< ACL Data TX: Handle 64 flags 0x00 dlen 12                #46 [hci0] 46.816335
+      LE L2CAP: LE Flow Control Credit (0x16) ident 6 len 4
+        Source CID: 65
+        Credits: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 7                 #47 [hci0] 46.862613
+      ATT: Read Response (0x0b) len 2
+        Value: 0000
+> ACL Data RX: Handle 64 flags 0x02 dlen 12                #48 [hci0] 46.863316
+      LE L2CAP: LE Flow Control Credit (0x16) ident 3 len 4
+        Source CID: 65
+        Credits: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5     #49 [hci0] 46.863546
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 11                #50 [hci0] 46.863906
+      ATT: Read By Type Request (0x08) len 6
+        Handle range: 0x000e-0xffff
+        Attribute type: Unknown (0x2b3a)
+< ACL Data TX: Handle 64 flags 0x00 dlen 9                 #51 [hci0] 46.864100
+      ATT: Error Response (0x01) len 4
+        Read By Type Request (0x08)
+        Handle: 0x000e
+        Error: Attribute Not Found (0x0a)
+> ACL Data RX: Handle 64 flags 0x02 dlen 12                #52 [hci0] 46.864599
+      LE L2CAP: LE Flow Control Credit (0x16) ident 4 len 4
+        Source CID: 64
+        Credits: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5     #53 [hci0] 46.864993
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 13                #54 [hci0] 46.911425
+      Channel: 65 len 9 sdu 7 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        07 00 10 2a 00 ff ff 00 28                       ...*....(       
+< ACL Data TX: Handle 64 flags 0x00 dlen 12                #55 [hci0] 46.911481
+      LE L2CAP: LE Flow Control Credit (0x16) ident 7 len 4
+        Source CID: 65
+        Credits: 1
+< ACL Data TX: Handle 64 flags 0x00 dlen 11                #56 [hci0] 46.911668
+      Channel: 65 len 7 sdu 5 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        05 00 01 10 2a 00 0a                             ....*..         
+> ACL Data RX: Handle 64 flags 0x02 dlen 12                #57 [hci0] 46.912045
+      LE L2CAP: LE Flow Control Credit (0x16) ident 5 len 4
+        Source CID: 64
+        Credits: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 26                #58 [hci0] 46.912726
+      Channel: 64 len 22 sdu 20 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        14 00 11 06 01 00 05 00 00 18 06 00 0f 00 01 18  ................
+        10 00 12 00 0a 18                                ......          
+< ACL Data TX: Handle 64 flags 0x00 dlen 12                #59 [hci0] 46.912765
+      LE L2CAP: LE Flow Control Credit (0x16) ident 8 len 4
+        Source CID: 64
+        Credits: 1
+< ACL Data TX: Handle 64 flags 0x00 dlen 13                #60 [hci0] 46.912874
+      Channel: 65 len 9 sdu 7 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        07 00 10 13 00 ff ff 00 28                       ........(       
+> HCI Event: Number of Completed Packets (0x13) plen 5     #61 [hci0] 46.960689
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> HCI Event: Number of Completed Packets (0x13) plen 5     #62 [hci0] 46.961818
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 12                #63 [hci0] 47.008972
+      LE L2CAP: LE Flow Control Credit (0x16) ident 6 len 4
+        Source CID: 65
+        Credits: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 13                #64 [hci0] 47.009433
+      Channel: 64 len 9 sdu 7 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        07 00 10 01 00 ff ff 01 28                       ........(       
+< ACL Data TX: Handle 64 flags 0x00 dlen 12                #65 [hci0] 47.009476
+      LE L2CAP: LE Flow Control Credit (0x16) ident 9 len 4
+        Source CID: 64
+        Credits: 1
+< ACL Data TX: Handle 64 flags 0x00 dlen 11                #66 [hci0] 47.009651
+      Channel: 64 len 7 sdu 5 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        05 00 01 10 01 00 0a                             .......         
+> ACL Data RX: Handle 64 flags 0x02 dlen 12                #67 [hci0] 47.010004
+      LE L2CAP: LE Flow Control Credit (0x16) ident 7 len 4
+        Source CID: 65
+        Credits: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 11                #68 [hci0] 47.010518
+      Channel: 65 len 7 sdu 5 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        05 00 01 10 13 00 0a                             .......         
+< ACL Data TX: Handle 64 flags 0x00 dlen 12                #69 [hci0] 47.010556
+      LE L2CAP: LE Flow Control Credit (0x16) ident 10 len 4
+        Source CID: 65
+        Credits: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5     #70 [hci0] 47.106957
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 12                #71 [hci0] 47.204008
+      LE L2CAP: LE Flow Control Credit (0x16) ident 8 len 4
+        Source CID: 64
+        Credits: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 13                #72 [hci0] 47.204415
+      Channel: 65 len 9 sdu 7 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        07 00 08 13 00 29 00 02 28                       .....)..(       
+< ACL Data TX: Handle 64 flags 0x00 dlen 12                #73 [hci0] 47.204511
+      LE L2CAP: LE Flow Control Credit (0x16) ident 11 len 4
+        Source CID: 65
+        Credits: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5     #74 [hci0] 47.204503
+        Num handles: 1
+        Handle: 64
+        Count: 2
+< ACL Data TX: Handle 64 flags 0x00 dlen 10                #75 [hci0] 47.365777
+      Channel: 64 len 6 sdu 4 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        04 00 12 0b 00 07                                ......          
+< ACL Data TX: Handle 64 flags 0x00 dlen 9                 #76 [hci0] 47.365807
+      ATT: Write Request (0x12) len 4
+        Handle: 0x0009
+          Data: 0200
+< ACL Data TX: Handle 64 flags 0x00 dlen 11                #77 [hci0] 47.365934
+      Channel: 65 len 7 sdu 5 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        05 00 01 08 13 00 0a                             .......         
+> HCI Event: Number of Completed Packets (0x13) plen 5     #78 [hci0] 47.399454
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 12                #79 [hci0] 47.447749
+      LE L2CAP: LE Flow Control Credit (0x16) ident 9 len 4
+        Source CID: 64
+        Credits: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 7                 #80 [hci0] 47.448116
+      Channel: 64 len 3 sdu 1 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        01 00 13                                         ...             
+< ACL Data TX: Handle 64 flags 0x00 dlen 12                #81 [hci0] 47.448210
+      LE L2CAP: LE Flow Control Credit (0x16) ident 12 len 4
+        Source CID: 64
+        Credits: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5     #82 [hci0] 47.448276
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 5                 #83 [hci0] 47.448731
+      ATT: Write Response (0x13) len 0
+> ACL Data RX: Handle 64 flags 0x02 dlen 12                #84 [hci0] 47.449226
+      LE L2CAP: LE Flow Control Credit (0x16) ident 10 len 4
+        Source CID: 65
+        Credits: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 13                #85 [hci0] 47.496390
+      Channel: 64 len 9 sdu 7 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        07 00 08 13 00 29 00 03 28                       .....)..(       
+< ACL Data TX: Handle 64 flags 0x00 dlen 12                #86 [hci0] 47.496498
+      LE L2CAP: LE Flow Control Credit (0x16) ident 13 len 4
+        Source CID: 64
+        Credits: 1
+< ACL Data TX: Handle 64 flags 0x00 dlen 29                #87 [hci0] 47.561534
+      Channel: 64 len 25 sdu 23 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        17 00 09 15 27 00 82 28 00 fb 34 9b 5f 80 00 00  ....'..(..4._...
+        80 00 10 00 00 01 00 00 00                       .........       
+> HCI Event: Number of Completed Packets (0x13) plen 5     #88 [hci0] 47.593967
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 12                #89 [hci0] 47.642717
+      LE L2CAP: LE Flow Control Credit (0x16) ident 11 len 4
+        Source CID: 64
+        Credits: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 13                #90 [hci0] 47.643147
+      Channel: 65 len 9 sdu 7 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        07 00 08 28 00 29 00 03 28                       ...(.)..(       
+< ACL Data TX: Handle 64 flags 0x00 dlen 12                #91 [hci0] 47.643241
+      LE L2CAP: LE Flow Control Credit (0x16) ident 14 len 4
+        Source CID: 65
+        Credits: 1
+< ACL Data TX: Handle 64 flags 0x00 dlen 11                #92 [hci0] 47.643602
+      Channel: 65 len 7 sdu 5 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        05 00 01 08 28 00 0a                             ....(..         
+> HCI Event: Number of Completed Packets (0x13) plen 5     #93 [hci0] 47.691899
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 12                #94 [hci0] 47.788991
+      LE L2CAP: LE Flow Control Credit (0x16) ident 12 len 4
+        Source CID: 65
+        Credits: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 11                #95 [hci0] 47.789375
+      Channel: 64 len 7 sdu 5 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        05 00 04 29 00 29 00                             ...).).         
+< ACL Data TX: Handle 64 flags 0x00 dlen 12                #96 [hci0] 47.789475
+      LE L2CAP: LE Flow Control Credit (0x16) ident 15 len 4
+        Source CID: 64
+        Credits: 1
+< ACL Data TX: Handle 64 flags 0x00 dlen 12                #97 [hci0] 47.789853
+      Channel: 64 len 8 sdu 6 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        06 00 05 01 29 00 00 29                          ....)..)        
+> HCI Event: Number of Completed Packets (0x13) plen 5     #98 [hci0] 47.838140
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 12                #99 [hci0] 47.886452
+      LE L2CAP: LE Flow Control Credit (0x16) ident 13 len 4
+        Source CID: 64
+        Credits: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 9                #100 [hci0] 47.886854
+      Channel: 65 len 5 sdu 3 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        03 00 0a 29 00                                   ...).           
+< ACL Data TX: Handle 64 flags 0x00 dlen 12               #101 [hci0] 47.886951
+      LE L2CAP: LE Flow Control Credit (0x16) ident 16 len 4
+        Source CID: 65
+        Credits: 1
+< ACL Data TX: Handle 64 flags 0x00 dlen 9                #102 [hci0] 47.887451
+      Channel: 65 len 5 sdu 3 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        03 00 0b 04 00                                   .....           
+> HCI Event: Number of Completed Packets (0x13) plen 5    #103 [hci0] 47.935636
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 12               #104 [hci0] 47.983893
+      LE L2CAP: LE Flow Control Credit (0x16) ident 14 len 4
+        Source CID: 65
+        Credits: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5    #105 [hci0] 48.197411
+        Num handles: 1
+        Handle: 64
+        Count: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 10               #106 [hci0] 54.321102
+      Channel: 64 len 6 sdu 4 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        04 00 12 0b 00 07                                ......          
+< ACL Data TX: Handle 64 flags 0x00 dlen 12               #107 [hci0] 54.321225
+      LE L2CAP: LE Flow Control Credit (0x16) ident 17 len 4
+        Source CID: 64
+        Credits: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 9                #108 [hci0] 54.321678
+      ATT: Write Request (0x12) len 4
+        Handle: 0x0009
+          Data: 0200
+> ACL Data RX: Handle 64 flags 0x02 dlen 9                #109 [hci0] 54.322079
+      Channel: 65 len 5 sdu 3 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        03 00 0a 03 00                                   .....           
+< ACL Data TX: Handle 64 flags 0x00 dlen 12               #110 [hci0] 54.322177
+      LE L2CAP: LE Flow Control Credit (0x16) ident 18 len 4
+        Source CID: 65
+        Credits: 1
+< ACL Data TX: Handle 64 flags 0x00 dlen 7                #111 [hci0] 54.322289
+      Channel: 64 len 3 sdu 1 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        01 00 13                                         ...             
+< ACL Data TX: Handle 64 flags 0x00 dlen 5                #112 [hci0] 54.322684
+      ATT: Write Response (0x13) len 0
+< ACL Data TX: Handle 64 flags 0x00 dlen 18               #113 [hci0] 54.322778
+      Channel: 65 len 14 sdu 12 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        0c 00 0b 72 61 73 70 62 65 72 72 79 70 69        ...raspberrypi  
+> HCI Event: Number of Completed Packets (0x13) plen 5    #114 [hci0] 54.370978
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 12               #115 [hci0] 54.418614
+      LE L2CAP: LE Flow Control Credit (0x16) ident 15 len 4
+        Source CID: 64
+        Credits: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5    #116 [hci0] 54.419001
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 12               #117 [hci0] 54.467327
+      LE L2CAP: LE Flow Control Credit (0x16) ident 16 len 4
+        Source CID: 65
+        Credits: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 7                #118 [hci0] 54.516013
+      ATT: Read Request (0x0a) len 2
+        Handle: 0x0005
+> ACL Data RX: Handle 64 flags 0x02 dlen 9                #119 [hci0] 54.516495
+      Channel: 64 len 5 sdu 3 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        03 00 0a 12 00                                   .....           
+< ACL Data TX: Handle 64 flags 0x00 dlen 7                #120 [hci0] 54.516577
+      ATT: Read Response (0x0b) len 2
+        Value: 0000
+< ACL Data TX: Handle 64 flags 0x00 dlen 12               #121 [hci0] 54.516598
+      LE L2CAP: LE Flow Control Credit (0x16) ident 19 len 4
+        Source CID: 64
+        Credits: 1
+< ACL Data TX: Handle 64 flags 0x00 dlen 14               #122 [hci0] 54.516909
+      Channel: 64 len 10 sdu 8 [PSM 39 mode LE Flow Control (0x80)] {chan 0}
+        08 00 0b 02 6b 1d 46 02 36 05                    ....k.F.6.      
+> HCI Event: Number of Completed Packets (0x13) plen 5    #123 [hci0] 54.565321
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 12               #124 [hci0] 54.613821
+      LE L2CAP: LE Flow Control Credit (0x16) ident 17 len 4
+        Source CID: 64
+        Credits: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5    #125 [hci0] 54.614019
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> ACL Data RX: Handle 64 flags 0x02 dlen 9                #126 [hci0] 54.906018
+      Channel: 65 len 5 sdu 3 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        03 00 0a 28 00                                   ...(.           
+< ACL Data TX: Handle 64 flags 0x00 dlen 12               #127 [hci0] 54.906139
+      LE L2CAP: LE Flow Control Credit (0x16) ident 20 len 4
+        Source CID: 65
+        Credits: 1
+< ACL Data TX: Handle 64 flags 0x00 dlen 11               #128 [hci0] 54.906702
+      Channel: 65 len 7 sdu 5 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        05 00 01 0a 28 00 0f                             ....(..         
+> ACL Data RX: Handle 64 flags 0x02 dlen 12               #129 [hci0] 55.003642
+      LE L2CAP: LE Flow Control Credit (0x16) ident 18 len 4
+        Source CID: 65
+        Credits: 1
+> ACL Data RX: Handle 64 flags 0x02 dlen 11               #130 [hci0] 55.004052
+      SMP: Pairing Request (0x01) len 6
+        IO capability: NoInputNoOutput (0x03)
+        OOB data: Authentication data from remote device present (0x01)
+        Authentication requirement: No bonding, No MITM, SC, No Keypresses (0x08)
+        Max encryption key size: 16
+        Initiator key distribution: <none> (0x00)
+        Responder key distribution: IdKey (0x02)
+> HCI Event: Number of Completed Packets (0x13) plen 5    #131 [hci0] 55.004227
+        Num handles: 1
+        Handle: 64
+        Count: 2
+< ACL Data TX: Handle 64 flags 0x00 dlen 11               #132 [hci0] 55.004278
+      SMP: Pairing Response (0x02) len 6
+        IO capability: NoInputNoOutput (0x03)
+        OOB data: Authentication data from remote device present (0x01)
+        Authentication requirement: Bonding, No MITM, SC, No Keypresses (0x09)
+        Max encryption key size: 16
+        Initiator key distribution: <none> (0x00)
+        Responder key distribution: <none> (0x00)
+> ACL Data RX: Handle 64 flags 0x02 dlen 69               #133 [hci0] 55.101751
+      SMP: Pairing Public Key (0x0c) len 64
+        X: f37ed90eee32b10220f66a90950e786a909f874c0912554fba74a6753f6d1111
+        Y: d673829bc73b33d1ad8bb3019fee0fd2911ecdcb4a6923c214ee4e598805a00e
+< ACL Data TX: Handle 64 flags 0x00 dlen 69               #134 [hci0] 55.110204
+      SMP: Pairing Public Key (0x0c) len 64
+        X: 75dc0c120b3db347f5ee3bf93a2bd3c15d06811dcf19602a5d1f72ab248a4498
+        Y: 19774617f9306d43b22712ae02220c451e33dce356dded3b51ea3762c0c6097d
+> ACL Data RX: Handle 64 flags 0x02 dlen 21               #135 [hci0] 55.198915
+      SMP: Pairing Random (0x04) len 16
+        Random value: fc9d8829a09220b72ea4210842643bcc
+> HCI Event: Number of Completed Packets (0x13) plen 5    #136 [hci0] 55.199085
+        Num handles: 1
+        Handle: 64
+        Count: 2
+< ACL Data TX: Handle 64 flags 0x00 dlen 21               #137 [hci0] 55.199157
+      SMP: Pairing Random (0x04) len 16
+        Random value: 734c9cc2dc5b55469a4730079fce8269
+> ACL Data RX: Handle 64 flags 0x02 dlen 21               #138 [hci0] 55.296171
+      SMP: Pairing DHKey Check (0x0d) len 16
+        E: af554d9caab37f9688cb3afdf6483d71
+< ACL Data TX: Handle 64 flags 0x00 dlen 21               #139 [hci0] 55.296362
+      SMP: Pairing DHKey Check (0x0d) len 16
+        E: 908d85ee5509b8a53a01b50e057cf484
+> HCI Event: Number of Completed Packets (0x13) plen 5    #140 [hci0] 55.394029
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> HCI Event: LE Meta Event (0x3e) plen 13                 #141 [hci0] 55.394490
+      LE Long Term Key Request (0x05)
+        Handle: 64
+        Random number: 0x0000000000000000
+        Encrypted diversifier: 0x0000
+< HCI Command: LE Long Term Key... (0x08|0x001a) plen 18  #142 [hci0] 55.394577
+        Handle: 64
+        Long term key: 10fe784e854f8e288ecf564c5829fb84
+> HCI Event: Command Complete (0x0e) plen 6               #143 [hci0] 55.395052
+      LE Long Term Key Request Reply (0x08|0x001a) ncmd 1
+        Status: Success (0x00)
+        Handle: 64
+> HCI Event: Encryption Change (0x08) plen 4              #144 [hci0] 55.588859
+        Status: Success (0x00)
+        Handle: 64
+        Encryption: Enabled with AES-CCM (0x01)
+@ MGMT Event: New Long Term Key (0x000a) plen 37      {0x0002} [hci0] 55.589020
+        Store hint: No (0x00)
+        LE Address: DC:A6:32:28:34:E4 (OUI DC-A6-32)
+        Key type: Authenticated key from P-256 (0x03)
+        Master: 0x00
+        Encryption size: 16
+        Diversifier: 0000
+        Randomizer: 0000000000000000
+        Key: 10fe784e854f8e288ecf564c5829fb84
+@ MGMT Event: New Long Term Key (0x000a) plen 37      {0x0001} [hci0] 55.589020
+        Store hint: No (0x00)
+        LE Address: DC:A6:32:28:34:E4 (OUI DC-A6-32)
+        Key type: Authenticated key from P-256 (0x03)
+        Master: 0x00
+        Encryption size: 16
+        Diversifier: 0000
+        Randomizer: 0000000000000000
+        Key: 10fe784e854f8e288ecf564c5829fb84
+< HCI Command: Write Authenticate.. (0x03|0x007c) plen 4  #145 [hci0] 55.589088
+        Handle: 64
+        Timeout: 30000 msec (0x0bb8)
+> HCI Event: Command Complete (0x0e) plen 6               #146 [hci0] 55.589487
+      Write Authenticated Payload Timeout (0x03|0x007c) ncmd 1
+        Status: Success (0x00)
+        Handle: 64
+> ACL Data RX: Handle 64 flags 0x02 dlen 9                #147 [hci0] 55.686039
+      Channel: 65 len 5 sdu 3 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        03 00 0a 28 00                                   ...(.           
+< ACL Data TX: Handle 64 flags 0x00 dlen 12               #148 [hci0] 55.686150
+      LE L2CAP: LE Flow Control Credit (0x16) ident 21 len 4
+        Source CID: 65
+        Credits: 1
+< ACL Data TX: Handle 64 flags 0x00 dlen 46               #149 [hci0] 55.689824
+      Channel: 65 len 42 sdu 40 [PSM 39 mode LE Flow Control (0x80)] {chan 1}
+        28 00 0b 54 68 69 73 20 64 61 74 61 20 63 61 6e  (..This data can
+        20 62 65 20 72 65 61 64 20 61 66 74 65 72 20 4f   be read after O
+        4f 42 20 70 61 69 72 69 6e 67                    OB pairing      
+> ACL Data RX: Handle 64 flags 0x02 dlen 12               #150 [hci0] 55.783807
+      LE L2CAP: LE Flow Control Credit (0x16) ident 19 len 4
+        Source CID: 65
+        Credits: 1
+> HCI Event: Number of Completed Packets (0x13) plen 5    #151 [hci0] 55.783998
+        Num handles: 1
+        Handle: 64
+        Count: 2
+> HCI Event: Disconnect Complete (0x05) plen 4            #152 [hci0] 56.614416
+        Status: Success (0x00)
+        Handle: 64
+        Reason: Connection Timeout (0x08)
+@ MGMT Event: Device Disconnected (0x000c) plen 8     {0x0002} [hci0] 56.614497
+        LE Address: DC:A6:32:28:34:E4 (OUI DC-A6-32)
+        Reason: Connection timeout (0x01)
+@ MGMT Event: Device Disconnected (0x000c) plen 8     {0x0001} [hci0] 56.614497
+        LE Address: DC:A6:32:28:34:E4 (OUI DC-A6-32)
+        Reason: Connection timeout (0x01)
+@ MGMT Command: Unpair Device (0x001b) plen 8         {0x0001} [hci0] 56.615405
+        LE Address: DC:A6:32:28:34:E4 (OUI DC-A6-32)
+        Disconnect: Enabled (0x01)
+@ MGMT Event: Command Complete (0x0001) plen 10       {0x0001} [hci0] 56.712340
+      Unpair Device (0x001b) plen 7
+        Status: Success (0x00)
+        LE Address: DC:A6:32:28:34:E4 (OUI DC-A6-32)
+@ MGMT Event: Device Unpaired (0x0016) plen 7         {0x0002} [hci0] 56.712359
+        LE Address: DC:A6:32:28:34:E4 (OUI DC-A6-32)
