@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/jarijaas/openssl"
 	"github.com/muka/go-bluetooth/api"
 	"github.com/muka/go-bluetooth/bluez/profile/adapter"
 	"github.com/muka/go-bluetooth/bluez/profile/device"
 	"github.com/muka/go-bluetooth/bluez/profile/gatt"
-	"github.com/ouspg/tpm-bluetooth/pkg/btmgmt"
-	"github.com/ouspg/tpm-bluetooth/pkg/crypto"
+	"github.com/ouspg/tpm-ble/pkg/btmgmt"
+	"github.com/ouspg/tpm-ble/pkg/crypto"
 	log "github.com/sirupsen/logrus"
 	"strings"
 	"time"
@@ -71,28 +72,6 @@ func discover(a *adapter.Adapter1, hwaddr string) (*device.Device1, error) {
 }
 
 func findDevice(a *adapter.Adapter1, hwaddr string) (*device.Device1, error) {
-	//
-	// devices, err := a.GetDevices()
-	// if err != nil {
-	// 	return nil, err
-	// }
-	//
-	// for _, dev := range devices {
-	// 	devProps, err := dev.GetProperties()
-	// 	if err != nil {
-	// 		log.Errorf("Failed to load dev props: %s", err)
-	// 		continue
-	// 	}
-	//
-	// 	log.Info(devProps.Address)
-	// 	if devProps.Address != hwaddr {
-	// 		continue
-	// 	}
-	//
-	// 	log.Infof("Found cached device Connected=%t Trusted=%t Paired=%t", devProps.Connected, devProps.Trusted, devProps.Paired)
-	// 	return dev, nil
-	// }
-
 	dev, err := discover(a, hwaddr)
 	if err != nil {
 		return nil, err
@@ -104,33 +83,13 @@ func findDevice(a *adapter.Adapter1, hwaddr string) (*device.Device1, error) {
 	return dev, nil
 }
 
-
-
-
 func client(adapterID, hwaddr string) (dev *device.Device1, err error) {
-
 	log.Infof("Discovering %s on %s", hwaddr, adapterID)
 
 	a, err := adapter.NewAdapter1FromAdapterID(adapterID)
 	if err != nil {
 		return nil, err
 	}
-
-	//Connect DBus System bus
-	/*conn, err := dbus.SystemBus()
-	if err != nil {
-		return nil, err
-	}
-
-	// do not reuse agent0 from service
-	agent.NextAgentPath()
-
-	ag := agent.NewSimpleAgent()
-	err = agent.ExposeAgent(conn, ag, agent.CapNoInputNoOutput, true)
-	if err != nil {
-		return nil, fmt.Errorf("SimpleAgent: %s", err)
-	}*/
-
 
 	dev, err = findDevice(a, hwaddr)
 	if err != nil {
@@ -157,10 +116,6 @@ func client(adapterID, hwaddr string) (dev *device.Device1, err error) {
 	log.Info("retrieveServices")
 	retrieveServices(a, dev)
 	return dev, nil
-
-	// select {}
-
-	// return nil
 }
 
 func connect(dev *device.Device1) error {
@@ -295,29 +250,174 @@ func CreateConnection(adapterID string, hwaddr string) (*device.Device1, error) 
 	return dev, err
 }
 
+type SecureDevice struct {
+	Dev *device.Device1
+	CipherSession *crypto.CipherSession
+}
+
+func CreateSecureConnection(caPath string, cert []byte, privKeyPath string, adapterID string, hwaddr string) (*SecureDevice, error) {
+	dev, err := client(adapterID, hwaddr)
+	if err != nil {
+		return nil, err
+	}
+
+	pemCert, err := ReadCertificate(dev)
+	if err != nil {
+		return nil, fmt.Errorf("could not read certificate. Error: %s", err)
+	}
+
+	log.Printf("Certificate: \n%s\n", string(pemCert))
+
+	log.Println("Verify certificate")
+
+	err = crypto.VerifyCertificate("/usr/local/share/ca-certificates/tpm-cacert.pem", pemCert)
+	if err != nil {
+		log.Fatalf("Could not verify certificate. Error: %s", err)
+	}
+
+	serverCert, err := openssl.LoadCertificateFromPEM(pemCert)
+	if err != nil {
+		return nil, fmt.Errorf("could not read cert: %s", err)
+	}
+	serverPub, err := serverCert.PublicKey()
+	if err != nil {
+		return nil, fmt.Errorf("could not read public key: %s", err)
+	}
+
+	log.Println("Certificate was deemed valid (signed by the CA)")
+
+	err = WriteCertificate(dev, cert)
+	if err != nil {
+		return nil, fmt.Errorf("could not send certificate: %s", err)
+	}
+
+	signingPrivKey, err := crypto.LoadTPMPrivateKey(privKeyPath)
+	if err != nil {
+		return nil, fmt.Errorf("could not load TPM private key used in signing: %s", err)
+	}
+
+	ephKey, err := crypto.GenECDHPrivKey()
+	if err != nil {
+		return nil, fmt.Errorf("could not generate ephemeral key for ECDH: %s", err)
+	}
+
+	pubKeyBytes := crypto.ECCPubKeyToBytes(&ephKey.PublicKey)
+	log.Printf("Sign: %s\n", hex.EncodeToString(pubKeyBytes))
+
+	pubKeySig, err := crypto.Sign(signingPrivKey, pubKeyBytes)
+	if err != nil {
+		return nil, fmt.Errorf("´could not sign ECDH pub key: %s", err)
+	}
+
+	log.Printf("ECDH pub key signature: %s", hex.EncodeToString(pubKeySig))
+
+	log.Printf("Send ECDH pub key, certificate and the signature to the other party")
+	exchangeResponse, err := BeginECDHExchange(dev, ECDHExchange{
+		Signature: pubKeySig,
+		PubKey:    pubKeyBytes,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("ECDH exchange failed: %s", err)
+	}
+
+	log.Printf("Received pub key (key, sig): (%s, %s)",
+		hex.EncodeToString(exchangeResponse.PubKey), hex.EncodeToString(exchangeResponse.Signature))
+
+	log.Println("Verify signature")
+	err = crypto.Verify(serverPub, exchangeResponse.PubKey, exchangeResponse.Signature)
+	if err != nil {
+		return nil, fmt.Errorf("server public key signature is not valid: %s", err)
+	}
+
+	serverPubKey := crypto.BytesToECCPubKey(exchangeResponse.PubKey)
+
+	sessionKey := crypto.ComputeSessionKey(serverPubKey, ephKey)
+	log.Printf("Session key: %s\n", hex.EncodeToString(sessionKey[:]))
+
+	cipherSession, err := crypto.NewCipherSession(sessionKey)
+	if err != nil {
+		return nil, fmt.Errorf("could not create cipher session: %s", err)
+	}
+
+	return &SecureDevice{
+		Dev:           dev,
+		CipherSession: cipherSession,
+	}, nil
+}
+
+func (secDev *SecureDevice) SecureReadCharacteristic(charUUID string) ([]byte, error) {
+	data, err := ReadCharacteristic(secDev.Dev, charUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	ciphertext, err := crypto.UnmarshalNoncedCiphertext(data)
+	if err != nil {
+		log.Fatalf("Could not unmarshal ciphertext: %s", ciphertext)
+		return nil, fmt.Errorf("could not unmarshal ciphertext: %s", ciphertext)
+	}
+
+	plaintext, err := secDev.CipherSession.Decrypt(ciphertext)
+	if err != nil {
+		log.Fatal(err)
+		return nil, fmt.Errorf("could not decrypt ciphertext: %s", err)
+	}
+	return plaintext, nil
+}
+
+
+func WriteCertificate(dev *device.Device1, cert []byte) error {
+	list, err := dev.GetCharacteristicsList()
+	if err != nil {
+		return err
+	}
+
+	if len(list) == 0 {
+		time.Sleep(time.Second * 2)
+		return WriteCertificate(dev, cert)
+	}
+
+	char, err := dev.GetCharByUUID(WRITE_CERT_CHAR_UUID + APP_UUID_SUFFIX)
+	if err != nil {
+		return err
+	}
+
+	const chunkSize = 500
+
+	for off := 0; off < len(cert); off += chunkSize {
+		endOff := off + chunkSize
+		if endOff >= len(cert) {
+			endOff = len(cert)
+		}
+
+		err = char.WriteValue(cert[off:endOff], map[string]interface{}{
+			"type": "request",
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
 
 func ReadCertificate(dev *device.Device1) ([]byte, error) {
 	var pemCert []byte
 
-	/*_, err = ReadCharacteristic(adapterID, SERVICE_UUID, READ_CERT_CHAR_UUID)
-	if err != nil {
-		return err
-	}*/
-
 	// Hmm. probably write characteristic could be used also
-	chunk, err := ReadCharacteristic(dev, READ_CERT_1_CHAR_UUID + UUID_SUFFIX)
+	chunk, err := ReadCharacteristic(dev, READ_CERT_1_CHAR_UUID +APP_UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
 	pemCert = append(pemCert, chunk ...)
 
-	chunk, err = ReadCharacteristic(dev, READ_CERT_2_CHAR_UUID + UUID_SUFFIX)
+	chunk, err = ReadCharacteristic(dev, READ_CERT_2_CHAR_UUID +APP_UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
 	pemCert = append(pemCert, chunk ...)
 
-	chunk, err = ReadCharacteristic(dev, READ_CERT_3_CHAR_UUID + UUID_SUFFIX)
+	chunk, err = ReadCharacteristic(dev, READ_CERT_3_CHAR_UUID +APP_UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -334,7 +434,7 @@ func BeginECDHExchange(dev *device.Device1, data ECDHExchange) (*ECDHExchange, e
 
 	log.Println(string(exchangeData))
 
-	res, err := writeCharacteristicWithResponse(dev, ECDH_EXC_CHAR_UUID + UUID_SUFFIX, exchangeData)
+	res, err := writeCharacteristicWithResponse(dev, ECDH_EXC_CHAR_UUID +APP_UUID_SUFFIX, exchangeData)
 	if err != nil {
 		return nil, fmt.Errorf("could not write to characteristic: %s", err)
 	}
@@ -376,7 +476,7 @@ func ExchangeOOBData(dev *device.Device1, cipherSession *crypto.CipherSession, a
 		return nil, fmt.Errorf("could not marshal nonced ciphertext: %s", err)
 	}
 
-	res, err := writeCharacteristicWithResponse(dev, OOB_EXC_CHAR_UUID + UUID_SUFFIX, data)
+	res, err := writeCharacteristicWithResponse(dev, OOB_EXC_CHAR_UUID +APP_UUID_SUFFIX, data)
 	if err != nil {
 		return nil, fmt.Errorf("could not write to characteristic: %s", err)
 	}

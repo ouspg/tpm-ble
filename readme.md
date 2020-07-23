@@ -1,9 +1,8 @@
 # [WIP] Secures Bluetooth Low Energy communication using Public Key Infrastructure and Trusted Platform Module
 
-## Issues
+## LE Secure Connections Issue
 
-* Use of LE Secure Connections causes disconnect after pairing (Connection Timeout 0x08), see [traces/disconnect_after_successful_encryption](traces/disconnect_after_successful_encryption).
-* Add encryption on gatt level instead to support older devices and to circumvent the above issue if other fix is not found.
+Use of LE Secure Connections (`sc-secured`) causes disconnect after pairing (Connection Timeout 0x08), see [traces/disconnect_after_successful_encryption](traces/disconnect_after_successful_encryption). As a workaround, this project supports securing the connection on gatt level (`gatt-secured`). This also works on older BT controllers (prior to 4.2).
 
 ## Introduction
 
@@ -15,7 +14,7 @@ easily by brute-forcing the pairing code.
 Fortunately, Bluetooth supports
 pairing devices using an out-of-band mechanism.
 
-Commonly, this is done using NFC or a QR code. This out-of-band data used to pair devices can be exhanged using any communication channel.
+Commonly, this is done using NFC or a QR code. This out-of-band data used to pair devices can be exchanged using any communication channel.
 
 In this work, a BLE communication channel is secured using public-key cryptography and Trusted Platform Module (TPM). This channel is used to exchange out-of-band data
 prior to pairing the devices. TPM is a physical device that can perform cryptographic operations and store data securely, such as private keys.
@@ -202,7 +201,7 @@ Kernel bug, fixed in bluetooth-next.
 sc only
 ```
 
-## Monitoring
+## Troubleshooting
 
 Monitor HCI and MGMT commands:
 
@@ -220,6 +219,12 @@ Monitor dmesg:
 
 ```
 dmesg -w
+```
+
+Sniff BlueZ DBus:
+
+```
+sudo dbus-monitor --system "type='signal',sender='org.bluez'"
 ```
 
 ## Exchange out-of-band data manually

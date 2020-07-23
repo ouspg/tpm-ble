@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/ouspg/tpm-bluetooth/pkg/ble"
+	"github.com/ouspg/tpm-ble/pkg/ble"
 	"log"
 	"time"
 )

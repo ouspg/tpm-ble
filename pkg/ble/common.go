@@ -2,21 +2,24 @@ package ble
 
 import (
 	"encoding/json"
+	"github.com/muka/go-bluetooth/hw"
 )
 
-const UUID_SUFFIX = "-0000-1000-8000-00805F9B34FB"
+const APP_UUID_SUFFIX = "-0000-1000-8000-00805F9B34FB"
 const APP_UUID = "0001"
-const SERVICE_UUID = "0001"
+
+const KEY_EXC_SERVICE_UUID = "0001"
+const OOB_EXC_SERVICE_UUID = "0002"
 
 const READ_CERT_1_CHAR_UUID = "00000002" // ECDSA
 const READ_CERT_2_CHAR_UUID = "00000003" // ECDSA
 const READ_CERT_3_CHAR_UUID = "00000004" // ECDSA
 
+const WRITE_CERT_CHAR_UUID = "00000005" // ECDSA
+
 const ECDH_EXC_CHAR_UUID = "00000010" // ECDH
 const OOB_EXC_CHAR_UUID = "00000020"  // OOB token exchange
 
-
-const TRUSTED_CA = "/usr/local/share/ca-certificates/tpm-cacert.pem"
 
 type ECDHExchange struct {
 	Signature []byte `json:"sig"`
@@ -55,8 +58,12 @@ func UnmarshalOOBExchange(data []byte) (*OOBExchange, error) {
 	return &exchange, nil
 }
 
-func EnableForceSecureBLEPairing() {
+func EnableLESingleMode(adapterID string) {
+	btmgmtCli := hw.NewBtMgmt(adapterID)
+	btmgmtCli.SetPowered(false)
 
+	btmgmtCli.SetLe(true)
+	btmgmtCli.SetBredr(false)
 
-
+	btmgmtCli.SetPowered(true)
 }

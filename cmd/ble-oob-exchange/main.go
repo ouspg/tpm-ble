@@ -1,10 +1,14 @@
 package main
 
 import (
-	"github.com/ouspg/tpm-bluetooth/pkg/ble"
+	"github.com/ouspg/tpm-ble/pkg/ble"
 	"io/ioutil"
 	"log"
+	"os"
+	"os/signal"
 )
+
+var adapterID = "hci0"
 
 func main() {
 	// x509
@@ -18,8 +22,27 @@ func main() {
 		log.Fatalf("Coul not read private key. Reason: %s", err)
 	}
 
-	err = ble.CreateKeyExchangeService("hci0", cert, privKey)
+	ble.EnableLESingleMode(adapterID)
+
+	secApp, err := ble.CreateOOBDataExchangeApp(adapterID, "/usr/local/share/ca-certificates/tpm-cacert.pem", cert, privKey)
 	if err != nil {
 		log.Fatal(err)
 	}
+	app := secApp.App
+	defer app.Close()
+
+	err = app.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = secApp.Advertise(ble.AdvertiseForever)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Run until interrupt
+	wait := make(chan os.Signal, 1)
+	signal.Notify(wait, os.Interrupt)
+	<-wait
 }

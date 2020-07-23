@@ -1,4 +1,4 @@
-module github.com/ouspg/tpm-bluetooth
+module github.com/ouspg/tpm-ble
 
 go 1.13
 
