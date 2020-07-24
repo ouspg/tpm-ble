@@ -181,16 +181,6 @@ func ReadCharacteristic(dev *device.Device1, charUUID string) ([]byte, error) {
 		return ReadCharacteristic(dev, charUUID)
 	}
 
-	for _, path := range list {
-		char, err := gatt.NewGattCharacteristic1(path)
-		if err != nil {
-			return nil, err
-		}
-
-		cuuid := strings.ToUpper(char.Properties.UUID)
-		log.Printf("Found Char UUID: %s\n", cuuid)
-	}
-
 	char, err := dev.GetCharByUUID(charUUID)
 	if err != nil {
 		return nil, err
@@ -202,6 +192,49 @@ func ReadCharacteristic(dev *device.Device1, charUUID string) ([]byte, error) {
 	}
 
 	return data, nil
+}
+
+func StartCharacteristicNotify(dev *device.Device1, charUUID string) (chan []byte, error) {
+	list, err := dev.GetCharacteristicsList()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(list) == 0 {
+		time.Sleep(time.Second * 2)
+		return StartCharacteristicNotify(dev, charUUID)
+	}
+
+	char, err := dev.GetCharByUUID(charUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = char.StartNotify()
+	if err != nil {
+		return nil, err
+	}
+
+	inCh, err := char.WatchProperties()
+	if err != nil {
+		return nil, err
+	}
+
+	outCh := make(chan []byte, 1)
+
+	go func() {
+		for {
+			val, more := <- inCh
+			outCh <- val.Value.([]byte)
+
+			if !more {
+				close(outCh)
+				return
+			}
+		}
+	}()
+
+	return outCh, err
 }
 
 func writeCharacteristicWithResponse(dev *device.Device1, charUUID string, value []byte) ([]byte, error) {
@@ -363,6 +396,76 @@ func (secDev *SecureDevice) SecureReadCharacteristic(charUUID string) ([]byte, e
 		return nil, fmt.Errorf("could not decrypt ciphertext: %s", err)
 	}
 	return plaintext, nil
+}
+
+func (secDev *SecureDevice) StartSecureCharacteristicNotify(charUUID string) (chan []byte, error) {
+
+	inCh, err := StartCharacteristicNotify(secDev.Dev, charUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	outCh := make(chan []byte, 1)
+
+	go func() {
+		for {
+			val, more := <- inCh
+
+			ciphertext, err := crypto.UnmarshalNoncedCiphertext(val)
+			if err != nil {
+				log.Warnf("could not unmarshal ciphertext: %s", ciphertext)
+				continue
+			}
+
+			plaintext, err := secDev.CipherSession.Decrypt(ciphertext)
+			if err != nil {
+				log.Warnf("could not decrypt ciphertext: %s", err)
+				continue
+			}
+
+			outCh <- plaintext
+
+			if !more {
+				close(outCh)
+				return
+			}
+		}
+	}()
+
+	return outCh, nil
+}
+
+func (secDev *SecureDevice) SecureWriteCharacteristic(charUUID string, data []byte, options map[string]interface{}) error {
+	list, err := secDev.Dev.GetCharacteristicsList()
+	if err != nil {
+		return err
+	}
+
+	if len(list) == 0 {
+		time.Sleep(time.Second * 2)
+		return secDev.SecureWriteCharacteristic(charUUID, data, options)
+	}
+
+	char, err := secDev.Dev.GetCharByUUID(charUUID)
+	if err != nil {
+		return err
+	}
+
+	ciphertext, err := secDev.CipherSession.Encrypt(data)
+	if err != nil {
+		return err
+	}
+
+	data, err = crypto.MarshalNoncedCiphertext(ciphertext)
+	if err != nil {
+		return err
+	}
+
+	err = char.WriteValue(data, options)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 

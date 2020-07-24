@@ -4,6 +4,8 @@ import (
 	"github.com/ouspg/tpm-ble/pkg/ble"
 	"io/ioutil"
 	"log"
+	"os"
+	"os/signal"
 )
 
 var adapterID = "hci0"
@@ -11,6 +13,7 @@ var adapterID = "hci0"
 const TargetHwaddr = "DC:A6:32:35:EF:E2"
 
 const CharUuid = "10000001"
+const CharNotifyUuid = "10000002"
 
 func main()  {
 	/*err := crypto.InitializeTPMEngine()
@@ -42,4 +45,27 @@ func main()  {
 	}
 
 	log.Printf("Read secured characteristic value: %s", data)
+
+	notifyCh, err := secDev.StartSecureCharacteristicNotify(CharNotifyUuid + ble.APP_UUID_SUFFIX)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	go func() {
+		for {
+			notifyVal, more := <- notifyCh
+			log.Printf("Received notify value: %s\n", notifyVal)
+
+			if !more {
+				log.Print("Notify channel was closed")
+				return
+			}
+		}
+	}()
+
+
+	// Run until interrupt
+	wait := make(chan os.Signal, 1)
+	signal.Notify(wait, os.Interrupt)
+	<-wait
 }

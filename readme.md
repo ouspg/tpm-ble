@@ -243,6 +243,10 @@ sudo btmgmt remote-oob -t <ADDR_TYPE> -R <RANDOM> -H <CONFIRMATION> <TARGET_HW_A
 
 See <https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/mgmt-api.txt>
 
+## Demo (`gatt-secured`)
+
+[![asciicast](https://asciinema.org/a/OUDKugXW786WuP7ut6caPKl1G.svg)](https://asciinema.org/a/OUDKugXW786WuP7ut6caPKl1G)
+
 ## Acknowledgements
 
 The research leading to these results was derived from the project SECREDAS (Product Security for Cross Domain Reliable Dependable Automated Systems) funded by ECSEL-JU (Electronic Component Systems for European Leadership Joint Undertaking) of the European Union’s Horizon 2020 research and innovation programme under grant agreement nr. 783119, and by Business Finland.

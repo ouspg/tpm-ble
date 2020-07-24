@@ -236,8 +236,8 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 		log.Printf("ECDH exchange response data: %s\n", string(responseData))
 
 		originatorPubKey := crypto.BytesToECCPubKey(exchangeData.PubKey)
-		log.Printf("Originator pubKeyX: %s", originatorPubKey.X.String())
-		log.Printf("Originator pubKeyY: %s", originatorPubKey.Y.String())
+		log.Debugf("Client pubKeyX: %s", originatorPubKey.X.String())
+		log.Debugf("Client pubKeyY: %s", originatorPubKey.Y.String())
 
 		sessionKey := crypto.ComputeSessionKey(originatorPubKey, ephPrivKey)
 		log.Printf("Session key: %s", hex.EncodeToString(sessionKey))
@@ -392,6 +392,25 @@ func CreateOOBDataExchangeService(secApp *SecureApp) error {
 	}
 	return nil
 }
+
+// Send secure notification / indication
+func (secApp *SecureApp) SecureWrite(char *service.Char, value []byte, options map[string]interface{}) error {
+	if secApp.ClientConn == nil || !secApp.ClientConn.isSecure {
+		return nil
+	}
+
+	ciphertext, err := secApp.ClientConn.cipherSession.Encrypt(value)
+	if err != nil {
+		return err
+	}
+
+	value, err = crypto.MarshalNoncedCiphertext(ciphertext)
+	if err != nil {
+		return err
+	}
+	return char.WriteValue(value, options)
+}
+
 
 const AdvertiseForever = 0xFFFFFFFF
 

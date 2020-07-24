@@ -9,12 +9,14 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"time"
 )
 
 var adapterID = "hci0"
 
 const ServiceUuid = "ABCD"
 const CharUuid = "10000001"
+const CharUuidNotify = "10000002"
 
 func main()  {
 	cert, err := ioutil.ReadFile("/usr/local/share/keys/tpm_cert.pem")
@@ -79,6 +81,24 @@ func main()  {
 		log.Fatal(err)
 	}
 
+	secureCharNotify, err := service1.NewChar(CharUuidNotify)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	secureCharNotify.Properties.Flags = []string{
+		gatt.FlagCharacteristicNotify,
+	}
+
+	secApp.OnReadSecure(secureCharNotify, func(c *service.Char, options map[string]interface{}) (bytes []byte, err error) {
+		return []byte("This message is secured on gatt level"), nil
+	})
+
+	err = service1.AddChar(secureCharNotify)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	err = app.Run()
 	if err != nil {
 		log.Fatal(err)
@@ -88,6 +108,16 @@ func main()  {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	ticker := time.NewTicker(5 * time.Second)
+
+	go func() {
+		for {
+			<-ticker.C
+			log.Println("Write secure notify")
+			secApp.SecureWrite(secureCharNotify, []byte("test"), nil)
+		}
+	}()
 
 	// Run until interrupt
 	wait := make(chan os.Signal, 1)

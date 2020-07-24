@@ -29,3 +29,4 @@ func NewClientConnection() *ClientConnection {
 		hwAddr:            "",
 	}
 }
+
