@@ -54,6 +54,10 @@ Under the hood, Bluetooth 4.2+ uses ECDH and AES-CCM to secure the communication
 This software uses the tpm2 tss openssl engine, so
 this software can be used without TPM also.
 
+## VM and Raspberry PI images
+
+VM image used to deploy configs and binaries to RPi devices and RPi device images can be downloaded from [here](https://mega.nz/folder/X5xWBCiS#vGJeZtNkOkrEW5UD9TjtTg)
+
 ## Instructions (for Raspbian)
 
 Build raspi kernel with tpm2 support enabled (check [docs/](docs/Infineon-App-Note-SLx9670-TPM2.0_Embedded_RPi_DI_SLx-ApplicationNotes-v01_03-EN.pdf) for guide)
