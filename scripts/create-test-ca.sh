@@ -1,5 +1,5 @@
 #!/bin/sh
 cd ca
-/usr/local/ssl/bin/openssl req -x509 -config openssl-ca.cnf -newkey rsa:4096 -sha256 -nodes -out keys/cacert.pem -outform PEM
+/usr/local/ssl/bin/openssl req -x509 -config openssl-ca.cnf -newkey rsa:4096 -sha256 -nodes -out keys/cacert.pem -outform PEM -days 99999
 mv cakey.pem ./keys
 cd ..

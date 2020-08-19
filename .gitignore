@@ -4,3 +4,4 @@ vendor
 *.req
 rpi_images
 kernel
+*.pem

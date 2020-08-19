@@ -303,7 +303,7 @@ func CreateSecureConnection(caPath string, cert []byte, privKeyPath string, adap
 
 	log.Println("Verify certificate")
 
-	err = crypto.VerifyCertificate("/usr/local/share/ca-certificates/tpm-cacert.pem", pemCert)
+	err = crypto.VerifyCertificate(caPath, pemCert)
 	if err != nil {
 		log.Fatalf("Could not verify certificate. Error: %s", err)
 	}
@@ -345,9 +345,13 @@ func CreateSecureConnection(caPath string, cert []byte, privKeyPath string, adap
 	log.Printf("ECDH pub key signature: %s", hex.EncodeToString(pubKeySig))
 
 	log.Printf("Send ECDH pub key, certificate and the signature to the other party")
+
+	clientRand := SecRand32Bytes()
+
 	exchangeResponse, err := BeginECDHExchange(dev, ECDHExchange{
 		Signature: pubKeySig,
 		PubKey:    pubKeyBytes,
+		Random:	   clientRand,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("ECDH exchange failed: %s", err)
@@ -364,7 +368,7 @@ func CreateSecureConnection(caPath string, cert []byte, privKeyPath string, adap
 
 	serverPubKey := crypto.BytesToECCPubKey(exchangeResponse.PubKey)
 
-	sessionKey := crypto.ComputeSessionKey(serverPubKey, ephKey)
+	sessionKey := crypto.ComputeSessionKey(serverPubKey, ephKey, clientRand, exchangeResponse.Random)
 	log.Printf("Session key: %s\n", hex.EncodeToString(sessionKey[:]))
 
 	cipherSession, err := crypto.NewCipherSession(sessionKey)

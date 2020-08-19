@@ -26,7 +26,7 @@ func main()  {
 
 	privKey, err := ioutil.ReadFile("/usr/local/share/keys/tpm_priv.key")
 	if err != nil {
-		log.Fatalf("Coul not read private key. Reason: %s", err)
+		log.Fatalf("Could not read private key. Reason: %s", err)
 	}
 
 	ble.EnableLESingleMode(adapterID)
@@ -47,7 +47,7 @@ func main()  {
 	app.SetName("GATT secured")
 
 	// Handles establishing a secure connection
-	err = ble.CreateKeyExchangeService( secApp, "/usr/local/share/ca-certificates/tpm-cacert.pem",
+	err = ble.CreateKeyExchangeService( secApp, "/usr/local/share/keys/tpm-cacert.pem",
 		cert, privKey)
 	if err != nil {
 		log.Fatal(err)

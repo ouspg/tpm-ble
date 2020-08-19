@@ -35,14 +35,14 @@ The secure communication channel is established as follows:
 
 1. Devices exchange ECDSA public keys (certificates)
 2. Both parties verify that the received certificate is signed by the CA
-3. Both parties send challenge (random data) to each other. This is appended into the ECDH public key exhange message. This ensures that the adversary cannot establish a new session if they captured the ECDH signed public key message previously and somehow have access to the ECDH private key. **(todo, not implemented yet)**
+3. Both parties send random data (32 bytes) to each other. This is used as a key material when computing the shared session key. This is done to prevent replay attacks.
 4. Both parties generate ephemeral (single-use) ECDH (Elliptic-curve Diffie-Hellman) key pairs. Because these keys are single-use, even if an adversary would be able to crack a session key for one session, they would not be able to decrypt other sessions.
 5. Devices exchange ECDH public key signed by the ECDSA private key (signed by the TPM)
 6. Both parties verify using ECDSA public key that the received ECDH public key is signed by the verified ECDSA key.
 7. Both parties compute a shared key using the ECDH keys and SHA256 hash algorithm.
 8. Now both parties initialize AES-GCM encryption using this shared key. Every message uses a unique nonce and AES-GCM has built-in message integrity validation.
-9. Both devices query the Bluetooth adapter for the out-of-band data and then exchange this data with the other party using this recently established secure communication channel
-10. Both devices do pairing with the other party using this exchanged out-of-band data. Note that ponding should be disabled. When ponding is disabled, the pairing is forgotten when a device restarts and the above process must be completed again.
+9. When using SC, both devices query the Bluetooth adapter for the out-of-band data and then exchange this data with the other party using this recently established secure communication channel
+10. When using SC, both devices do pairing with the other party using this exchanged out-of-band data. Note that ponding should be disabled. When ponding is disabled, the pairing is forgotten when a device restarts and the above process must be completed again.
 
 A Bluetooth device may enforce that pairing has to be completed before allowing access to a GATT service characteristic; therefore, accessing these characteristics would require completing the pairing process described above.
 
@@ -57,7 +57,6 @@ this software can be used without TPM also.
 ## Instructions (for Raspbian)
 
 Build raspi kernel with tpm2 support enabled (check [docs/](docs/Infineon-App-Note-SLx9670-TPM2.0_Embedded_RPi_DI_SLx-ApplicationNotes-v01_03-EN.pdf) for guide)
-
 
 Additional deps required to build tpm2 software:
 
@@ -227,7 +226,7 @@ Sniff BlueZ DBus:
 sudo dbus-monitor --system "type='signal',sender='org.bluez'"
 ```
 
-## Exchange out-of-band data manually
+## Test OOB by exchanging out-of-band data manually
 
 Get random and confirmation value for both devices:
 
@@ -245,7 +244,7 @@ See <https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/mgmt-api.txt>
 
 ## Demo (`gatt-secured`)
 
-[![asciicast](https://asciinema.org/a/OUDKugXW786WuP7ut6caPKl1G.svg)](https://asciinema.org/a/OUDKugXW786WuP7ut6caPKl1G)
+[![asciicast](https://asciinema.org/a/01IiWzJm0RwokcI8oC1iBX94l.svg)](https://asciinema.org/a/01IiWzJm0RwokcI8oC1iBX94l)
 
 ## Acknowledgements
 

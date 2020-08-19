@@ -1,8 +1,10 @@
 package ble
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"github.com/muka/go-bluetooth/hw"
+	"log"
 )
 
 const APP_UUID_SUFFIX = "-0000-1000-8000-00805F9B34FB"
@@ -24,6 +26,7 @@ const OOB_EXC_CHAR_UUID = "00000020"  // OOB token exchange
 type ECDHExchange struct {
 	Signature []byte `json:"sig"`
 	PubKey []byte `json:"pub"`
+	Random [32]byte `json:"r"`
 }
 
 // Allow specifying MAC in case pairing is done for another adapter
@@ -66,4 +69,16 @@ func EnableLESingleMode(adapterID string) {
 	btmgmtCli.SetBredr(false)
 
 	btmgmtCli.SetPowered(true)
+}
+
+func SecRand32Bytes() (out [32]byte) {
+	bytes := make([]byte, 32)
+
+	n, err := rand.Read(bytes)
+	if n != 32 || err != nil {
+		log.Fatalf("Could not generate secure random bytes. Count :%d, err: %v\n", n, err)
+	}
+
+	copy(out[:], bytes)
+	return
 }

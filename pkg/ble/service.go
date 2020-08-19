@@ -171,13 +171,9 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 		gatt.FlagCharacteristicWrite, gatt.FlagCharacteristicRead,
 	}
 
-	// Todo: prevent replay attacks, or protect ECDH priv key at least using TPM
-	// Currently, if an adversary recovers the ECDH priv key and the signature, they could bypass the TPM
-	// Although, if adversary has access to the ECDH priv key, they likely have TPM access anyway
-
 	/**
-	This is not really the best way to send response to write request, but it is unclear how
-	write request response should be read
+	Todo: refactor, this is not really the best way to send response to write request, but it is unclear how
+		write request response should be read
 	*/
 	ecdhExchangeChar.OnRead(func(c *service.Char, options map[string]interface{}) (bytes []byte, err error) {
 		return secApp.ClientConn.exchangeRes, nil
@@ -191,7 +187,7 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 			log.Fatalf("Could not unmarshal received ECDH exchange data: %s", err)
 		}
 
-		log.Printf("Received ECDH public key (key, sig): (%s, %s)\n",
+		log.Debugf("Received ECDH public key (key, sig): (%s, %s)\n",
 			hex.EncodeToString(exchangeData.PubKey), hex.EncodeToString(exchangeData.Signature))
 
 		err = crypto.VerifyCertificate(caPath, secApp.ClientConn.clientCertificate)
@@ -225,21 +221,24 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 			log.Fatalf("Could not sign public key: %s", err)
 		}
 
+		serverRand := SecRand32Bytes()
+
 		responseData, err := MarshalECDHExchange(ECDHExchange{
 			Signature: sig,
 			PubKey: myPubKeyBytes,
+			Random: serverRand,
 		})
 		if err != nil {
 			log.Fatalf("Could not marshal ECDH exchange data: %s", err)
 		}
 
-		log.Printf("ECDH exchange response data: %s\n", string(responseData))
+		log.Debugf("ECDH exchange response data: %s\n", string(responseData))
 
 		originatorPubKey := crypto.BytesToECCPubKey(exchangeData.PubKey)
 		log.Debugf("Client pubKeyX: %s", originatorPubKey.X.String())
 		log.Debugf("Client pubKeyY: %s", originatorPubKey.Y.String())
 
-		sessionKey := crypto.ComputeSessionKey(originatorPubKey, ephPrivKey)
+		sessionKey := crypto.ComputeSessionKey(originatorPubKey, ephPrivKey, exchangeData.Random, serverRand)
 		log.Printf("Session key: %s", hex.EncodeToString(sessionKey))
 
 		secApp.ClientConn.cipherSession, err = crypto.NewCipherSession(sessionKey)
@@ -318,10 +317,10 @@ func (secApp *SecureApp) CancelAdvertise() {
 	secApp.advCancel = func() {}
 }
 
-func CreateOOBDataExchangeService(secApp *SecureApp) error {
+func CreateOOBDataExchangeService(secApp *SecureApp, controllerIndex uint16) error {
 	app := secApp.App
 
-	myH192, myR192, myH256, myR256, err := btmgmt2.ReadLocalOOBDataExtended(0)
+	myH192, myR192, myH256, myR256, err := btmgmt2.ReadLocalOOBDataExtended(controllerIndex)
 	if err != nil {
 		return fmt.Errorf("could not read local oob data: %s", err)
 	}
@@ -455,7 +454,7 @@ func NewSecureApp(options service.AppOptions) (*SecureApp, error) {
 	return secApp, nil
 }
 
-func CreateOOBDataExchangeApp(adapterID string, caPath string, cert []byte, privKey []byte) (*SecureApp, error) {
+func CreateOOBDataExchangeApp(controllerIndex uint16, adapterID string, caPath string, cert []byte, privKey []byte) (*SecureApp, error) {
 	options := service.AppOptions{
 		AdapterID:  adapterID,
 		AgentCaps:  agent.CapNoInputNoOutput,
@@ -483,7 +482,7 @@ func CreateOOBDataExchangeApp(adapterID string, caPath string, cert []byte, priv
 		return nil, err
 	}
 
-	err = CreateOOBDataExchangeService(secApp)
+	err = CreateOOBDataExchangeService(secApp, controllerIndex)
 	if err != nil {
 		return nil, err
 	}

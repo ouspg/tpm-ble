@@ -28,7 +28,7 @@ func main()  {
 
 	ble.EnableLESingleMode(adapterID)
 
-	secDev, err := ble.CreateSecureConnection("/usr/local/share/ca-certificates/tpm-cacert.pem", cert,
+	secDev, err := ble.CreateSecureConnection("/usr/local/share/keys/tpm-cacert.pem", cert,
 		"/usr/local/share/keys/tpm_priv.key", "hci0", TargetHwaddr)
 	if err != nil {
 		log.Fatalf("Could not connect to BLE remote: %s", err)
