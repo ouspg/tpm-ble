@@ -21,12 +21,23 @@ const WRITE_CERT_CHAR_UUID = "00000005" // ECDSA
 
 const ECDH_EXC_CHAR_UUID = "00000010" // ECDH
 const OOB_EXC_CHAR_UUID = "00000020"  // OOB token exchange
-
+const CHALLENGE_CHAR_UUID = "00000030" // ChallengeResponse
 
 type ECDHExchange struct {
-	Signature []byte `json:"sig"`
-	PubKey []byte `json:"pub"`
-	Random [32]byte `json:"r"`
+	Signature []byte `json:"s"`
+	PubKey []byte `json:"p"`
+	Random [32]byte `json:"r"` // challenge
+}
+
+/**
+Challenge the other party to sign the random value that is send in the ECDHExchange message
+This mitigates a scenario where the adversary has access to the ECDH private key and has sniffed the ECDHExchange
+message that contains the signature of the ECDH key (signed using ECDSA). Without this mitigation, the adversary could establish a session by
+by replaying the ECDHExchange message that contains the signature of the public ECDH key, whose private key the has adversary stolen.
+This attack would bypass the TPM (ECDSA).
+ */
+type ChallengeResponse struct {
+	Signature []byte `json:"s"`
 }
 
 // Allow specifying MAC in case pairing is done for another adapter
@@ -59,6 +70,19 @@ func UnmarshalOOBExchange(data []byte) (*OOBExchange, error) {
 		return nil, err
 	}
 	return &exchange, nil
+}
+
+func MarshalChallengeResponse(response ChallengeResponse) ([]byte, error) {
+	return json.Marshal(response)
+}
+
+func UnmarshalChallengeResponse(data []byte) (*ChallengeResponse, error) {
+	var response ChallengeResponse
+	err := json.Unmarshal(data, &response)
+	if err != nil {
+		return nil, err
+	}
+	return &response, nil
 }
 
 func EnableLESingleMode(adapterID string) {

@@ -115,7 +115,7 @@ func main()  {
 		for {
 			<-ticker.C
 			log.Println("Write secure notify")
-			secApp.SecureWrite(secureCharNotify, []byte("test"), nil)
+			_ = secApp.SecureWrite(secureCharNotify, []byte("test"), nil)
 		}
 	}()
 

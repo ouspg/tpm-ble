@@ -205,10 +205,15 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 			log.Fatalf("Could not get pub key from cert: %s", err)
 		}
 
-		err = crypto.Verify(pubKey, exchangeData.PubKey, exchangeData.Signature)
+		err = crypto.Verify(pubKey, append(exchangeData.PubKey, exchangeData.Random[:] ...), exchangeData.Signature)
 		if err != nil {
 			log.Fatalf("Verification of received data failed: %s", err)
 		}
+
+		clientPubKey := crypto.BytesToECCPubKey(exchangeData.PubKey)
+		log.Debugf("Client pubKeyX: %s", clientPubKey.X.String())
+		log.Debugf("Client pubKeyY: %s", clientPubKey.Y.String())
+		secApp.ClientConn.clientPubKey = clientPubKey
 
 		ephPrivKey, err = crypto.GenECDHPrivKey()
 		if err != nil {
@@ -216,12 +221,16 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 		}
 
 		myPubKeyBytes := crypto.ECCPubKeyToBytes(&ephPrivKey.PublicKey)
-		sig, err := crypto.Sign(privKey, myPubKeyBytes)
-		if err != nil {
-			log.Fatalf("Could not sign public key: %s", err)
-		}
+
 
 		serverRand := SecRand32Bytes()
+		secApp.ClientConn.serverRand = serverRand
+		secApp.ClientConn.clientRand = exchangeData.Random
+
+		sig, err := crypto.Sign(privKey, append(myPubKeyBytes, serverRand[:] ...))
+		if err != nil {
+			log.Fatalf("Could not sign message: %s", err)
+		}
 
 		responseData, err := MarshalECDHExchange(ECDHExchange{
 			Signature: sig,
@@ -234,11 +243,68 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 
 		log.Debugf("ECDH exchange response data: %s\n", string(responseData))
 
-		originatorPubKey := crypto.BytesToECCPubKey(exchangeData.PubKey)
-		log.Debugf("Client pubKeyX: %s", originatorPubKey.X.String())
-		log.Debugf("Client pubKeyY: %s", originatorPubKey.Y.String())
+		secApp.ClientConn.exchangeRes = responseData
+		return responseData, nil
+	})
 
-		sessionKey := crypto.ComputeSessionKey(originatorPubKey, ephPrivKey, exchangeData.Random, serverRand)
+	err = service1.AddChar(ecdhExchangeChar)
+	if err != nil {
+		return err
+	}
+
+	challengeChar, err := service1.NewChar(CHALLENGE_CHAR_UUID)
+	if err != nil {
+		return err
+	}
+
+	challengeChar.Properties.Flags = []string{
+		gatt.FlagCharacteristicWrite, gatt.FlagCharacteristicRead,
+	}
+
+	challengeChar.OnRead(func(c *service.Char, options map[string]interface{}) (bytes []byte, err error) {
+		return secApp.ClientConn.exchangeRes, nil
+	})
+
+	challengeChar.OnWrite(func(c *service.Char, value []byte) ([]byte, error) {
+		log.Debug("GOT CHALLENGE RESPONSE REQUEST")
+
+		clientCert, err := openssl.LoadCertificateFromPEM(secApp.ClientConn.clientCertificate)
+		if err != nil {
+			log.Fatalf("Could not load pub key from PEM: %s", err)
+		}
+
+		pubKey, err := clientCert.PublicKey()
+		if err != nil {
+			log.Fatalf("Could not get pub key from cert: %s", err)
+		}
+
+		challengeResponse, err := UnmarshalChallengeResponse(value)
+		if err != nil {
+			log.Fatalf("Could not unmarshal received challenge response data: %s", err)
+		}
+
+		err = crypto.Verify(pubKey, secApp.ClientConn.serverRand[:], challengeResponse.Signature[:])
+		if err != nil {
+			log.Fatalf("server signed client rand signature is not valid: %s", err)
+		}
+
+		clientRandSig, err := crypto.Sign(privKey, secApp.ClientConn.clientRand[:])
+		if err != nil {
+			log.Fatalf("Could not sign client rand: %s", err)
+		}
+
+		responseData, err := MarshalChallengeResponse(ChallengeResponse{
+			Signature: clientRandSig,
+		})
+		if err != nil {
+			log.Fatalf("Could not marshal ECDH exchange data: %s", err)
+		}
+
+		log.Debugf("ECDH exchange response data: %s\n", string(responseData))
+
+		sessionKey := crypto.ComputeSessionKey(secApp.ClientConn.clientPubKey, ephPrivKey, secApp.ClientConn.clientRand,
+				secApp.ClientConn.serverRand)
+
 		log.Printf("Session key: %s", hex.EncodeToString(sessionKey))
 
 		secApp.ClientConn.cipherSession, err = crypto.NewCipherSession(sessionKey)
@@ -251,10 +317,11 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 		return responseData, nil
 	})
 
-	err = service1.AddChar(ecdhExchangeChar)
+	err = service1.AddChar(challengeChar)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

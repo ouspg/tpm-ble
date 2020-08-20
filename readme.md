@@ -35,9 +35,9 @@ The secure communication channel is established as follows:
 
 1. Devices exchange ECDSA public keys (certificates)
 2. Both parties verify that the received certificate is signed by the CA
-3. Both parties send random data (32 bytes) to each other. This is used as a key material when computing the shared session key. This is done to prevent replay attacks.
-4. Both parties generate ephemeral (single-use) ECDH (Elliptic-curve Diffie-Hellman) key pairs. Because these keys are single-use, even if an adversary would be able to crack a session key for one session, they would not be able to decrypt other sessions.
-5. Devices exchange ECDH public key signed by the ECDSA private key (signed by the TPM)
+3. Both parties generate ephemeral (single-use) ECDH (Elliptic-curve Diffie-Hellman) key pairs. Because these keys are single-use, even if an adversary would be able to crack a session key for one session, they would not be able to decrypt other sessions.
+4. Devices exchange ECDH public key signed by the ECDSA private key (signed by the TPM)
+5. Both parties send challenge (random data, 32 bytes) to each other. This is appended into the ECDH public key exchange message. This ensures that the adversary cannot establish a new session if they captured the ECDH signed public key message previously, and somehow have access to the ECDH private key.
 6. Both parties verify using ECDSA public key that the received ECDH public key is signed by the verified ECDSA key.
 7. Both parties compute a shared key using the ECDH keys and SHA256 hash algorithm.
 8. Now both parties initialize AES-GCM encryption using this shared key. Every message uses a unique nonce and AES-GCM has built-in message integrity validation.
@@ -54,7 +54,7 @@ Under the hood, Bluetooth 4.2+ uses ECDH and AES-CCM to secure the communication
 This software uses the tpm2 tss openssl engine, so
 this software can be used without TPM also.
 
-## VM and Raspberry PI images
+## VM and Raspberry Pi images
 
 VM image used to deploy configs and binaries to RPi devices and RPi device images can be downloaded from [here](https://mega.nz/folder/X5xWBCiS#vGJeZtNkOkrEW5UD9TjtTg)
 

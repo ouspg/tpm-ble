@@ -335,21 +335,19 @@ func CreateSecureConnection(caPath string, cert []byte, privKeyPath string, adap
 	}
 
 	pubKeyBytes := crypto.ECCPubKeyToBytes(&ephKey.PublicKey)
-	log.Printf("Sign: %s\n", hex.EncodeToString(pubKeyBytes))
-
-	pubKeySig, err := crypto.Sign(signingPrivKey, pubKeyBytes)
-	if err != nil {
-		return nil, fmt.Errorf("´could not sign ECDH pub key: %s", err)
-	}
-
-	log.Printf("ECDH pub key signature: %s", hex.EncodeToString(pubKeySig))
-
-	log.Printf("Send ECDH pub key, certificate and the signature to the other party")
 
 	clientRand := SecRand32Bytes()
+	msgSig, err := crypto.Sign(signingPrivKey, append(pubKeyBytes, clientRand[:] ...))
+
+	log.Debugf("Message signature: %s", hex.EncodeToString(msgSig))
+	if err != nil {
+		return nil, fmt.Errorf("´could not sign message: %s", err)
+	}
+
+	log.Infof("Send ECDH pub key, certificate and the signature to the other party")
 
 	exchangeResponse, err := BeginECDHExchange(dev, ECDHExchange{
-		Signature: pubKeySig,
+		Signature: msgSig,
 		PubKey:    pubKeyBytes,
 		Random:	   clientRand,
 	})
@@ -357,19 +355,39 @@ func CreateSecureConnection(caPath string, cert []byte, privKeyPath string, adap
 		return nil, fmt.Errorf("ECDH exchange failed: %s", err)
 	}
 
-	log.Printf("Received pub key (key, sig): (%s, %s)",
+	log.Debugf("Received pub key (key, sig): (%s, %s)",
 		hex.EncodeToString(exchangeResponse.PubKey), hex.EncodeToString(exchangeResponse.Signature))
 
-	log.Println("Verify signature")
-	err = crypto.Verify(serverPub, exchangeResponse.PubKey, exchangeResponse.Signature)
+	log.Info("Verify signature")
+	err = crypto.Verify(serverPub, append(exchangeResponse.PubKey, exchangeResponse.Random[:] ...), exchangeResponse.Signature)
 	if err != nil {
 		return nil, fmt.Errorf("server public key signature is not valid: %s", err)
+	}
+
+	serverRandSig, err := crypto.Sign(signingPrivKey, exchangeResponse.Random[:])
+	if err != nil {
+		return nil, fmt.Errorf("could not sign server rand: %s", err)
+	}
+
+	serverChallengeResponse, err := ExchangeChallengeResponses(dev, ChallengeResponse{
+		Signature: serverRandSig,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("challenge exchange failed: %s", err)
+	}
+
+	log.Info("Verify challenge signature")
+
+	err = crypto.Verify(serverPub, clientRand[:], serverChallengeResponse.Signature)
+	if err != nil {
+		return nil, fmt.Errorf("server signed client rand signature is not valid: %s", err)
 	}
 
 	serverPubKey := crypto.BytesToECCPubKey(exchangeResponse.PubKey)
 
 	sessionKey := crypto.ComputeSessionKey(serverPubKey, ephKey, clientRand, exchangeResponse.Random)
-	log.Printf("Session key: %s\n", hex.EncodeToString(sessionKey[:]))
+
+	log.Infof("Session key: %s\n", hex.EncodeToString(sessionKey[:]))
 
 	cipherSession, err := crypto.NewCipherSession(sessionKey)
 	if err != nil {
@@ -539,13 +557,26 @@ func BeginECDHExchange(dev *device.Device1, data ECDHExchange) (*ECDHExchange, e
 		return nil, fmt.Errorf("could not marshal ECDH data: %s", err)
 	}
 
-	log.Println(string(exchangeData))
+	log.Debug(string(exchangeData))
 
-	res, err := writeCharacteristicWithResponse(dev, ECDH_EXC_CHAR_UUID +APP_UUID_SUFFIX, exchangeData)
+	res, err := writeCharacteristicWithResponse(dev, ECDH_EXC_CHAR_UUID + APP_UUID_SUFFIX, exchangeData)
 	if err != nil {
 		return nil, fmt.Errorf("could not write to characteristic: %s", err)
 	}
 	return UnmarshalECDHExchange(res)
+}
+
+func ExchangeChallengeResponses(dev *device.Device1, response ChallengeResponse) (*ChallengeResponse, error) {
+	data, err := MarshalChallengeResponse(response)
+	if err != nil {
+		return nil, fmt.Errorf("could not marshal challenge response data: %s", err)
+	}
+
+	res, err := writeCharacteristicWithResponse(dev, CHALLENGE_CHAR_UUID + APP_UUID_SUFFIX, data)
+	if err != nil {
+		return nil, fmt.Errorf("could not write to characteristic: %s", err)
+	}
+	return UnmarshalChallengeResponse(res)
 }
 
 
