@@ -250,6 +250,14 @@ See <https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/mgmt-api.txt>
 
 [![asciicast](https://asciinema.org/a/01IiWzJm0RwokcI8oC1iBX94l.svg)](https://asciinema.org/a/01IiWzJm0RwokcI8oC1iBX94l)
 
+## Supervision timeout
+
+increase supervision timeout for oura (from 420 ms to 10000 ms):
+
+```
+echo 1000 > /sys/kernel/debug/bluetooth/hci0/supervision_timeout
+```
+
 ## Acknowledgements
 
 The research leading to these results was derived from the project SECREDAS (Product Security for Cross Domain Reliable Dependable Automated Systems) funded by ECSEL-JU (Electronic Component Systems for European Leadership Joint Undertaking) of the European Union’s Horizon 2020 research and innovation programme under grant agreement nr. 783119, and by Business Finland.

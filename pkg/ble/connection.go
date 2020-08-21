@@ -13,8 +13,8 @@ type ClientConnection struct {
 	hwAddr string
 	dev *device.Device1
 
-	exchangeRes []byte
-	oobDataRes []byte
+	responseBuff []byte
+	oobDataRes   []byte
 
 	cipherSession *crypto.CipherSession
 	serverRand [32]byte

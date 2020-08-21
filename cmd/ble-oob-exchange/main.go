@@ -24,7 +24,8 @@ func main() {
 
 	ble.EnableLESingleMode(adapterID)
 
-	secApp, err := ble.CreateOOBDataExchangeApp(adapterID, "/usr/local/share/ca-certificates/tpm-cacert.pem", cert, privKey)
+	secApp, err := ble.CreateOOBDataExchangeApp(0, adapterID,
+		"/usr/local/share/ca-certificates/tpm-cacert.pem", cert, privKey)
 	if err != nil {
 		log.Fatal(err)
 	}

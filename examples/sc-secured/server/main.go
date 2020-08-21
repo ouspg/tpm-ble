@@ -72,7 +72,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Infof("Exposed server %s", service1.Properties.UUID)
+	log.Infof("Exposed service %s", service1.Properties.UUID)
 
 	timeout := uint32(6 * 3600) // 6h
 	log.Infof("Advertising for %ds...", timeout)

@@ -176,7 +176,7 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 		write request response should be read
 	*/
 	ecdhExchangeChar.OnRead(func(c *service.Char, options map[string]interface{}) (bytes []byte, err error) {
-		return secApp.ClientConn.exchangeRes, nil
+		return secApp.ClientConn.responseBuff, nil
 	})
 
 	ecdhExchangeChar.OnWrite(func(c *service.Char, value []byte) ([]byte, error) {
@@ -243,8 +243,8 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 
 		log.Debugf("ECDH exchange response data: %s\n", string(responseData))
 
-		secApp.ClientConn.exchangeRes = responseData
-		return responseData, nil
+		secApp.ClientConn.responseBuff = responseData
+		return nil, nil
 	})
 
 	err = service1.AddChar(ecdhExchangeChar)
@@ -262,7 +262,7 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 	}
 
 	challengeChar.OnRead(func(c *service.Char, options map[string]interface{}) (bytes []byte, err error) {
-		return secApp.ClientConn.exchangeRes, nil
+		return secApp.ClientConn.responseBuff, nil
 	})
 
 	challengeChar.OnWrite(func(c *service.Char, value []byte) ([]byte, error) {
@@ -285,12 +285,12 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 
 		err = crypto.Verify(pubKey, secApp.ClientConn.serverRand[:], challengeResponse.Signature[:])
 		if err != nil {
-			log.Fatalf("server signed client rand signature is not valid: %s", err)
+			log.Fatalf("service signed Client rand signature is not valid: %s", err)
 		}
 
 		clientRandSig, err := crypto.Sign(privKey, secApp.ClientConn.clientRand[:])
 		if err != nil {
-			log.Fatalf("Could not sign client rand: %s", err)
+			log.Fatalf("Could not sign Client rand: %s", err)
 		}
 
 		responseData, err := MarshalChallengeResponse(ChallengeResponse{
@@ -311,10 +311,11 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 		if err != nil {
 			log.Fatalf("Could not create session cipher: %s", err)
 		}
+
 		secApp.ClientConn.isSecure = true
 
-		secApp.ClientConn.exchangeRes = responseData
-		return responseData, nil
+		secApp.ClientConn.responseBuff = responseData
+		return nil, nil
 	})
 
 	err = service1.AddChar(challengeChar)
@@ -498,7 +499,7 @@ func NewSecureApp(options service.AppOptions) (*SecureApp, error) {
 		advCancel: func() {},
 	}
 
-	// Only one client can connect at a time
+	// Only one Client can connect at a time
 	onConnectionChange(options.AdapterID, func(dev *device.Device1) {
 		addr, err := dev.GetAddress()
 		if err != nil {
@@ -514,7 +515,7 @@ func NewSecureApp(options service.AppOptions) (*SecureApp, error) {
 			secApp.ClientConn = nil
 		}
 
-		// For some reason after connection, advertising stops so start advertising again when the client disconnects
+		// For some reason after connection, advertising stops so start advertising again when the Client disconnects
 		secApp.Advertise(AdvertiseForever)
 	})
 

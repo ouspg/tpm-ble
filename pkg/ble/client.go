@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/godbus/dbus/v5"
 	"github.com/jarijaas/openssl"
 	"github.com/muka/go-bluetooth/api"
 	"github.com/muka/go-bluetooth/bluez/profile/adapter"
+	"github.com/muka/go-bluetooth/bluez/profile/agent"
 	"github.com/muka/go-bluetooth/bluez/profile/device"
 	"github.com/muka/go-bluetooth/bluez/profile/gatt"
 	"github.com/ouspg/tpm-ble/pkg/btmgmt"
@@ -37,8 +39,6 @@ func discover(a *adapter.Adapter1, hwaddr string) (*device.Device1, error) {
 		return nil, err
 	}
 
-	defer cancel()
-
 	log.Info("Iterate discovered devices")
 
 	for ev := range discovery {
@@ -65,14 +65,21 @@ func discover(a *adapter.Adapter1, hwaddr string) (*device.Device1, error) {
 		if n != hwaddr && p.Address != hwaddr {
 			continue
 		}
+
+		log.Info("Found match")
+		cancel()
 		return dev, nil
 	}
 
+	cancel()
 	return nil, nil
 }
 
 func findDevice(a *adapter.Adapter1, hwaddr string) (*device.Device1, error) {
 	dev, err := discover(a, hwaddr)
+
+	log.Info("Discovery done")
+
 	if err != nil {
 		return nil, err
 	}
@@ -80,10 +87,12 @@ func findDevice(a *adapter.Adapter1, hwaddr string) (*device.Device1, error) {
 		return nil, errors.New("Device not found, is it advertising?")
 	}
 
+	log.Info("Found device")
+
 	return dev, nil
 }
 
-func client(adapterID, hwaddr string) (dev *device.Device1, err error) {
+func Client(adapterID, hwaddr string, registerAgent bool) (dev *device.Device1, err error) {
 	log.Infof("Discovering %s on %s", hwaddr, adapterID)
 
 	a, err := adapter.NewAdapter1FromAdapterID(adapterID)
@@ -91,12 +100,31 @@ func client(adapterID, hwaddr string) (dev *device.Device1, err error) {
 		return nil, err
 	}
 
+	if registerAgent {
+		//Connect DBus System bus
+		conn, err := dbus.SystemBus()
+		if err != nil {
+			return nil, err
+		}
+
+		// do not reuse agent0 from service
+		agent.NextAgentPath()
+
+		ag := agent.NewSimpleAgent()
+		err = agent.ExposeAgent(conn, ag, agent.CapNoInputNoOutput, true)
+		if err != nil {
+			return nil, fmt.Errorf("SimpleAgent: %s", err)
+		}
+	}
+
 	dev, err = findDevice(a, hwaddr)
 	if err != nil {
 		return nil, fmt.Errorf("findDevice: %s", err)
 	}
 
-	watchProps, err := dev.WatchProperties()
+	log.Info("Found device")
+
+	/*watchProps, err := dev.WatchProperties()
 	if err != nil {
 		return nil, err
 	}
@@ -104,9 +132,9 @@ func client(adapterID, hwaddr string) (dev *device.Device1, err error) {
 		for propUpdate := range watchProps {
 			log.Debugf("--> updated %s=%v", propUpdate.Name, propUpdate.Value)
 		}
-	}()
+	}()*/
 
-	log.Info("Found device, connect")
+	log.Info("Connect")
 
 	err = connect(dev)
 	if err != nil {
@@ -114,7 +142,7 @@ func client(adapterID, hwaddr string) (dev *device.Device1, err error) {
 	}
 
 	log.Info("retrieveServices")
-	retrieveServices(a, dev)
+	RetrieveServices(a, dev)
 	return dev, nil
 }
 
@@ -147,7 +175,7 @@ func connect(dev *device.Device1) error {
 	return nil
 }
 
-func retrieveServices(a *adapter.Adapter1, dev *device.Device1) error {
+func RetrieveServices(a *adapter.Adapter1, dev *device.Device1) error {
 
 	log.Debug("Listing exposed services")
 
@@ -158,7 +186,7 @@ func retrieveServices(a *adapter.Adapter1, dev *device.Device1) error {
 
 	if len(list) == 0 {
 		time.Sleep(time.Second * 2)
-		return retrieveServices(a, dev)
+		return RetrieveServices(a, dev)
 	}
 
 	for _, servicePath := range list {
@@ -237,6 +265,64 @@ func StartCharacteristicNotify(dev *device.Device1, charUUID string) (chan []byt
 	return outCh, err
 }
 
+func CharacteristicHasFlag(char *gatt.GattCharacteristic1, flag string) bool {
+	for _, curr := range char.Properties.Flags {
+		if curr == flag {
+			return true
+		}
+	}
+	return false
+}
+
+func CharacteristicIsReadable(char *gatt.GattCharacteristic1) bool {
+	return CharacteristicHasFlag(char, "read")
+}
+
+func CharacteristicIsWritable(char *gatt.GattCharacteristic1) bool {
+	return CharacteristicHasFlag(char, "write") || CharacteristicHasFlag(char, "write-without-response")
+}
+
+func CharacteristicSupportsNotify(char *gatt.GattCharacteristic1) bool {
+	return CharacteristicHasFlag(char, "notify")
+}
+
+func CharacteristicSupportsIndicate(char *gatt.GattCharacteristic1) bool {
+	return CharacteristicHasFlag(char, "indicate")
+}
+
+func WriteCharacteristic(dev *device.Device1, charUUID string, value []byte) error {
+	list, err := dev.GetCharacteristicsList()
+	if err != nil {
+		return err
+	}
+
+	if len(list) == 0 {
+		time.Sleep(time.Second * 2)
+		return WriteCharacteristic(dev, charUUID, value)
+	}
+
+	for _, path := range list {
+		char, err := gatt.NewGattCharacteristic1(path)
+		if err != nil {
+			return err
+		}
+
+		cuuid := strings.ToUpper(char.Properties.UUID)
+		log.Printf("Found Char UUID: %s\n", cuuid)
+	}
+
+	char, err := dev.GetCharByUUID(charUUID)
+	if err != nil {
+		return err
+	}
+
+	err = char.WriteValue(value, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func writeCharacteristicWithResponse(dev *device.Device1, charUUID string, value []byte) ([]byte, error) {
 	list, err := dev.GetCharacteristicsList()
 	if err != nil {
@@ -263,9 +349,7 @@ func writeCharacteristicWithResponse(dev *device.Device1, charUUID string, value
 		return nil, err
 	}
 
-	err = char.WriteValue(value, map[string]interface{}{
-		"type": "request",
-	})
+	err = char.WriteValue(value, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -279,7 +363,7 @@ func writeCharacteristicWithResponse(dev *device.Device1, charUUID string, value
 }
 
 func CreateConnection(adapterID string, hwaddr string) (*device.Device1, error) {
-	dev, err := client(adapterID, hwaddr)
+	dev, err := Client(adapterID, hwaddr, false)
 	return dev, err
 }
 
@@ -289,7 +373,7 @@ type SecureDevice struct {
 }
 
 func CreateSecureConnection(caPath string, cert []byte, privKeyPath string, adapterID string, hwaddr string) (*SecureDevice, error) {
-	dev, err := client(adapterID, hwaddr)
+	dev, err := Client(adapterID, hwaddr, false)
 	if err != nil {
 		return nil, err
 	}
@@ -361,12 +445,12 @@ func CreateSecureConnection(caPath string, cert []byte, privKeyPath string, adap
 	log.Info("Verify signature")
 	err = crypto.Verify(serverPub, append(exchangeResponse.PubKey, exchangeResponse.Random[:] ...), exchangeResponse.Signature)
 	if err != nil {
-		return nil, fmt.Errorf("server public key signature is not valid: %s", err)
+		return nil, fmt.Errorf("service public key signature is not valid: %s", err)
 	}
 
 	serverRandSig, err := crypto.Sign(signingPrivKey, exchangeResponse.Random[:])
 	if err != nil {
-		return nil, fmt.Errorf("could not sign server rand: %s", err)
+		return nil, fmt.Errorf("could not sign service rand: %s", err)
 	}
 
 	serverChallengeResponse, err := ExchangeChallengeResponses(dev, ChallengeResponse{
@@ -380,7 +464,7 @@ func CreateSecureConnection(caPath string, cert []byte, privKeyPath string, adap
 
 	err = crypto.Verify(serverPub, clientRand[:], serverChallengeResponse.Signature)
 	if err != nil {
-		return nil, fmt.Errorf("server signed client rand signature is not valid: %s", err)
+		return nil, fmt.Errorf("service signed Client rand signature is not valid: %s", err)
 	}
 
 	serverPubKey := crypto.BytesToECCPubKey(exchangeResponse.PubKey)
@@ -549,6 +633,20 @@ func ReadCertificate(dev *device.Device1) ([]byte, error) {
 	pemCert = append(pemCert, chunk ...)
 
 	return pemCert, nil
+}
+
+func GetCharacteristics(dev *device.Device1) []dbus.ObjectPath {
+	list, err := dev.GetCharacteristicsList()
+	if err != nil {
+		return nil
+	}
+
+	if len(list) == 0 {
+		time.Sleep(time.Second * 2)
+		return GetCharacteristics(dev)
+	}
+
+	return list
 }
 
 func BeginECDHExchange(dev *device.Device1, data ECDHExchange) (*ECDHExchange, error) {

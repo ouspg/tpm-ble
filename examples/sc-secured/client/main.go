@@ -19,12 +19,12 @@ func main()  {
 		log.Fatalf("Could not connect to BLE remote: %s", err)
 	}
 
-	/*iprops, err := dev.GetProperties()
+	/*props, err := dev.GetProperties()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	f !props.Paired || !props.Trusted {
+	if !props.Paired || !props.Trusted {
 		log.Println("Pair")
 
 		err := dev.Pair()
@@ -37,7 +37,6 @@ func main()  {
 			log.Fatal(err)
 		}
 	}*/
-
 
 	for true {
 		res, err := ble.ReadCharacteristic(dev, SECURE_CHAR_UUID + UUID_SUFFIX)
