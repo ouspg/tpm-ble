@@ -81,13 +81,15 @@ Test keys are located in keys/.
 
 ## Start TPM simulator
 
+When testing TPM functionality without having a physical TPM, simulator can be used.
+
 Start simulator:
 
 ```s
 ~/ibmtpm974/src/tpm_server &
 ```
 
-In new window, start resource manager (should be configured to run without root in prod system):
+In a new window, start resource manager (should be configured to run without root in prod system):
 
 ```s
 sudo tpm2-abrmd --allow-root --tcti=mssim
@@ -155,7 +157,7 @@ Create CSR:
 openssl req -new -engine tpm2tss -keyform engine -key keys/test_priv.key -out req.csr -nodes -subj '/CN=test/' -outform PEM
 ```
 
-Create signed certificate:
+Create a signed certificate:
 
 ```s
 openssl ca -config openssl-ca.cnf -policy signing_policy -extensions signing_req -out cert.pem -infiles req.csr
@@ -179,6 +181,12 @@ git clone --recurse-submodules https://github.com/ouspg/tpm-ble.git
 
 Go to `go-bluetooth` subdir and follow the instructions in <https://github.com/muka/go-bluetooth> to generate the code for specific BlueZ version.
 
+Or after the bluez api json has been generated:
+
+```
+make gen/clean && BLUEZ_VERSION=5.54 go run gen/srcgen/main.go full
+```
+
 Enable bluetooth:
 ```shell
 sudo systemctl enable bluetooth && \
@@ -195,10 +203,13 @@ ExecStart=/usr/lib/bluetooth/bluetoothd -d --compat
 NotifyAccess=main
 ```
 
-Otherwise you may get `Operation currently not available` error when connecting to the BT device.
+Otherwise, you may get `Operation currently not available` error when connecting to the BT device.
 
 Secure connections only.
-Kernel bug, fixed in bluetooth-next.
+
+In the latest raspberry pi kernel, at the time of writing, there was a bug in the bluetooth stack that
+caused failure in establishing connection when sc only mode was enabled.
+This was fixed in the bluetooth-next upstream.
 
 ```shell
 sc only
@@ -249,14 +260,6 @@ See <https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/mgmt-api.txt>
 ## Demo (`gatt-secured`)
 
 [![asciicast](https://asciinema.org/a/01IiWzJm0RwokcI8oC1iBX94l.svg)](https://asciinema.org/a/01IiWzJm0RwokcI8oC1iBX94l)
-
-## Supervision timeout
-
-increase supervision timeout for oura (from 420 ms to 10000 ms):
-
-```
-echo 1000 > /sys/kernel/debug/bluetooth/hci0/supervision_timeout
-```
 
 ## Acknowledgements
 

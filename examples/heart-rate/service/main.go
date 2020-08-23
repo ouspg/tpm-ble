@@ -113,6 +113,8 @@ func main()  {
 			// HR value
 			binary.LittleEndian.PutUint16(measurement[2:], 100)
 			_ = secApp.SecureWrite(secureCharNotify, measurement, nil)
+
+			log.Info("Publish measurement")
 		}
 	}()
 

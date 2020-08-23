@@ -10,17 +10,12 @@ import (
 
 var adapterID = "hci0"
 
-const TargetHwaddr = "DC:A6:32:35:EF:E2"
+const TargetHwaddr = "DC:A6:32:28:34:E4"
 
 const CharUuid = "10000001"
 const CharNotifyUuid = "10000002"
 
 func main()  {
-	/*err := crypto.InitializeTPMEngine()
-	if err != nil {
-		log.Fatalf("Could not initialize TPM engine: %s", err)
-	}*/
-
 	cert, err := ioutil.ReadFile("/usr/local/share/keys/tpm_cert.pem")
 	if err != nil {
 		log.Fatalf("Could not read certificate. Reason: %s", err)
@@ -62,7 +57,6 @@ func main()  {
 			}
 		}
 	}()
-
 
 	// Run until interrupt
 	wait := make(chan os.Signal, 1)

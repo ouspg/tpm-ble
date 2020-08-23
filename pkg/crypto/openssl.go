@@ -1,10 +1,11 @@
 	package crypto
 
 import (
+	"encoding/pem"
 	"fmt"
 	"github.com/jarijaas/openssl"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"log"
 )
 
 /*
@@ -73,11 +74,23 @@ func InitializeTPMEngine() error {
 }
 
 /**
-Load TPM wrapped priv key, priv key is protected by the TPM
+Load TPM wrapped priv key, priv key is protected by the TPM.
+If the key is TSS2 (TPM wrapped priv key), but tpm engine is not initialized,
+this function initializes the openssl TPM engine.
+If the key is not TPM wrapped key, the key is loaded normally
  */
-func LoadTPMPrivateKey(privKeyPath string) (openssl.PrivateKey, error) {
-	if tpmEngine == nil {
-		privKeyPem, err := ioutil.ReadFile(privKeyPath)
+func LoadPrivateKey(privKeyPath string) (openssl.PrivateKey, error) {
+	privKeyPem, err := ioutil.ReadFile(privKeyPath)
+
+	decodedPem, _ := pem.Decode(privKeyPem)
+
+	log.Info("Private key type: ", decodedPem.Type)
+
+	isTSS2Key := decodedPem.Type == "TSS2 PRIVATE KEY"
+
+	if !isTSS2Key {
+		log.Warn("Private key is not TPM protected!")
+
 		if err != nil {
 			return nil, fmt.Errorf("could not load private key: %s", err)
 		}
@@ -86,8 +99,18 @@ func LoadTPMPrivateKey(privKeyPath string) (openssl.PrivateKey, error) {
 		if err != nil {
 			return nil, fmt.Errorf("could not load private key: %s", err)
 		}
+
 		return privKey, nil
 	}
+
+	if tpmEngine == nil {
+		log.Info("Initialize TPM openssl engine")
+		err = InitializeTPMEngine()
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	privKey, err := openssl.EngineLoadPrivateKey(tpmEngine, privKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("could not load private key: %s", err)

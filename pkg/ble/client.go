@@ -67,7 +67,8 @@ func discover(a *adapter.Adapter1, hwaddr string) (*device.Device1, error) {
 		}
 
 		log.Info("Found match")
-		cancel()
+		cancel() // Seems to block sometimes indefinitely
+
 		return dev, nil
 	}
 
@@ -408,7 +409,7 @@ func CreateSecureConnection(caPath string, cert []byte, privKeyPath string, adap
 		return nil, fmt.Errorf("could not send certificate: %s", err)
 	}
 
-	signingPrivKey, err := crypto.LoadTPMPrivateKey(privKeyPath)
+	signingPrivKey, err := crypto.LoadPrivateKey(privKeyPath)
 	if err != nil {
 		return nil, fmt.Errorf("could not load TPM private key used in signing: %s", err)
 	}
