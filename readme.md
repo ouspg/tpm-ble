@@ -17,7 +17,7 @@ pairing devices using an out-of-band mechanism.
 Commonly, this is done using NFC or a QR code. This out-of-band data used to pair devices can be exchanged using any communication channel.
 
 In this work, a BLE communication channel is secured using public-key cryptography and Trusted Platform Module (TPM). TPM is a physical device that can perform cryptographic operations and store data securely, such as private keys. In the `sc-secured` implementation, this channel is used to exchange out-of-band data
-prior to pairing the devices. In the `gatt-secured` implementation, this channel is used for exchanging application data; therefore, the `gatt-secured` approach bypasses the bluetooh encryption layer completely. 
+prior to pairing the devices. In the `gatt-secured` implementation, this channel is used for exchanging application data; therefore, the `gatt-secured` approach bypasses the bluetooth security layer completely. 
 
 When provisioning a TPM,
 an ECDSA (Elliptic Curve Digital Signature Algorithm) key pair is generated. The private key
