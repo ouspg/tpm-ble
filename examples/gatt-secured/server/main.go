@@ -24,17 +24,12 @@ func main()  {
 		log.Fatalf("Coul not read certificate. Reason: %s", err)
 	}
 
-	privKey, err := ioutil.ReadFile("/usr/local/share/keys/tpm_priv.key")
-	if err != nil {
-		log.Fatalf("Could not read private key. Reason: %s", err)
-	}
-
 	ble.EnableLESingleMode(adapterID)
 
 	secApp, err := ble.NewSecureApp(service.AppOptions{
 		AdapterID:  adapterID,
 		AgentCaps:  agent.CapNoInputNoOutput,
-		UUIDSuffix: ble.APP_UUID_SUFFIX,
+		UUIDSuffix: ble.SEC_APP_UUID_SUFFIX,
 		UUID: ble.APP_UUID,
 	})
 	if err != nil {
@@ -48,7 +43,7 @@ func main()  {
 
 	// Handles establishing a secure connection
 	err = ble.CreateKeyExchangeService( secApp, "/usr/local/share/keys/tpm-cacert.pem",
-		cert, privKey)
+		cert, "/usr/local/share/keys/tpm_priv.key")
 	if err != nil {
 		log.Fatal(err)
 	}

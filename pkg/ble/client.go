@@ -38,6 +38,7 @@ func discover(a *adapter.Adapter1, hwaddr string) (*device.Device1, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer cancel()
 
 	log.Info("Iterate discovered devices")
 
@@ -67,12 +68,8 @@ func discover(a *adapter.Adapter1, hwaddr string) (*device.Device1, error) {
 		}
 
 		log.Info("Found match")
-		cancel() // Seems to block sometimes indefinitely
-
 		return dev, nil
 	}
-
-	cancel()
 	return nil, nil
 }
 
@@ -123,27 +120,13 @@ func Client(adapterID, hwaddr string, registerAgent bool) (dev *device.Device1, 
 		return nil, fmt.Errorf("findDevice: %s", err)
 	}
 
-	log.Info("Found device")
-
-	/*watchProps, err := dev.WatchProperties()
-	if err != nil {
-		return nil, err
-	}
-	go func() {
-		for propUpdate := range watchProps {
-			log.Debugf("--> updated %s=%v", propUpdate.Name, propUpdate.Value)
-		}
-	}()*/
-
-	log.Info("Connect")
+	log.Info("Found device, connect")
 
 	err = connect(dev)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Info("retrieveServices")
-	RetrieveServices(a, dev)
 	return dev, nil
 }
 
@@ -176,25 +159,21 @@ func connect(dev *device.Device1) error {
 	return nil
 }
 
-func RetrieveServices(a *adapter.Adapter1, dev *device.Device1) error {
+func GetServices(dev *device.Device1) ([]string, error) {
 
 	log.Debug("Listing exposed services")
 
 	list, err := dev.GetAllServicesAndUUID()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if len(list) == 0 {
 		time.Sleep(time.Second * 2)
-		return RetrieveServices(a, dev)
+		return GetServices(dev)
 	}
 
-	for _, servicePath := range list {
-		log.Infof("%s", servicePath)
-	}
-
-	return nil
+	return list, nil
 }
 
 func ReadCharacteristic(dev *device.Device1, charUUID string) ([]byte, error) {
@@ -493,7 +472,7 @@ func (secDev *SecureDevice) SecureReadCharacteristic(charUUID string) ([]byte, e
 
 	ciphertext, err := crypto.UnmarshalNoncedCiphertext(data)
 	if err != nil {
-		log.Fatalf("Could not unmarshal ciphertext: %s", ciphertext)
+		log.Fatalf("Could not unmarshal ciphertext: %s. Error: %v. Data: %s", ciphertext, err, data)
 		return nil, fmt.Errorf("could not unmarshal ciphertext: %s", ciphertext)
 	}
 
@@ -587,7 +566,7 @@ func WriteCertificate(dev *device.Device1, cert []byte) error {
 		return WriteCertificate(dev, cert)
 	}
 
-	char, err := dev.GetCharByUUID(WRITE_CERT_CHAR_UUID + APP_UUID_SUFFIX)
+	char, err := dev.GetCharByUUID(WRITE_CERT_CHAR_UUID + SEC_APP_UUID_SUFFIX)
 	if err != nil {
 		return err
 	}
@@ -615,19 +594,19 @@ func ReadCertificate(dev *device.Device1) ([]byte, error) {
 	var pemCert []byte
 
 	// Hmm. probably write characteristic could be used also
-	chunk, err := ReadCharacteristic(dev, READ_CERT_1_CHAR_UUID +APP_UUID_SUFFIX)
+	chunk, err := ReadCharacteristic(dev, READ_CERT_1_CHAR_UUID +SEC_APP_UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
 	pemCert = append(pemCert, chunk ...)
 
-	chunk, err = ReadCharacteristic(dev, READ_CERT_2_CHAR_UUID +APP_UUID_SUFFIX)
+	chunk, err = ReadCharacteristic(dev, READ_CERT_2_CHAR_UUID +SEC_APP_UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
 	pemCert = append(pemCert, chunk ...)
 
-	chunk, err = ReadCharacteristic(dev, READ_CERT_3_CHAR_UUID +APP_UUID_SUFFIX)
+	chunk, err = ReadCharacteristic(dev, READ_CERT_3_CHAR_UUID +SEC_APP_UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -646,8 +625,20 @@ func GetCharacteristics(dev *device.Device1) []dbus.ObjectPath {
 		time.Sleep(time.Second * 2)
 		return GetCharacteristics(dev)
 	}
-
 	return list
+}
+
+func GetDescriptors(dev *device.Device1) ([]dbus.ObjectPath, error) {
+	list, err := dev.GetDescriptorList()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(list) == 0 {
+		time.Sleep(time.Second * 2)
+		return GetDescriptors(dev)
+	}
+	return list, nil
 }
 
 func BeginECDHExchange(dev *device.Device1, data ECDHExchange) (*ECDHExchange, error) {
@@ -658,7 +649,7 @@ func BeginECDHExchange(dev *device.Device1, data ECDHExchange) (*ECDHExchange, e
 
 	log.Debug(string(exchangeData))
 
-	res, err := writeCharacteristicWithResponse(dev, ECDH_EXC_CHAR_UUID + APP_UUID_SUFFIX, exchangeData)
+	res, err := writeCharacteristicWithResponse(dev, ECDH_EXC_CHAR_UUID +SEC_APP_UUID_SUFFIX, exchangeData)
 	if err != nil {
 		return nil, fmt.Errorf("could not write to characteristic: %s", err)
 	}
@@ -671,7 +662,7 @@ func ExchangeChallengeResponses(dev *device.Device1, response ChallengeResponse)
 		return nil, fmt.Errorf("could not marshal challenge response data: %s", err)
 	}
 
-	res, err := writeCharacteristicWithResponse(dev, CHALLENGE_CHAR_UUID + APP_UUID_SUFFIX, data)
+	res, err := writeCharacteristicWithResponse(dev, CHALLENGE_CHAR_UUID +SEC_APP_UUID_SUFFIX, data)
 	if err != nil {
 		return nil, fmt.Errorf("could not write to characteristic: %s", err)
 	}
@@ -713,7 +704,7 @@ func ExchangeOOBData(dev *device.Device1, cipherSession *crypto.CipherSession, a
 		return nil, fmt.Errorf("could not marshal nonced ciphertext: %s", err)
 	}
 
-	res, err := writeCharacteristicWithResponse(dev, OOB_EXC_CHAR_UUID +APP_UUID_SUFFIX, data)
+	res, err := writeCharacteristicWithResponse(dev, OOB_EXC_CHAR_UUID +SEC_APP_UUID_SUFFIX, data)
 	if err != nil {
 		return nil, fmt.Errorf("could not write to characteristic: %s", err)
 	}

@@ -261,6 +261,23 @@ See <https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/doc/mgmt-api.txt>
 
 [![asciicast](https://asciinema.org/a/01IiWzJm0RwokcI8oC1iBX94l.svg)](https://asciinema.org/a/01IiWzJm0RwokcI8oC1iBX94l)
 
+## Gateway (`examples/gateway`)
+
+The gateway connects to a unsecured BLE peripheral and
+creates a secured gatt service that communicates
+with the unsecured peripheral and exposes characteristics of that
+unsecured perhipheral in the secured gatt service.
+
+This is only meant to be used in demos when
+demonstrating securing data from a real-world BLE device is preferred.
+In the final product, the traffic should be e2e secured.
+
+This requires two bluetooth adapters. In the example,
+`hci0` connects to the unsecured peripheral and
+`hci1` acts as a secured gatt service
+
+Currently supports notification, read and write. Does not support advertisement data or descriptions.
+
 ## Acknowledgements
 
 The research leading to these results was derived from the project SECREDAS (Product Security for Cross Domain Reliable Dependable Automated Systems) funded by ECSEL-JU (Electronic Component Systems for European Leadership Joint Undertaking) of the European Union’s Horizon 2020 research and innovation programme under grant agreement nr. 783119, and by Business Finland.

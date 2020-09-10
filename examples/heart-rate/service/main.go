@@ -15,19 +15,19 @@ import (
 
 var adapterID = "hci0"
 
-const UUID_SUFFIX = "-0000-1000-8000-00905F9B34FB"
-const APP_UUID = "0001"
+const UuidSuffix = "-0000-1000-8000-00905F9B34FB"
+const AppUuid = "0001"
 
 // Heart rate service specification: https://www.bluetooth.org/docman/handlers/downloaddoc.ashx?doc_id=308344
 // http://www.mariam.qa/post/hr-ble/
 
 // https://www.bluetooth.com/specifications/gatt/services/
 // org.bluetooth.service.heart_rate
-const HEART_RATE_SERVICE_UUID = "180D"
+const HeartRateServiceUuid = "180D"
 
 // https://www.bluetooth.com/specifications/gatt/characteristics/
 // org.bluetooth.characteristic.heart_rate_measurement
-const HEART_RATE_MEASUREMENT_CHAR_UUID = "2A37"
+const HeartRateMeasurementCharUuid = "2A37"
 
 func main()  {
 	cert, err := ioutil.ReadFile("/usr/local/share/keys/tpm_cert.pem")
@@ -35,18 +35,13 @@ func main()  {
 		log.Fatalf("Coul not read certificate. Reason: %s", err)
 	}
 
-	privKey, err := ioutil.ReadFile("/usr/local/share/keys/tpm_priv.key")
-	if err != nil {
-		log.Fatalf("Could not read private key. Reason: %s", err)
-	}
-
 	ble.EnableLESingleMode(adapterID)
 
 	secApp, err := ble.NewSecureApp(service.AppOptions{
 		AdapterID:  adapterID,
 		AgentCaps:  agent.CapNoInputNoOutput,
-		UUIDSuffix: UUID_SUFFIX,
-		UUID: APP_UUID,
+		UUIDSuffix: UuidSuffix,
+		UUID:       AppUuid,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -59,12 +54,12 @@ func main()  {
 
 	// Handles establishing a secure connection
 	err = ble.CreateKeyExchangeService( secApp, "/usr/local/share/keys/tpm-cacert.pem",
-		cert, privKey)
+		cert, "/usr/local/share/keys/tpm_priv.key")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	service1, err := app.NewService(HEART_RATE_SERVICE_UUID)
+	service1, err := app.NewService(HeartRateServiceUuid)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -75,7 +70,7 @@ func main()  {
 	}
 
 
-	secureCharNotify, err := service1.NewChar(HEART_RATE_MEASUREMENT_CHAR_UUID)
+	secureCharNotify, err := service1.NewChar(HeartRateMeasurementCharUuid)
 	if err != nil {
 		log.Fatal(err)
 	}

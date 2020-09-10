@@ -17,18 +17,15 @@ func main() {
 		log.Fatalf("Coul not read certificate. Reason: %s", err)
 	}
 
-	privKey, err := ioutil.ReadFile("/usr/local/share/keys/tpm_priv.key")
-	if err != nil {
-		log.Fatalf("Coul not read private key. Reason: %s", err)
-	}
-
 	ble.EnableLESingleMode(adapterID)
 
 	secApp, err := ble.CreateOOBDataExchangeApp(0, adapterID,
-		"/usr/local/share/ca-certificates/tpm-cacert.pem", cert, privKey)
+		"/usr/local/share/ca-certificates/tpm-cacert.pem", cert,
+		"/usr/local/share/keys/tpm_priv.key", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	app := secApp.App
 	defer app.Close()
 

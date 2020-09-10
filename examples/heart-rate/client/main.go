@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/hex"
+	"github.com/muka/go-bluetooth/bluez/profile/gatt"
 	"github.com/ouspg/tpm-ble/pkg/ble"
 	"io/ioutil"
 	"log"
@@ -10,10 +12,13 @@ import (
 
 var adapterID = "hci0"
 
-const TargetHwaddr = "DC:A6:32:28:34:E4"
+const TargetHwaddr = "00:1A:7D:DA:71:07"
 
 const CharUuid = "10000001"
-const CharNotifyUuid = "10000002"
+
+// https://www.bluetooth.com/specifications/gatt/characteristics/
+// org.bluetooth.characteristic.heart_rate_measurement
+const HeartRateMeasurementCharUuid = "00002A37"
 
 func main()  {
 	cert, err := ioutil.ReadFile("/usr/local/share/keys/tpm_cert.pem")
@@ -34,14 +39,25 @@ func main()  {
 	defer bleDev.Disconnect() // Disconnect when program exists
 	defer bleDev.Close()
 
-	data, err := secDev.SecureReadCharacteristic(CharUuid + ble.SEC_APP_UUID_SUFFIX)
+	chars := ble.GetCharacteristics(bleDev)
+	for _, charPath := range chars {
+		char, err := gatt.NewGattCharacteristic1(charPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// charShortUUID := ble.GetCharUUIDFromUUID(char.Properties.UUID)
+		log.Println("Found char UUID: ", char.Properties.UUID)
+	}
+
+	data, err := secDev.SecureReadCharacteristic(HeartRateMeasurementCharUuid + ble.SEC_APP_UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	log.Printf("Read secured characteristic value: %s", data)
 
-	notifyCh, err := secDev.StartSecureCharacteristicNotify(CharNotifyUuid + ble.SEC_APP_UUID_SUFFIX)
+	notifyCh, err := secDev.StartSecureCharacteristicNotify(HeartRateMeasurementCharUuid + ble.SEC_APP_UUID_SUFFIX)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -49,7 +65,7 @@ func main()  {
 	go func() {
 		for {
 			notifyVal, more := <- notifyCh
-			log.Printf("Received notify value: %s\n", notifyVal)
+			log.Printf("Received notify value: %s\n", hex.EncodeToString(notifyVal))
 
 			if !more {
 				log.Print("Notify channel was closed")

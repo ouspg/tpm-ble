@@ -4,8 +4,10 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 )
 
@@ -42,6 +44,7 @@ func UnmarshalNoncedCiphertext(data []byte) (*NoncedCiphertext, error) {
 	var dst  NoncedCiphertext
 	err := json.Unmarshal(data, &dst)
 	if err != nil {
+		log.Warnf("Received incorrect nonced ciphertext:\n", hex.Dump(data))
 		return nil, err
 	}
 	return &dst, nil
@@ -61,5 +64,9 @@ func (session *CipherSession) Encrypt(plaintext []byte) (*NoncedCiphertext, erro
 }
 
 func (session *CipherSession) Decrypt(ciphertext *NoncedCiphertext) ([]byte, error) {
-	return session.cipher.Open(nil, ciphertext.Nonce, ciphertext.Data, nil)
+	plaintext, err := session.cipher.Open(nil, ciphertext.Nonce, ciphertext.Data, nil)
+	if err != nil {
+		log.Warnf("Decryption failed. Hexdump: \n%s", hex.Dump(ciphertext.Data))
+	}
+	return plaintext, err
 }

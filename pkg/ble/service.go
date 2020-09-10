@@ -27,8 +27,6 @@ gatt also supports long characteristics (over 512 bytes) but the dbus api does n
 Alternatively, sign only the pub key and deliver that only instead of the whole certificate
  */
 
-const MY_SECURE_BLE_HWADDR = "DC:A6:32:35:EF:E2"
-
 func onConnectionChange(adapterId string, cbConn func(dev *device.Device1), cbDisconn func(dev *device.Device1)) {
 	conn, err := dbus.SystemBus()
 	if err != nil {
@@ -49,31 +47,37 @@ func onConnectionChange(adapterId string, cbConn func(dev *device.Device1), cbDi
 
 	go func() {
 		for v := range c {
-			propInterface := v.Body[0].(string)
-			propMap := v.Body[1].(map[string]dbus.Variant)
+			if propInterface, ok := v.Body[0].(string); ok {
+				if propInterface == "org.bluez.Device1" {
+					propMap := v.Body[1].(map[string]dbus.Variant)
 
-			if propInterface == "org.bluez.Device1" {
-				dev, err := device.NewDevice1(v.Path)
-				if err != nil {
-					log.Fatalf("Could not create device from object path: %s", err)
-				}
+					dev, err := device.NewDevice1(v.Path)
+					if err != nil {
+						log.Fatalf("Could not create device from object path: %s", err)
+					}
 
-				if connected, ok := propMap["Connected"]; ok {
-					if connected.Value().(bool) {
-						cbConn(dev)
-					} else {
-						cbDisconn(dev)
+					if connected, ok := propMap["Connected"]; ok {
+						if connected.Value().(bool) {
+							cbConn(dev)
+						} else {
+							cbDisconn(dev)
+						}
 					}
 				}
+			} else {
+				// May happen when discovering and accepting connections at the same time
+				// Todo: for this reason, improve the MatchSignal filter
+				log.Debugf("service onConnectionChange: %v is not string", v.Body[0])
 			}
+
 		}
 	}()
 }
 
-func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []byte, privKeyPem []byte) error {
+func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []byte, privKeyPath string) error {
 	app := secApp.App
 
-	privKey, err := openssl.LoadPrivateKeyFromPEM(privKeyPem)
+	privKey, err := crypto.LoadPrivateKey(privKeyPath)
 	if err != nil {
 		return fmt.Errorf("could not load private key: %s", err)
 	}
@@ -322,6 +326,7 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 	if err != nil {
 		return err
 	}
+	log.Infof("Initialized key exchange service")
 
 	return nil
 }
@@ -385,7 +390,7 @@ func (secApp *SecureApp) CancelAdvertise() {
 	secApp.advCancel = func() {}
 }
 
-func CreateOOBDataExchangeService(secApp *SecureApp, controllerIndex uint16) error {
+func CreateOOBDataExchangeService(secApp *SecureApp, controllerIndex uint16, oobTargetHwAddr *string) error {
 	app := secApp.App
 
 	myH192, myR192, myH256, myR256, err := btmgmt2.ReadLocalOOBDataExtended(controllerIndex)
@@ -446,9 +451,17 @@ func CreateOOBDataExchangeService(secApp *SecureApp, controllerIndex uint16) err
 		copy(oobData[:16], myH256[:])
 		copy(oobData[16:], myR256[:])
 
+		if oobTargetHwAddr == nil {
+			hwAddr, err := app.Adapter().GetAddress()
+			if err != nil {
+				log.Fatal(err)
+			}
+			oobTargetHwAddr = &hwAddr
+		}
+
 		secApp.ClientConn.oobDataRes, err = MarshalOOBExchange(OOBExchange{
 			Data:    oobData,
-			Address: MY_SECURE_BLE_HWADDR,
+			Address: *oobTargetHwAddr,
 		})
 		return
 	})
@@ -492,7 +505,10 @@ func NewSecureApp(options service.AppOptions) (*SecureApp, error) {
 	if err != nil {
 		return nil, err
 	}
+	return NewSecureAppFromPlainApp(app)
+}
 
+func NewSecureAppFromPlainApp(app *service.App) (*SecureApp, error) {
 	secApp := &SecureApp{
 		ClientConn: nil,
 		App:        app,
@@ -500,11 +516,13 @@ func NewSecureApp(options service.AppOptions) (*SecureApp, error) {
 	}
 
 	// Only one Client can connect at a time
-	onConnectionChange(options.AdapterID, func(dev *device.Device1) {
+	onConnectionChange(app.AdapterID(), func(dev *device.Device1) {
 		addr, err := dev.GetAddress()
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		log.Infof("Received new client connection (%s)", addr)
 
 		secApp.ClientConn = NewClientConnection()
 		secApp.ClientConn.dev = dev
@@ -516,17 +534,21 @@ func NewSecureApp(options service.AppOptions) (*SecureApp, error) {
 		}
 
 		// For some reason after connection, advertising stops so start advertising again when the Client disconnects
-		secApp.Advertise(AdvertiseForever)
+		err := secApp.Advertise(AdvertiseForever)
+		if err != nil {
+			log.Fatal(err)
+		}
 	})
 
 	return secApp, nil
 }
 
-func CreateOOBDataExchangeApp(controllerIndex uint16, adapterID string, caPath string, cert []byte, privKey []byte) (*SecureApp, error) {
+func CreateOOBDataExchangeApp(controllerIndex uint16, adapterID string,
+		caPath string, cert []byte, privKeyPath string, oobTargetHwAddr *string) (*SecureApp, error) {
 	options := service.AppOptions{
 		AdapterID:  adapterID,
 		AgentCaps:  agent.CapNoInputNoOutput,
-		UUIDSuffix: APP_UUID_SUFFIX,
+		UUIDSuffix: SEC_APP_UUID_SUFFIX,
 		UUID:       APP_UUID,
 	}
 
@@ -545,12 +567,12 @@ func CreateOOBDataExchangeApp(controllerIndex uint16, adapterID string, caPath s
 		}
 	}
 
-	err = CreateKeyExchangeService(secApp, caPath, cert, privKey)
+	err = CreateKeyExchangeService(secApp, caPath, cert, privKeyPath)
 	if err != nil {
 		return nil, err
 	}
 
-	err = CreateOOBDataExchangeService(secApp, controllerIndex)
+	err = CreateOOBDataExchangeService(secApp, controllerIndex, oobTargetHwAddr)
 	if err != nil {
 		return nil, err
 	}

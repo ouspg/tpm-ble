@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"github.com/muka/go-bluetooth/hw"
 	"log"
+	"strings"
 )
 
-const APP_UUID_SUFFIX = "-0000-1000-8000-00805F9B34FB"
+const SEC_APP_UUID_SUFFIX = "-0000-1000-8000-00805F9B34FB"
 const APP_UUID = "0001"
 
 const KEY_EXC_SERVICE_UUID = "0001"
@@ -105,4 +106,17 @@ func SecRand32Bytes() (out [32]byte) {
 
 	copy(out[:], bytes)
 	return
+}
+
+// Extract characteristic UUID from full UUID (e.g., 00002A38-0000-1000-8000-00805F9B34FB)
+// and pad to full length (8 characters)
+// Returns empty string if invalid uuid
+func GetCharUUIDFromUUID(uuid string) string {
+	parts := strings.Split(uuid, "-")
+	if len(parts) == 0 {
+		return ""
+	}
+
+	padLen := 8 - len(parts[0])
+	return strings.ToUpper(strings.Repeat("0", padLen) + parts[0])
 }
