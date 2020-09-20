@@ -478,7 +478,6 @@ func (secDev *SecureDevice) SecureReadCharacteristic(charUUID string) ([]byte, e
 
 	plaintext, err := secDev.CipherSession.Decrypt(ciphertext)
 	if err != nil {
-		log.Fatal(err)
 		return nil, fmt.Errorf("could not decrypt ciphertext: %s", err)
 	}
 	return plaintext, nil

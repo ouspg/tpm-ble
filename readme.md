@@ -274,9 +274,29 @@ In the final product, the traffic should be e2e secured.
 
 This requires two bluetooth adapters. In the example,
 `hci0` connects to the unsecured peripheral and
-`hci1` acts as a secured gatt service
+`hci1` acts as a secured gatt service.
 
-Currently supports notification, read and write. Does not support advertisement data or descriptions.
+Currently, supports notification, read and write. Does not support advertisement data or descriptions.
+
+## Heart rate demo (`examples/heart-rate/client`)
+
+This demo uses the gateway described above. The gateway connects to [nRF Connect](https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp) Android application,
+that simulates a [heart rate peripheral](https://www.bluetooth.org/docman/handlers/downloaddoc.ashx?doc_id=239866). 
+
+## FAQ
+
+### Decryption failed
+
+After establishing secured channel connection, this has been observed to happen sometimes after reconnection,
+when the previous connection terminated because of an error.
+In this case, the server does not seem to receive disconnect event and continues to send
+notification messages to a client that is not connected. Because of this,
+the underlying bluetooth stack seems to send these messages again after establishing a new connection, encrypted using the old session key, which causes this
+"decryption failed" error.
+
+### JSON unmarshal of received data failed (data is nil)
+
+Observed to happen rarely when using USB bluetooth dongle (unreliable adapter?), should work after reconnection
 
 ## Acknowledgements
 

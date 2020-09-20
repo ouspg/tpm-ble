@@ -56,17 +56,23 @@ func (session *CipherSession) Encrypt(plaintext []byte) (*NoncedCiphertext, erro
 	if err != nil {
 		return nil, err
 	}
+	ciphertext := session.cipher.Seal(nil, nonce, plaintext, nil)
+
+	log.Debugf("Encrypt plaintext:\n%s\n\nNonce:\n%s\nCiphertext: \n%s",
+		hex.Dump(plaintext), hex.Dump(nonce), hex.Dump(ciphertext))
 
 	return &NoncedCiphertext{
-		Data:  session.cipher.Seal(nil, nonce, plaintext, nil),
+		Data:  ciphertext,
 		Nonce: nonce,
 	}, nil
 }
 
+// This may fail, if the server is still sending characteristic values from the previous connection
+// This has been observed to happen after reconnection
 func (session *CipherSession) Decrypt(ciphertext *NoncedCiphertext) ([]byte, error) {
 	plaintext, err := session.cipher.Open(nil, ciphertext.Nonce, ciphertext.Data, nil)
 	if err != nil {
-		log.Warnf("Decryption failed. Hexdump: \n%s", hex.Dump(ciphertext.Data))
+		log.Warnf("Decryption failed. Nonce:\n%s\nHexdump: \n%s", hex.Dump(ciphertext.Nonce), hex.Dump(ciphertext.Data))
 	}
 	return plaintext, err
 }
