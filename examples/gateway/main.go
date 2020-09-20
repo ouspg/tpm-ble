@@ -17,11 +17,13 @@ import (
 const (
 	srcAdapterId           = "hci0"
 	dstAdapterId           = "hci1"
-	targetPeripheralHWAddr = "47:5E:56:60:B6:94"
+	targetPeripheralHWAddr = "41:7F:1C:57:67:3F"
 	SecureServiceUuid      = "FF01"
 )
 
 func main()  {
+	log.SetLevel(log.DebugLevel)
+
 	log.Warn("Descriptions, writes and indications not supported currently")
 
 	cert, err := ioutil.ReadFile("/usr/local/share/keys/tpm_cert.pem")
@@ -86,7 +88,6 @@ func main()  {
 		if err != nil {
 			log.Fatal(err)
 		}
-
 	}
 
 	chars := ble.GetCharacteristics(sourceDev)

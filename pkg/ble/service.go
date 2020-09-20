@@ -157,6 +157,7 @@ func CreateKeyExchangeService(secApp *SecureApp, caPath string, certificate []by
 	}
 
 	clientCertChar.OnWrite(func(c *service.Char, value []byte) (bytes []byte, err error) {
+		log.Debugf("Got client certificate chunk:\n%s\n", value)
 		secApp.ClientConn.clientCertificate = append(secApp.ClientConn.clientCertificate, value ...)
 		return nil, nil
 	})
