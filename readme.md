@@ -283,6 +283,8 @@ Currently, supports notification, read and write. Does not support advertisement
 This demo uses the gateway described above. The gateway connects to [nRF Connect](https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp) Android application,
 that simulates a [heart rate peripheral](https://www.bluetooth.org/docman/handlers/downloaddoc.ashx?doc_id=239866). 
 
+[![asciicast](https://asciinema.org/a/vt5aU3f3s6qsB9iaiEiaxzyT2.svg)](https://asciinema.org/a/vt5aU3f3s6qsB9iaiEiaxzyT2)
+
 ## FAQ
 
 ### Decryption failed
