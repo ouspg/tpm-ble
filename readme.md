@@ -1,5 +1,8 @@
 # [WIP] Secures Bluetooth Low Energy communication using Public Key Infrastructure and Trusted Platform Module
 
+This software uses the tpm2 tss openssl engine, so
+this software can also be used without TPM, see the key provisioning section.
+
 ## LE Secure Connections Issue
 
 Use of LE Secure Connections (`sc-secured`) causes disconnect after pairing (Connection Timeout 0x08), see [traces/disconnect_after_successful_encryption](traces/disconnect_after_successful_encryption). As a workaround, this project supports securing the connection on gatt level (`gatt-secured`). This also works on older BT controllers (prior to 4.2).
@@ -44,15 +47,15 @@ The secure communication channel is established as follows:
 9. When using SC, both devices query the Bluetooth adapter for the out-of-band data and then exchange this data with the other party using this recently established secure communication channel
 10. When using SC, both devices do pairing with the other party using this exchanged out-of-band data. Note that ponding should be disabled. When ponding is disabled, the pairing is forgotten when a device restarts and the above process must be completed again.
 
+
+### When using `sc-secured`
+
 A Bluetooth device may enforce that pairing has to be completed before allowing access to a GATT service characteristic; therefore, accessing these characteristics would require completing the pairing process described above.
 
 Because the communication is secured using the built-in out-of-band pairing mechanism in Bluetooth, the encryption
 is performed on the link layer. Instead of doing encryption on GATT service level this approach was chosen because this work should be able to be incorporated into any existing Linux-based system that uses the BlueZ stack (such as raspberry pi) in a plug-in fashion.
 
 Under the hood, Bluetooth 4.2+ uses ECDH and AES-CCM to secure the communication channel after pairing.
-
-This software uses the tpm2 tss openssl engine, so
-this software can be used without TPM also.
 
 ## VM and Raspberry Pi images
 
